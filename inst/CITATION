@@ -1,0 +1,11 @@
+citHeader("To cite the biobtreeR package please use:")
+
+citEntry(entry="article",
+         title = "Biobtree: A tool to search and map bioinformatics identifiers and special keywords",
+         author = personList(as.person("Tamer Gur" )),
+         year = 2019,
+         journal = "F1000",
+         doi = "10.12688/f1000research.17927.2",
+         url = "https://doi.org/10.12688/f1000research.17927.2",
+         textVersion =
+             "Gur T. Biobtree: A tool to search and map bioinformatics identifiers and special keywords [version 2; peer review: 2 approved with reservations]. F1000Research 2019, 8:145")

@@ -1,0 +1,232 @@
+---
+title: "The biobtreeR users guide"
+author: "Tamer Gür"
+graphics: no
+package: biobtreeR
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{The biobtreeR users guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# Introduction
+
+The biobtreeR package provides an interface to [biobtree](https://github.com/tamerh/biobtree) tool which covers and process efficently large set of bioinformatics datasets in local computer and provide search and mappings functionalities for genomic research.
+
+# Getting started 
+
+Once you have started the [biobtree](https://github.com/tamerh/biobtree) with your target datasets, biobtreeR package initialized with `bbInit` function and biobtreeR configuration instance created with name bbConfig which holds datasets meta information and package default parameters. For instance bbConfig@datasetIDs holds each datasets unique character and numeric identifiers as some of them shown with head function.
+
+```{r}
+library(biobtreeR)
+bbInit()
+head(bbConfig@datasetIDs)
+```
+
+## Search identifiers and keywords
+
+Searching dataset identfiers and keywords such as gene name, species name and accession is performed with bbSearch function by passing comma seperated terms.
+
+```{r}
+bbSearch("tpi1,vav_human,homo_sapiens,ENST00000297261,10090")
+```
+
+If source parameter is passed search performed within the dataset.
+
+```{r}
+bbSearch("cas,shh","hgnc")
+```
+
+The bbURL function is used to get the unique URL of dataset identifier 
+
+```{r}
+bbURL("p15498","uniprot")
+```
+
+## Chain mapping and filtering 
+Mapping and filtering queries are performed via bibobtree's mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format `map(dataset_id).filter(Boolean query expression).map(...).filter(...)...` and allow performing chain mapping among datasets. For mapping queries bbMapFilter function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.
+
+```{r}
+bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
+```
+
+```{r}
+bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
+```
+
+In the example for the first parameter single protein accession has been used but similar with bbSearch functions multiple identifers or keywords can be used. In the last query type attribute was used to filter mapping only with biological process go terms. Dataset attributes are used in the filters starts with their dataset name as in the above example it starts with `go.`
+
+In order use in filter expressions, each datasets attributes lists with `bbAttr`function via sample identifier. For instance following query shows gene ontology attributes.
+
+```{r}
+bbAttr("GO:0002020",'go')
+```
+
+# Example Use cases
+
+In this section mapping functionality will be discussed in detail with example use cases for gene and protein centric use cases.
+
+## Gene centric use cases
+
+Ensembl, Ensembl Genomes and HGNC datasets are used for gene related data. One of the most common gene related dataset identfiers are `ensembl`,`hgnc`,`transcript`,`exon`. Let's start with listing their attiributes,
+
+```{r}
+bbAttr("tpi1","hgnc")
+```
+
+```{r}
+bbAttr("tpi1","ensembl")
+```
+
+```{r}
+bbAttr("ENST00000297261","transcript")
+```
+
+```{r}
+bbAttr("ENSE00001146308","exon")
+```
+
+Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbConfig`. Now lets build example mapping queries,
+
+**Map gene names to Ensembl transcript identifiers**
+
+```{r}
+res<-bbMapFilter("ATP5MC3,TP53",'map(transcript)')
+head(res)
+```
+
+**Map gene names to exon identifiers and retrieve the region**
+
+```{r}
+res<-bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
+head(res)
+```
+
+
+**Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
+```{r}
+res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
+head(res)
+```
+
+
+**Get all Ensembl human identifiers and gene names within or overlapping range**
+```{r}
+bbMapFilter("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
+```
+
+In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.
+
+**Map Affymetrix identifiers to Ensembl identifiers and gene names**
+
+```{r}
+bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+```
+
+Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
+
+```{r}
+bbMapFilter("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
+```
+
+**Retrieve all the human gene names which contains TTY**
+```{r}
+res<-bbMapFilter("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
+head(res)
+```
+
+**Map gene to its ortholog identifiers**
+
+```{r}
+res<-bbMapFilter("shh",'map(ortholog)')
+head(res)
+```
+
+**Map gene to its paralog**
+
+```{r}
+bbMapFilter("fry",'map(paralog)',attrs = "name",showInputColumn = TRUE)
+```
+
+
+**Map ensembl identifier or gene name to the entrez identifier**
+```{r}
+bbMapFilter("ENSG00000139618,shh" ,'map(entrez)')
+```
+
+**Map refseq identifiers to hgnc identifiers**
+
+```{r}
+bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
+```
+
+
+## Protein centric use cases
+
+Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let's list some protein related datasets attributes and then execute example queries similary with gene centric examples,
+
+```{r}
+bbAttr("p15498","uniprot")
+```
+
+```{r}
+bbAttr("p15498_f12","ufeature")
+```
+
+```{r}
+bbAttr("1gzh","pdb")
+```
+
+```{r}
+bbAttr("IPR017907","interpro")
+```
+
+
+**Map gene names to reviewed uniprot identifiers**
+
+```{r}
+bbMapFilter("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot).filter(uniprot.reviewed)",source ="ensembl")
+```
+
+**Filter proteins by sequence mass and retrieve protein sequences**
+
+```{r}
+bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
+```
+
+**Helix type feature locations of a protein**
+
+```{r}
+bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
+```
+
+**All protein identifiers and sequences of childs of Salmonella species**
+
+```{r}
+res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(uniprot)",attrs = "sequence$seq")
+head(res)
+```
+
+**Map proteins in human to interpro identifiers with conserved site type**
+
+```{r}
+res<-bbMapFilter("homo sapiens",'map(uniprot).map(interpro).filter(interpro.type=="Conserved_site")',attrs = "type,short_name")
+head(res)
+```
+
+**Get all variation identifiers in human with given condition**
+
+```{r}
+res<-bbMapFilter("homo sapiens",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)')
+head(res)
+```
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

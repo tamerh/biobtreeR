@@ -1,0 +1,5 @@
+importFrom(httr, GET, content)
+importFrom(httpuv,encodeURIComponent)
+
+export(bbInit,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
+exportClasses(bbConfig)
