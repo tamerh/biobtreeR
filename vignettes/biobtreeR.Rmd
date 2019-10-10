@@ -211,18 +211,10 @@ res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(unipro
 head(res)
 ```
 
-**Map proteins in human to interpro identifiers with conserved site type**
+**Get all variation identifiers from a gene with given condition**
 
 ```{r}
-res<-bbMapFilter("homo sapiens",'map(uniprot).map(interpro).filter(interpro.type=="Conserved_site")',attrs = "type,short_name")
-head(res)
-```
-
-**Get all variation identifiers in human with given condition**
-
-```{r}
-res<-bbMapFilter("homo sapiens",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)')
-head(res)
+bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
 ```
 
 # Session Info

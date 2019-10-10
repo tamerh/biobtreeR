@@ -12,7 +12,7 @@
 
 <meta name="author" content="Tamer Gür" />
 
-<meta name="date" content="2019-10-09" />
+<meta name="date" content="2019-10-10" />
 
 <title>The biobtreeR users guide</title>
 
@@ -1415,7 +1415,8 @@ background-color: inherit;
 tt, code, pre {
 font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace;
 }
-h1, h2, h3, h4, h5, h6 { font-family: Helvetica, Arial, sans-serif;
+h1, h2, h3, h4, h5, h6 {
+font-family: Helvetica, Arial, sans-serif;
 margin: 1.2em 150px 0.6em 0em;
 
 padding-left: 65px;
@@ -1462,12 +1463,14 @@ font-weight: bold;
 font-weight: bold;
 }
 
-code { background-color: #f0f0f0;
+code {
+background-color: #f0f0f0;
 color: #404040;
 font-size: 90%;
 }
 
-.figure { margin: 0em 0px 0.5em;
+.figure {
+margin: 0em 0px 0.5em;
 }
 img {
 max-width: 100%;
@@ -1477,6 +1480,11 @@ padding: 0px 150px 0px 130px;
 p > img {
 padding-left: 65px;
 padding-right: 0px;
+}
+td > img {
+padding: 0px;
+max-width: 100%;
+display: inline;
 }
 img.smallfigure {
 padding-left: 195px;
@@ -1575,7 +1583,8 @@ code > span.st { color: #40A040; }
 code > span.co { color: #808080; font-style: italic; } 
 code > span.ot { color: #2020F0; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #E07020; }  code > span.er { color: #FF0000; } 
+code > span.fu { color: #E07020; } 
+code > span.er { color: #FF0000; } 
 code > span.identifier { color: #404040; }
 code > span.number { color: #D02070; }
 code > span.string { color: #40A040; }
@@ -1759,7 +1768,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">The biobtreeR users guide</h1>
 <p class="author-name">Tamer Gür</p>
-<h4 class="date">9 October 2019</h4>
+<h4 class="date">10 October 2019</h4>
 <h4 class="package">Package</h4>
 <p>biobtreeR 0.1.0</p>
 
@@ -1857,21 +1866,21 @@ head(bbConfig@datasetIDs)</code></pre>
 head(res)</code></pre>
 <pre><code>##                     input input_dataset      mapping_id
 ## 1 ATP5MC3-ENSG00000154518       ensembl ENST00000284727
-## 2                      〃            〃 ENST00000392541
-## 3                      〃            〃 ENST00000409194
-## 4                      〃            〃 ENST00000472782
-## 5                      〃            〃 ENST00000497075
+## 2                       -             - ENST00000392541
+## 3                       -             - ENST00000409194
+## 4                       -             - ENST00000472782
+## 5                       -             - ENST00000497075
 ## 6    TP53-ENSG00000141510       ensembl ENST00000269305</code></pre>
 <p><strong>Map gene names to exon identifiers and retrieve the region</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;ATP5MC3,TP53&quot;,'map(transcript).map(exon)',attrs = &quot;seq_region_name&quot;)
 head(res)</code></pre>
 <pre><code>##                     input input_dataset      mapping_id seq_region_name
 ## 1 ATP5MC3-ENSG00000154518       ensembl ENSE00001016410               2
-## 2                      〃            〃 ENSE00001016412               2
-## 3                      〃            〃 ENSE00001938775               2
-## 4                      〃            〃 ENSE00003574305               2
-## 5                      〃            〃 ENSE00003602002               2
-## 6                      〃            〃 ENSE00001512331               2</code></pre>
+## 2                       -             - ENSE00001016412               2
+## 3                       -             - ENSE00001938775               2
+## 4                       -             - ENSE00003574305               2
+## 5                       -             - ENSE00003602002               2
+## 6                       -             - ENSE00001512331               2</code></pre>
 <p><strong>Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;homo_sapiens&quot;,'map(ensembl).filter(ensembl.seq_region_name==&quot;Y&quot; &amp;&amp; ensembl.biotype==&quot;lncRNA&quot;)',attrs = &quot;name&quot;)
 head(res)</code></pre>
@@ -1894,7 +1903,7 @@ head(res)</code></pre>
 ## 7 ENSG00000185989     RASA3
 ## 8 ENSG00000228624 HDAC2-AS2
 ## 9 ENSG00000249853    HS3ST5</code></pre>
-<p>In the above example instead of specifying first input as homo sapiens taxonomy identifier is used. Both of this usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.</p>
+<p>In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.</p>
 <p><strong>Map Affymetrix identifiers to Ensembl identifiers and gene names</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;202763_at,213596_at,209310_s_at&quot;,source =&quot;affy_hg_u133_plus_2&quot; ,'map(transcript).map(ensembl)',attrs = &quot;name&quot;)</code></pre>
 <pre><code>##         input       input_dataset      mapping_id  name
@@ -1906,7 +1915,7 @@ head(res)</code></pre>
 <pre><code>##                   input input_dataset  mapping_id
 ## 1 CASP3-ENSG00000164305       ensembl   202763_AT
 ## 2 CASP4-ENSG00000196954       ensembl 209310_S_AT
-## 3                    〃            〃   213596_AT</code></pre>
+## 3                     -             -   213596_AT</code></pre>
 <p><strong>Retrieve all the human gene names which contains TTY</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;homo sapiens&quot;,'map(ensembl).filter(ensembl.name.contains(&quot;TTY&quot;))',attrs = &quot;name&quot;)
 head(res)</code></pre>
@@ -1997,12 +2006,14 @@ head(res)</code></pre>
 ## 4                                                                                                                                                                                                                                                                          MTKITLFPHNFRIQKQETTPLKEKSTEKNSLAKSILAVKNHFIKLNSKLSERFISHKNTESSATHFHRGSASEGRAVLTNKVVKNFMLQTLHDIDIRGSASKDPAYASQTREAILSAVYSKYKDQYCNLLISKGIDIAPFLKEIGEAAQNAGLPGATKNDVFTPSGAGANPFITPLITSAYSKYPHMFTSQHQKASFNIYAEKIIMTEVVPLFNECAMPTPQQFQQILENIANKYIQNAP
 ## 5                                                                                                                                                                                                           MSLRVRQIDRREWLLAQTATECQRHGQEATLEYPTRQGMWVRLSDAEKRWSAWIQPGDWLEHVSPALAGAAVSAGAEHLVVPWLAATERPFELPVPHLSCRRLCVENPVPGSALPEGKLLHIMSDRGGLWFEYLPELPAVGGGRPKMLRWPLRFVIGSSDTQRSLLGRIGIGDVLLIRTSRAEVYCYAKKLGHFNRVEGGIIVETLDIQHIEEENNTTETAETLPGLNQLPVKLEFVLYRKNVTLAELEAMGQQQLLSLPTNAELNVEIMANGVLLGNGELVQMNDTLGVEIHEWLSESGNGE
 ## 6                                                                                                                                                                                                                                                                                                                                                                                                                                    MDDLVFAGNKALYLVLILSGWPTIVATIIGLLVGLFQTVTQLQEQTLPFGIKLLGVCLCLFLLSGWYGEVLLSYGRQVIFLALAKG</code></pre>
-<p><strong>Map proteins in human to interpro identifiers with convsered site type</strong></p>
-<pre class="r"><code>#res&lt;-bbMapFilter(&quot;homo sapiens&quot;,'map(uniprot).map(interpro).filter(interpro.type==&quot;Conserved_site&quot;)',attrs = &quot;type,short_name&quot;)
-#head(res)</code></pre>
-<p><strong>Get all variation identifiers in human with given condition</strong></p>
-<pre class="r"><code>#res&lt;-bbMapFilter(&quot;homo sapiens&quot;,'map(uniprot).map(ufeature).filter(ufeature.original==&quot;I&quot; &amp;&amp; ufeature.variation==&quot;S&quot;).map(variantid)')
-#head(res)</code></pre>
+<p><strong>Get all variation identifiers from a gene with given condition</strong></p>
+<pre class="r"><code>bbMapFilter(&quot;tp53&quot;,'map(uniprot).map(ufeature).filter(ufeature.original==&quot;I&quot; &amp;&amp; ufeature.variation==&quot;S&quot;).map(variantid)',source = &quot;hgnc&quot;)</code></pre>
+<pre><code>##     mapping_id
+## 1  RS730882027
+## 2 RS1330865474
+## 3  RS876659675
+## 4  RS587780069
+## 5  RS760043106</code></pre>
 </div>
 </div>
 <div id="session-info" class="section level1">
@@ -2023,26 +2034,30 @@ head(res)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] BiocStyle_2.12.0 biobtreeR_0.1.0 
+## [1] biobtreeR_0.1.0  BiocStyle_2.13.2 BiocCheck_1.21.1
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.2           BiocManager_1.30.4   compiler_3.6.1      
-##  [4] later_0.8.0          prettyunits_1.0.2    remotes_2.1.0       
-##  [7] tools_3.6.1          testthat_2.2.1       digest_0.6.21       
-## [10] pkgbuild_1.0.5       pkgload_1.0.2        evaluate_0.14       
-## [13] jsonlite_1.6         memoise_1.1.0        rlang_0.4.0         
-## [16] cli_1.1.0            rstudioapi_0.10      yaml_2.2.0          
-## [19] curl_4.2             xfun_0.10            knitr_1.25          
-## [22] xml2_1.2.2           withr_2.1.2          httr_1.4.1          
-## [25] stringr_1.4.0        roxygen2_6.1.99.9001 desc_1.2.0          
-## [28] fs_1.3.1             devtools_2.2.1       rprojroot_1.3-2     
-## [31] glue_1.3.1           R6_2.4.0             processx_3.4.1      
-## [34] bookdown_0.14        rmarkdown_1.16       sessioninfo_1.1.1   
-## [37] purrr_0.3.2          callr_3.3.2          magrittr_1.5        
-## [40] htmltools_0.3.6      backports_1.1.4      ps_1.3.0            
-## [43] promises_1.0.1       ellipsis_0.3.0       usethis_1.5.1       
-## [46] assertthat_0.2.1     httpuv_1.5.2         stringi_1.4.3       
-## [49] crayon_1.3.4</code></pre>
+##  [1] stringdist_0.9.5.2  xfun_0.10           remotes_2.1.0      
+##  [4] testthat_2.2.1      htmltools_0.4.0     usethis_1.5.1      
+##  [7] getopt_1.20.3       stats4_3.6.1        yaml_2.2.0         
+## [10] RBGL_1.61.0         XML_3.98-1.20       rlang_0.4.0        
+## [13] pkgbuild_1.0.6      later_1.0.0         optparse_1.6.4     
+## [16] glue_1.3.1          withr_2.1.2         BiocGenerics_0.31.6
+## [19] sessioninfo_1.1.1   stringr_1.4.0       devtools_2.2.1     
+## [22] evaluate_0.14       biocViews_1.53.2    codetools_0.2-16   
+## [25] memoise_1.1.0       Biobase_2.45.1      knitr_1.25         
+## [28] callr_3.3.2         httpuv_1.5.2        ps_1.3.0           
+## [31] RUnit_0.4.32        parallel_3.6.1      curl_4.2           
+## [34] Rcpp_1.0.2          promises_1.1.0      backports_1.1.5    
+## [37] BiocManager_1.30.7  desc_1.2.0          pkgload_1.0.2      
+## [40] graph_1.63.0        jsonlite_1.6        fs_1.3.1           
+## [43] digest_0.6.21       stringi_1.4.3       bookdown_0.14      
+## [46] processx_3.4.1      rprojroot_1.3-2     cli_1.1.0          
+## [49] tools_3.6.1         bitops_1.0-6        magrittr_1.5       
+## [52] RCurl_1.95-4.12     crayon_1.3.4        ellipsis_0.3.0     
+## [55] prettyunits_1.0.2   assertthat_0.2.1    rmarkdown_1.16     
+## [58] httr_1.4.1          rstudioapi_0.10     R6_2.4.0           
+## [61] compiler_3.6.1</code></pre>
 </div>
 
 
