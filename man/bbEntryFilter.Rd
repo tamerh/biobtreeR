@@ -4,23 +4,27 @@
 \alias{bbEntryFilter}
 \title{Retrieve entry with filtered dataset}
 \usage{
-bbEntryFilter(id, source, filters, page = NULL)
+bbEntryFilter(identifer, source, filters, page = NULL)
 }
 \arguments{
+\item{identifer}{Identifer for the entry.}
+
 \item{source}{Dataset identifier}
 
 \item{filters}{Comma seperated dataset identifer to retrieve}
 
 \item{page}{Page index if results is more than default biobtree paging size.}
-
-\item{identifer}{Identifer for the entry.}
+}
+\value{
+returns biobtree json object
 }
 \description{
 Similar with entry retrieval but filtered mapping entries with given datasets.
 }
 \examples{
+bbInit()
 bbEntryFilter("p15498","uniprot","go,kegg")
 }
 \author{
-Tamer Gür
+Tamer Gur
 }

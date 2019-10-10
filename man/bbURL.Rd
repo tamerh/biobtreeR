@@ -4,19 +4,22 @@
 \alias{bbURL}
 \title{Retrieve unique url of entry}
 \usage{
-bbURL(id, source)
+bbURL(identifer, source)
 }
 \arguments{
-\item{source}{Dataset identifier}
-
 \item{identifer}{Identifer for the entry.}
+
+\item{source}{Dataset identifier}
+}
+\value{
+returns unique url
+
+ @author Tamer Gur
 }
 \description{
 Provides unique url for the identifier and dataset
 }
 \examples{
+bbInit()
 bbURL("p15498","uniprot")
-}
-\author{
-Tamer Gür
 }

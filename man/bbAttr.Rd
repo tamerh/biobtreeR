@@ -4,19 +4,19 @@
 \alias{bbAttr}
 \title{Retrieve attributes of dataset}
 \usage{
-bbAttr(id, source)
+bbAttr(identifer, source)
 }
 \arguments{
-\item{source}{Dataset identifier}
-
 \item{identifer}{Identifer for the entry.}
+
+\item{source}{Dataset identifier}
+}
+\value{
+returns attributes names
 }
 \description{
 Provides list of available attributes for a dataset to use in search and mapping queries. This function works with a sample identifer.
 }
-\examples{
-bbAttr("p15498","uniprot")
-}
 \author{
-Tamer Gür
+Tamer Gur
 }

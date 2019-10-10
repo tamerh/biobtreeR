@@ -1,4 +1,6 @@
 
+# To hold dataset meta data tool configuration
+#' @title class for holding configuration and dataset meta data
 setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame", datasetMeta="list", datasetMetaByNum="list" ))
 
 #' @title Init function for biobtreeR
@@ -12,7 +14,9 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #' @param biobtreeURL Optional parameter. By default "http://localhost:8888" url is used to connect running actual biobtree.
 #' This parameter is allowed to change this url if biobtree is running from another machine or port.
 #'
-#' @author Tamer Gür
+#' @return returns empty
+#'
+#' @author Tamer Gur
 #'
 #' @examples
 #' bbInit()
@@ -79,12 +83,16 @@ bbInit <- function(biobtreeURL=NULL) {
 #' @param lite By default it is TRUE and allow function return quickly with data.frame containing most important fields. If set to TRUE function return raw results converted from json.
 #' @param limit  Limits the number of search results. By default without any limit all the results returned.
 #'
-#'  @author Tamer Gür
+#' @return returns search results in data.frame by default if lite set it true returns json object
+#'
+#' @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' bbSearch("vav_human,tpi1,homo sapiens")
 #' bbSearch("tpi1","hgnc")
 #' bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
+#'
 
 bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=1000){
 
@@ -167,9 +175,12 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #' @param attrs Optional comma seperated attribute names for mapping identifiers and if available their values includes in result data.frame
 #' @param showInputColumn Optional logical parameter to show the input identifers in the result data.frame
 #'
-#' @author Tamer Gür
+#' @return returns mapping results in data.frame by default if lite set it true returns json object
+#'
+#' @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' #Map protein to its go terms and retrieve go term types
 #' bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
 #'
@@ -181,6 +192,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #'
 #' #Map Affymetrix identifiers to Ensembl identifiers and gene names
 #' bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+#'
 bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
 
   wsurl <- function(terms,mapfilter,source,page){
@@ -301,8 +313,8 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
           }
         }else{
           if(multiInput){
-            in_id[index]<-"〃"
-            in_source[index]<-"〃"
+            in_id[index]<-"-"
+            in_source[index]<-"-"
           }
         }
         if(length(attrsNames)>0){
@@ -365,9 +377,12 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 #' @param identifer Identifer for the entry. Note that keywords are not accepted. For instance insted of "vav_human" keyword "p15498" identifier must be passed
 #' @param source Dataset identifier
 #'
-#' @author Tamer Gür
+#' @return returns biobtree json object
+#'
+#' @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' bbEntry("p15498","uniprot")
 
 bbEntry <- function(identifer,source){
@@ -387,14 +402,17 @@ bbEntry <- function(identifer,source){
 #' @param filters Comma seperated dataset identifer to retrieve
 #' @param page Page index if results is more than default biobtree paging size.
 #'
-#' @author Tamer Gür
+#' @return returns biobtree json object
+#'
+#' @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' bbEntryFilter("p15498","uniprot","go,kegg")
 
-bbEntryFilter <-function(id,source,filters,page=NULL) {
+bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 
-  searchurl = p(bbConfig@endpoint,"/ws/filter/?i=",encodeURIComponent(id),'&s=', source , '&f=' ,filters)
+  searchurl = p(bbConfig@endpoint,"/ws/filter/?i=",encodeURIComponent(identifer),'&s=', source , '&f=' ,filters)
 
   if (length(page) > 0) {
     searchurl =p(searchurl,"&p=" , page)
@@ -408,17 +426,20 @@ bbEntryFilter <-function(id,source,filters,page=NULL) {
 
 #' @title Retrieve entry result page
 #'
-#' @description If an entry contains large set of mapping entries it is paginated by biobtree with confiGüred paging size. This function retrieve these paging for an entry
+#' @description If an entry contains large set of mapping entries it is paginated by biobtree with confiGured paging size. This function retrieve these paging for an entry
 #'
 #' @param identifer Identifer for the entry.
 #' @param source Dataset identifier
 #' @param page Page index it starts from 0
 #' @param totalPage Total number of page for the entry. This value needs to calculate by user via using total number of entries which is available at the root result for the entry
-#' and divide it confiGüred biobtree paging size which has default value of 200
+#' and divide it confiGured biobtree paging size which has default value of 200
 #'
-#' @author Tamer Gür
+#' @return returns biobtree json object
+#'
+#' @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' bbEntryPage("p15498","uniprot",0,6)
 bbEntryPage <- function (identifer, source, page, totalPage) {
 
@@ -437,58 +458,61 @@ bbEntryPage <- function (identifer, source, page, totalPage) {
 #' @param identifer Identifer for the entry.
 #' @param source Dataset identifier
 #'
-#' @author Tamer Gür
+#' @return returns unique url
+#'
+#'  @author Tamer Gur
 #'
 #' @examples
+#' bbInit()
 #' bbURL("p15498","uniprot")
 
-bbURL <-function(id,source){
+bbURL <-function(identifer,source){
 
   if(length(bbConfig@datasetMeta[[source]])==0){
      stop(p("Invalid dataset ",source))
   }
   if(length(bbConfig@datasetMeta[[source]]$url)==0){
-      stop("This dataset has no url confiGüred")
+      stop("This dataset has no url confiGured")
   }
 
   if(source=="ufeature"){
 
-    pid<-unlist(strsplit(id,"_"))
-    res<-gsub("£\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
+    pid<-unlist(strsplit(identifer,"_"))
+    res<-gsub("\u00A3\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
 
   }else if(source=="variantid"){
 
-    pid<-tolower(id)
-    res<-gsub("£\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
+    pid<-tolower(identifer)
+    res<-gsub("\u00A3\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
 
   }else if (source=="ensembl" || source=="transcript" || source=="exon"){
 
     res<-""
-    r<-bbEntry(id,source)
+    r<-bbEntry(identifer,source)
 
     if (length(r[[1]]$Attributes$Ensembl)>0){
       branch<-r[[1]]$Attributes$Ensembl$branch
       if(branch==1){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$url)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$url)
       }else if(branch==2){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$bacteriaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$bacteriaUrl)
       }else if(branch==3){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$fungiUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$fungiUrl)
       }else if(branch==4){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$metazoaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$metazoaUrl)
       }else if(branch==5){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$plantsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$plantsUrl)
       }else if(branch==6){
-        res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$protistsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$protistsUrl)
       }
       if(source=="ensembl"){
-        res<-gsub("£\\{sp\\}",r[[1]]$Attributes$Ensembl$genome,res)
+        res<-gsub("\u00A3\\{sp\\}",r[[1]]$Attributes$Ensembl$genome,res)
       }
 
     }
 
   }else{
-    res<-gsub("£\\{id\\}",id,bbConfig@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$url)
   }
 
   return(res)
@@ -502,14 +526,17 @@ bbURL <-function(id,source){
 #' @param identifer Identifer for the entry.
 #' @param source Dataset identifier
 #'
-#' @author Tamer Gür
+#' @return returns attributes names
+#'
+#' @author Tamer Gur
 #'
 #' @exampless
+#' bbInit()
 #' bbAttr("p15498","uniprot")
 
-bbAttr <- function(id,source){
+bbAttr <- function(identifer,source){
 
-    res<- bbSearch(id,source,lite=FALSE)
+    res<- bbSearch(identifer,source,lite=FALSE)
     if(startsWith(source,"chembl")){
       attrsPath<-p("res$results[[1]]$Attributes$",names(res$results[[1]]$Attributes)[1],"$",names(res$results[[1]]$Attributes[[1]])[1])
     }else{
@@ -524,4 +551,3 @@ bbAttr <- function(id,source){
 p <- function(..., sep='') {
     paste(..., sep=sep, collapse=sep)
 }
-

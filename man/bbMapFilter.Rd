@@ -4,17 +4,9 @@
 \alias{bbMapFilter}
 \title{Maps bioinformatics datasets identifiers and keywords}
 \usage{
-bbMapFilter(
-  terms,
-  mapfilter,
-  page = NULL,
-  source = NULL,
-  lite = TRUE,
-  limit = 1000,
-  inattrs = NULL,
-  attrs = NULL,
-  showInputColumn = FALSE
-)
+bbMapFilter(terms, mapfilter, page = NULL, source = NULL,
+  lite = TRUE, limit = 1000, inattrs = NULL, attrs = NULL,
+  showInputColumn = FALSE)
 }
 \arguments{
 \item{terms}{Input terms for the mapping. Same with search functionality they can be comma seperated identifers or keywords}
@@ -38,17 +30,27 @@ feature has been implemented via Google common expression language so its full c
 
 \item{showInputColumn}{Optional logical parameter to show the input identifers in the result data.frame}
 }
+\value{
+returns mapping results in data.frame by default if lite set it true returns json object
+}
 \description{
 Chain mapping identifiers or keywords with filtering and retrieving attributes if available.
 }
 \examples{
+bbInit()
 #Map protein to its go terms and retrieve go term types
 bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
 
 #Map protein to its go terms with filter by its type and retrieve their types
 bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
 
+#Map gene names to exon identifiers and retrieve the region
+bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
+
+#Map Affymetrix identifiers to Ensembl identifiers and gene names
+bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+
 }
 \author{
-Tamer Gür
+Tamer Gur
 }

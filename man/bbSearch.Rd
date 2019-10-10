@@ -4,14 +4,8 @@
 \alias{bbSearch}
 \title{Search identifiers or special keywords such as gene name.}
 \usage{
-bbSearch(
-  terms,
-  source = NULL,
-  filter = NULL,
-  page = NULL,
-  lite = TRUE,
-  limit = 1000
-)
+bbSearch(terms, source = NULL, filter = NULL, page = NULL,
+  lite = TRUE, limit = 1000)
 }
 \arguments{
 \item{terms}{Comma seperated identifers or keywords}
@@ -27,9 +21,10 @@ parameter is set with this key specified next page results returned for the give
 
 \item{lite}{By default it is TRUE and allow function return quickly with data.frame containing most important fields. If set to TRUE function return raw results converted from json.}
 
-\item{limit}{Limits the number of search results. By default without any limit all the results returned.
-
- @author Tamer Gür}
+\item{limit}{Limits the number of search results. By default without any limit all the results returned.}
+}
+\value{
+returns search results in data.frame by default if lite set it true returns json object
 }
 \description{
 Search identifiers or special keywords terms uniformly and resolve their actual unique identifiers and datasets. Keywords
@@ -37,7 +32,12 @@ can be several things for instance for uniprot an accession like "vav_human" can
 identifier "P15498". Or gene name can be also a keyword like "tpi1" which could points multiple dataset like ensembl and hgnc.
 }
 \examples{
+bbInit()
 bbSearch("vav_human,tpi1,homo sapiens")
 bbSearch("tpi1","hgnc")
 bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
+
+}
+\author{
+Tamer Gur
 }

@@ -14,14 +14,18 @@ bbEntryPage(identifer, source, page, totalPage)
 \item{page}{Page index it starts from 0}
 
 \item{totalPage}{Total number of page for the entry. This value needs to calculate by user via using total number of entries which is available at the root result for the entry
-and divide it confiGüred biobtree paging size which has default value of 200}
+and divide it confiGured biobtree paging size which has default value of 200}
+}
+\value{
+returns biobtree json object
 }
 \description{
-If an entry contains large set of mapping entries it is paginated by biobtree with confiGüred paging size. This function retrieve these paging for an entry
+If an entry contains large set of mapping entries it is paginated by biobtree with confiGured paging size. This function retrieve these paging for an entry
 }
 \examples{
+bbInit()
 bbEntryPage("p15498","uniprot",0,6)
 }
 \author{
-Tamer Gür
+Tamer Gur
 }

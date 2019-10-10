@@ -11,12 +11,16 @@ bbEntry(identifer, source)
 
 \item{source}{Dataset identifier}
 }
+\value{
+returns biobtree json object
+}
 \description{
 Returns entry for an identifier and dataset. Entry contains all the data raw data for and entry such as mappings, attiributes and paging info if exists.
 }
 \examples{
+bbInit()
 bbEntry("p15498","uniprot")
 }
 \author{
-Tamer Gür
+Tamer Gur
 }

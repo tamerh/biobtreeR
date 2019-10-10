@@ -10,6 +10,9 @@ bbInit(biobtreeURL = NULL)
 \item{biobtreeURL}{Optional parameter. By default "http://localhost:8888" url is used to connect running actual biobtree.
 This parameter is allowed to change this url if biobtree is running from another machine or port.}
 }
+\value{
+returns empty
+}
 \description{
 Initialize all dataset meta information such as dataset identifiers.
 In biobtree each dataset has unique charachter and numeric identifier.
@@ -21,5 +24,5 @@ When this function is executed global bbConfig variable is set. This variable ho
 bbInit()
 }
 \author{
-Tamer Gür
+Tamer Gur
 }
