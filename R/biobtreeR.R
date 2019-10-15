@@ -236,9 +236,10 @@ bbExeFile<- function(){
   if (Sys.info()['sysname'] == "Windows") {
 
   if(!file.exists("biobtree.exe")){
+    
     latestUrl<-p("https://github.com/tamerh/biobtree/releases/download/",latestbbVersion(),"/biobtree_Windows_64bit.zip")
     download.file(latestUrl,"biobtree_Windows_64bit.zip",mode="wb")
-    system2("powershell.exe",args="-NoP -NonI -Command 'Expand-Archive '.\biobtree_Windows_64bit.zip' '.\'")
+    system2("powershell.exe",args="-NoP -NonI -Command \"Expand-Archive '.\\biobtree_Windows_64bit.zip' '.\\'\"")
     file.remove("biobtree_Windows_64bit.zip")
 
   }
