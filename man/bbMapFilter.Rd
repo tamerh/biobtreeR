@@ -2,7 +2,7 @@
 % Please edit documentation in R/biobtreeR.R
 \name{bbMapFilter}
 \alias{bbMapFilter}
-\title{Maps bioinformatics datasets identifiers and keywords}
+\title{Chain mapping and filtering}
 \usage{
 bbMapFilter(terms, mapfilter, page = NULL, source = NULL,
   lite = TRUE, limit = 1000, inattrs = NULL, attrs = NULL,
@@ -37,7 +37,13 @@ returns mapping results in data.frame by default if lite set it true returns jso
 Chain mapping identifiers or keywords with filtering and retrieving attributes if available.
 }
 \examples{
-bbInit()
+
+bbStart()
+bbMapFilter("tpi1",'map(uniprot)')
+bbMapFilter("shh",'map(ensembl)')
+
+\dontrun{
+# run these examples with building the default dataset with bbBuildData()
 #Map protein to its go terms and retrieve go term types
 bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
 
@@ -50,6 +56,7 @@ bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name"
 #Map Affymetrix identifiers to Ensembl identifiers and gene names
 bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
 
+}
 }
 \author{
 Tamer Gur

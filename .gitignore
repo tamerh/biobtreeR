@@ -4,3 +4,7 @@ biobtreeR.Rproj
 .Rproj.user
 .Rproj.user/*
 notes.txt
+biobtree
+biobtreeRoot
+biobtreeRoot/*
+.DS_Store

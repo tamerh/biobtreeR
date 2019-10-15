@@ -18,8 +18,10 @@ returns biobtree json object
 Returns entry for an identifier and dataset. Entry contains all the data raw data for and entry such as mappings, attiributes and paging info if exists.
 }
 \examples{
-bbInit()
-bbEntry("p15498","uniprot")
+
+bbStart()
+bbEntry("HGNC:12009","hgnc")
+
 }
 \author{
 Tamer Gur

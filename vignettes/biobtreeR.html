@@ -12,7 +12,7 @@
 
 <meta name="author" content="Tamer Gür" />
 
-<meta name="date" content="2019-10-10" />
+<meta name="date" content="2019-10-15" />
 
 <title>The biobtreeR users guide</title>
 
@@ -1768,7 +1768,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">The biobtreeR users guide</h1>
 <p class="author-name">Tamer Gür</p>
-<h4 class="date">10 October 2019</h4>
+<h4 class="date">15 October 2019</h4>
 <h4 class="package">Package</h4>
 <p>biobtreeR 0.1.0</p>
 
@@ -1781,65 +1781,423 @@ div.tocify {
 </div>
 <div id="getting-started" class="section level1">
 <h1><span class="header-section-number">2</span> Getting started</h1>
-<p>Once you have started the <a href="https://github.com/tamerh/biobtree">biobtree</a> with your target datasets, biobtreeR package initialized with <code>bbInit</code> function and biobtreeR configuration instance created with name bbConfig which holds datasets meta information and package default parameters. For instance <a href="mailto:bbConfig@datasetIDs" class="email">bbConfig@datasetIDs</a> holds each datasets unique character and numeric identifiers as some of them shown with head function.</p>
-<pre class="r"><code>library(biobtreeR)
-bbInit()
-head(bbConfig@datasetIDs)</code></pre>
-<pre><code>##         id numeric_id
-## 1  uniprot          1
-## 2  ensembl          2
-## 3 taxonomy          3
-## 4       go          4
-## 5     hgnc          5
-## 6  uniparc          6</code></pre>
+<div id="build-data" class="section level2">
+<h2><span class="header-section-number">2.1</span> Build data</h2>
+<p>biobtreeR process and store the datasets locally by downloading from their public locations. To build the datasets <code>bbBuildData</code> is used. And once this process is completed
+it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets. Following examples shows the example usages,</p>
+<pre class="r"><code>library(biobtreeR)</code></pre>
+<pre class="r"><code>bbBuildData(datasets = &quot;hgnc&quot;) </code></pre>
+<pre class="r"><code># build default datasets taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo
+# duration vary to network speed
+bbBuildData() 
+
+# build only specific datasets
+bbBuildData(datasets=&quot;uniprot,hgnc&quot;)
+
+# build both mouse and human genomes in ensembl insted of default human
+bbBuildData(genome=&quot;homo_sapiens,mus_musculus&quot;)
+
+# build genomes from ensembl genomes fungi
+bbBuildData(datasets=&quot;+ensembl_fungi&quot;,genomes=&quot;saccharomyces_cerevisiae&quot;)
+
+# bacteria genomes with pattern
+bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_infantis,serovar_virchow&quot;)</code></pre>
+</div>
+<div id="startstop-server" class="section level2">
+<h2><span class="header-section-number">2.2</span> Start/stop server</h2>
+<p>Once the building data completed biobtree server starts with <code>bbStart</code> which allows performing queries and provide web interface. Once the analyses has been done server can be stopped <code>bbStop</code></p>
+<pre class="r"><code>bbStart()</code></pre>
+<pre><code>## [1] &quot;biobtree started in the background with pid-&gt;81018&quot;
+## [1] &quot;Starting biobtree...&quot;
+## [1] &quot;biobtree started&quot;</code></pre>
+</div>
+<div id="list-available-ensembl-genomes" class="section level2">
+<h2><span class="header-section-number">2.3</span> List available Ensembl genomes</h2>
+<p>In order to use in the build process all the available Ensembl genomes names can be listed with with <code>bbListGenomes</code> function.</p>
+<p><strong>List ensembl genomes</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl&quot;))</code></pre>
+<pre><code>## [1] &quot;acanthochromis_polyacanthus&quot; &quot;ailuropoda_melanoleuca&quot;     
+## [3] &quot;amphilophus_citrinellus&quot;     &quot;amphiprion_ocellaris&quot;       
+## [5] &quot;amphiprion_percula&quot;          &quot;anabas_testudineus&quot;</code></pre>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_bacteria&quot;))</code></pre>
+<pre><code>## [1] &quot;_bacillus_aminovorans&quot;                              
+## [2] &quot;_bacillus_aminovorans_gca_001643235&quot;                
+## [3] &quot;_bacillus_selenitireducens_mls10&quot;                   
+## [4] &quot;_bacillus_thuringiensis_serovar_konkukian_str_97_27&quot;
+## [5] &quot;_bacteroides_pectinophilus_atcc_43243&quot;              
+## [6] &quot;_brevibacterium_flavum&quot;</code></pre>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_fungi&quot;))</code></pre>
+<pre><code>## [1] &quot;_candida_arabinofermentans_nrrl_yb_2248_gca_001661425&quot;
+## [2] &quot;_candida_auris_gca_001189475&quot;                         
+## [3] &quot;_candida_auris_gca_002759435&quot;                         
+## [4] &quot;_candida_auris_gca_002775015&quot;                         
+## [5] &quot;_candida_auris_gca_003013715&quot;                         
+## [6] &quot;_candida_auris_gca_003014415&quot;</code></pre>
+<pre class="r"><code>bbListGenomes(&quot;ensembl_metazoa&quot;)</code></pre>
+<pre><code>##  [1] &quot;acyrthosiphon_pisum&quot;           &quot;adineta_vaga&quot;                 
+##  [3] &quot;aedes_aegypti&quot;                 &quot;amphimedon_queenslandica&quot;     
+##  [5] &quot;anopheles_darlingi&quot;            &quot;anopheles_gambiae&quot;            
+##  [7] &quot;anoplophora_glabripennis&quot;      &quot;apis_mellifera&quot;               
+##  [9] &quot;atta_cephalotes&quot;               &quot;belgica_antarctica&quot;           
+## [11] &quot;bombus_impatiens&quot;              &quot;bombus_terrestris&quot;            
+## [13] &quot;bombyx_mori&quot;                   &quot;branchiostoma_lanceolatum&quot;    
+## [15] &quot;brugia_malayi&quot;                 &quot;caenorhabditis_brenneri&quot;      
+## [17] &quot;caenorhabditis_briggsae&quot;       &quot;caenorhabditis_elegans&quot;       
+## [19] &quot;caenorhabditis_japonica&quot;       &quot;caenorhabditis_remanei&quot;       
+## [21] &quot;capitella_teleta&quot;              &quot;crassostrea_gigas&quot;            
+## [23] &quot;culex_quinquefasciatus&quot;        &quot;culicoides_sonorensis&quot;        
+## [25] &quot;danaus_plexippus&quot;              &quot;daphnia_magna&quot;                
+## [27] &quot;daphnia_pulex&quot;                 &quot;dendroctonus_ponderosae&quot;      
+## [29] &quot;dinothrombium_tinctorium&quot;      &quot;drosophila_ananassae&quot;         
+## [31] &quot;drosophila_erecta&quot;             &quot;drosophila_grimshawi&quot;         
+## [33] &quot;drosophila_melanogaster&quot;       &quot;drosophila_mojavensis&quot;        
+## [35] &quot;drosophila_persimilis&quot;         &quot;drosophila_pseudoobscura&quot;     
+## [37] &quot;drosophila_sechellia&quot;          &quot;drosophila_simulans&quot;          
+## [39] &quot;drosophila_virilis&quot;            &quot;drosophila_willistoni&quot;        
+## [41] &quot;drosophila_yakuba&quot;             &quot;folsomia_candida&quot;             
+## [43] &quot;heliconius_melpomene&quot;          &quot;helobdella_robusta&quot;           
+## [45] &quot;hofstenia_miamia&quot;              &quot;ixodes_scapularis&quot;            
+## [47] &quot;lepeophtheirus_salmonis&quot;       &quot;leptotrombidium_deliense&quot;     
+## [49] &quot;lingula_anatina&quot;               &quot;loa_loa&quot;                      
+## [51] &quot;lottia_gigantea&quot;               &quot;lucilia_cuprina&quot;              
+## [53] &quot;mayetiola_destructor&quot;          &quot;megaselia_scalaris&quot;           
+## [55] &quot;melitaea_cinxia&quot;               &quot;mnemiopsis_leidyi&quot;            
+## [57] &quot;nasonia_vitripennis&quot;           &quot;nematostella_vectensis&quot;       
+## [59] &quot;octopus_bimaculoides&quot;          &quot;onchocerca_volvulus&quot;          
+## [61] &quot;orchesella_cincta&quot;             &quot;pediculus_humanus&quot;            
+## [63] &quot;pristionchus_pacificus&quot;        &quot;rhodnius_prolixus&quot;            
+## [65] &quot;sarcoptes_scabiei&quot;             &quot;schistosoma_mansoni&quot;          
+## [67] &quot;solenopsis_invicta&quot;            &quot;stegodyphus_mimosarum&quot;        
+## [69] &quot;strigamia_maritima&quot;            &quot;strongylocentrotus_purpuratus&quot;
+## [71] &quot;strongyloides_ratti&quot;           &quot;teleopsis_dalmanni&quot;           
+## [73] &quot;tetranychus_urticae&quot;           &quot;thelohanellus_kitauei&quot;        
+## [75] &quot;tribolium_castaneum&quot;           &quot;trichinella_spiralis&quot;         
+## [77] &quot;trichoplax_adhaerens&quot;          &quot;zootermopsis_nevadensis&quot;</code></pre>
+<pre class="r"><code>bbListGenomes(&quot;ensembl_plants&quot;)</code></pre>
+<pre><code>##  [1] &quot;actinidia_chinensis&quot;        &quot;aegilops_tauschii&quot;         
+##  [3] &quot;amborella_trichopoda&quot;       &quot;arabidopsis_halleri&quot;       
+##  [5] &quot;arabidopsis_lyrata&quot;         &quot;arabidopsis_thaliana&quot;      
+##  [7] &quot;beta_vulgaris&quot;              &quot;brachypodium_distachyon&quot;   
+##  [9] &quot;brassica_napus&quot;             &quot;brassica_oleracea&quot;         
+## [11] &quot;brassica_rapa&quot;              &quot;capsicum_annuum&quot;           
+## [13] &quot;chlamydomonas_reinhardtii&quot;  &quot;chondrus_crispus&quot;          
+## [15] &quot;coffea_canephora&quot;           &quot;corchorus_capsularis&quot;      
+## [17] &quot;cucumis_sativus&quot;            &quot;cyanidioschyzon_merolae&quot;   
+## [19] &quot;cynara_cardunculus&quot;         &quot;daucus_carota&quot;             
+## [21] &quot;dioscorea_rotundata&quot;        &quot;eragrostis_tef&quot;            
+## [23] &quot;galdieria_sulphuraria&quot;      &quot;glycine_max&quot;               
+## [25] &quot;gossypium_raimondii&quot;        &quot;helianthus_annuus&quot;         
+## [27] &quot;hordeum_vulgare&quot;            &quot;leersia_perrieri&quot;          
+## [29] &quot;lupinus_angustifolius&quot;      &quot;manihot_esculenta&quot;         
+## [31] &quot;marchantia_polymorpha&quot;      &quot;medicago_truncatula&quot;       
+## [33] &quot;musa_acuminata&quot;             &quot;nicotiana_attenuata&quot;       
+## [35] &quot;oryza_barthii&quot;              &quot;oryza_brachyantha&quot;         
+## [37] &quot;oryza_glaberrima&quot;           &quot;oryza_glumipatula&quot;         
+## [39] &quot;oryza_indica&quot;               &quot;oryza_longistaminata&quot;      
+## [41] &quot;oryza_meridionalis&quot;         &quot;oryza_nivara&quot;              
+## [43] &quot;oryza_punctata&quot;             &quot;oryza_rufipogon&quot;           
+## [45] &quot;oryza_sativa&quot;               &quot;ostreococcus_lucimarinus&quot;  
+## [47] &quot;panicum_hallii_fil2&quot;        &quot;panicum_hallii_hal2&quot;       
+## [49] &quot;phaseolus_vulgaris&quot;         &quot;physcomitrella_patens&quot;     
+## [51] &quot;populus_trichocarpa&quot;        &quot;prunus_persica&quot;            
+## [53] &quot;selaginella_moellendorffii&quot; &quot;setaria_italica&quot;           
+## [55] &quot;solanum_lycopersicum&quot;       &quot;solanum_tuberosum&quot;         
+## [57] &quot;sorghum_bicolor&quot;            &quot;theobroma_cacao&quot;           
+## [59] &quot;trifolium_pratense&quot;         &quot;triticum_aestivum&quot;         
+## [61] &quot;triticum_dicoccoides&quot;       &quot;triticum_turgidum&quot;         
+## [63] &quot;triticum_urartu&quot;            &quot;vigna_angularis&quot;           
+## [65] &quot;vigna_radiata&quot;              &quot;vitis_vinifera&quot;            
+## [67] &quot;zea_mays&quot;</code></pre>
+<pre class="r"><code>bbListGenomes(&quot;ensembl_protists&quot;)</code></pre>
+<pre><code>##   [1] &quot;acanthamoeba_castellanii_str_neff_gca_000313135&quot;           
+##   [2] &quot;achlya_hypogyna_gca_002081595&quot;                             
+##   [3] &quot;albugo_laibachii&quot;                                          
+##   [4] &quot;angomonas_deanei_gca_000442575&quot;                            
+##   [5] &quot;aphanomyces_astaci_gca_000520075&quot;                          
+##   [6] &quot;aphanomyces_astaci_gca_002197585&quot;                          
+##   [7] &quot;aphanomyces_astaci_gca_003546545&quot;                          
+##   [8] &quot;aphanomyces_astaci_gca_003546565&quot;                          
+##   [9] &quot;aphanomyces_astaci_gca_003546585&quot;                          
+##  [10] &quot;aphanomyces_astaci_gca_003546605&quot;                          
+##  [11] &quot;aphanomyces_astaci_gca_003546625&quot;                          
+##  [12] &quot;aphanomyces_astaci_gca_003546765&quot;                          
+##  [13] &quot;aphanomyces_astaci_gca_003546785&quot;                          
+##  [14] &quot;aphanomyces_astaci_gca_003546805&quot;                          
+##  [15] &quot;aphanomyces_astaci_gca_003546825&quot;                          
+##  [16] &quot;aphanomyces_astaci_gca_003666305&quot;                          
+##  [17] &quot;aphanomyces_invadans_gca_000520115&quot;                        
+##  [18] &quot;aphanomyces_invadans_gca_003546525&quot;                        
+##  [19] &quot;aureococcus_anophagefferens_gca_000186865&quot;                 
+##  [20] &quot;babesia_bigemina_gca_000981445&quot;                            
+##  [21] &quot;babesia_bovis_gca_000165395&quot;                               
+##  [22] &quot;babesia_ovata_gca_002897235&quot;                               
+##  [23] &quot;babesia_sp_xinjiang_gca_002095265&quot;                         
+##  [24] &quot;besnoitia_besnoiti_gca_002563875&quot;                          
+##  [25] &quot;bigelowiella_natans&quot;                                       
+##  [26] &quot;blastocystis_hominis_gca_000151665&quot;                        
+##  [27] &quot;capsaspora_owczarzaki_atcc_30864_gca_000151315&quot;            
+##  [28] &quot;cavenderia_fasciculata_gca_000203815&quot;                      
+##  [29] &quot;chroomonas_mesostigmatica_ccmp1168_gca_000286095&quot;          
+##  [30] &quot;cryptomonas_paramecium_gca_000194455&quot;                      
+##  [31] &quot;cryptosporidium_andersoni_gca_001865355&quot;                   
+##  [32] &quot;cryptosporidium_meleagridis_gca_001593445&quot;                 
+##  [33] &quot;cryptosporidium_muris_rn66_gca_000006515&quot;                  
+##  [34] &quot;cryptosporidium_parvum_iowa_ii_gca_000165345&quot;              
+##  [35] &quot;cryptosporidium_ubiquitum_gca_001865345&quot;                   
+##  [36] &quot;cyclospora_cayetanensis_gca_000769155&quot;                     
+##  [37] &quot;cystoisospora_suis_gca_002600585&quot;                          
+##  [38] &quot;dictyostelium_discoideum&quot;                                  
+##  [39] &quot;dictyostelium_purpureum_gca_000190715&quot;                     
+##  [40] &quot;ectocarpus_siliculosus_gca_000310025&quot;                      
+##  [41] &quot;eimeria_acervulina_gca_000499425&quot;                          
+##  [42] &quot;eimeria_brunetti_gca_000499725&quot;                            
+##  [43] &quot;eimeria_maxima_gca_000499605&quot;                              
+##  [44] &quot;eimeria_mitis_gca_000499745&quot;                               
+##  [45] &quot;eimeria_praecox_gca_000499445&quot;                             
+##  [46] &quot;eimeria_tenella_gca_000499545&quot;                             
+##  [47] &quot;emiliania_huxleyi&quot;                                         
+##  [48] &quot;entamoeba_dispar_saw760_gca_000209125&quot;                     
+##  [49] &quot;entamoeba_histolytica&quot;                                     
+##  [50] &quot;entamoeba_histolytica_gca_001662325&quot;                       
+##  [51] &quot;entamoeba_histolytica_hm_1_imss_a_gca_000365475&quot;           
+##  [52] &quot;entamoeba_histolytica_hm_1_imss_b_gca_000344925&quot;           
+##  [53] &quot;entamoeba_histolytica_hm_3_imss_gca_000346345&quot;             
+##  [54] &quot;entamoeba_histolytica_ku27_gca_000338855&quot;                  
+##  [55] &quot;entamoeba_invadens_ip1_gca_000330505&quot;                      
+##  [56] &quot;entamoeba_nuttalli_p19_gca_000257125&quot;                      
+##  [57] &quot;fonticula_alba_gca_000388065&quot;                              
+##  [58] &quot;fragilariopsis_cylindrus_ccmp1102_gca_001750085&quot;           
+##  [59] &quot;giardia_intestinalis_assemblage_b_gca_001543975&quot;           
+##  [60] &quot;giardia_intestinalis_atcc_50581_gca_000182405&quot;             
+##  [61] &quot;giardia_intestinalis_gca_000498715&quot;                        
+##  [62] &quot;giardia_intestinalis_gca_000498735&quot;                        
+##  [63] &quot;giardia_lamblia&quot;                                           
+##  [64] &quot;giardia_lamblia_p15_gca_000182665&quot;                         
+##  [65] &quot;gregarina_niphandrodes_gca_000223845&quot;                      
+##  [66] &quot;guillardia_theta&quot;                                          
+##  [67] &quot;hammondia_hammondi_gca_000258005&quot;                          
+##  [68] &quot;hondaea_fermentalgiana_gca_002897355&quot;                      
+##  [69] &quot;hyaloperonospora_arabidopsidis&quot;                            
+##  [70] &quot;ichthyophthirius_multifiliis_gca_000220395&quot;                
+##  [71] &quot;kipferlia_bialata_gca_003568945&quot;                           
+##  [72] &quot;leishmania_donovani_gca_000227135&quot;                         
+##  [73] &quot;leishmania_infantum_gca_900500625&quot;                         
+##  [74] &quot;leishmania_major&quot;                                          
+##  [75] &quot;leishmania_panamensis_gca_000755165&quot;                       
+##  [76] &quot;leptomonas_pyrrhocoris_gca_001293395&quot;                      
+##  [77] &quot;leptomonas_seymouri_gca_001299535&quot;                         
+##  [78] &quot;monosiga_brevicollis_mx1_gca_000002865&quot;                    
+##  [79] &quot;naegleria_gruberi_gca_000004985&quot;                           
+##  [80] &quot;nannochloropsis_gaditana_ccmp526_gca_000240725&quot;            
+##  [81] &quot;nannochloropsis_gaditana_gca_000569095&quot;                    
+##  [82] &quot;nothophytophthora_sp_chile5_gca_001712635&quot;                 
+##  [83] &quot;oxytricha_trifallax_gca_000295675_gca_000295675&quot;           
+##  [84] &quot;oxytricha_trifallax_gca_000711775&quot;                         
+##  [85] &quot;paramecium_tetraurelia&quot;                                    
+##  [86] &quot;perkinsela_sp_ccap_1560_4_gca_001235845&quot;                   
+##  [87] &quot;perkinsus_marinus_atcc_50983_gca_000006405&quot;                
+##  [88] &quot;peronospora_effusa_gca_003704535&quot;                          
+##  [89] &quot;peronospora_effusa_gca_003843895&quot;                          
+##  [90] &quot;phaeodactylum_tricornutum&quot;                                 
+##  [91] &quot;phytomonas_sp_isolate_em1_gca_000582765&quot;                   
+##  [92] &quot;phytomonas_sp_isolate_hart1_gca_000982615&quot;                 
+##  [93] &quot;phytophthora_cactorum_gca_003287315&quot;                       
+##  [94] &quot;phytophthora_infestans&quot;                                    
+##  [95] &quot;phytophthora_kernoviae&quot;                                    
+##  [96] &quot;phytophthora_kernoviae_gca_001707905&quot;                      
+##  [97] &quot;phytophthora_kernoviae_gca_001712645&quot;                      
+##  [98] &quot;phytophthora_kernoviae_gca_001712705&quot;                      
+##  [99] &quot;phytophthora_kernoviae_gca_001712715&quot;                      
+## [100] &quot;phytophthora_lateralis&quot;                                    
+## [101] &quot;phytophthora_megakarya_gca_002215365&quot;                      
+## [102] &quot;phytophthora_nicotianae_gca_001482985&quot;                     
+## [103] &quot;phytophthora_nicotianae_gca_001483015&quot;                     
+## [104] &quot;phytophthora_palmivora_var_palmivora_gca_002911725&quot;        
+## [105] &quot;phytophthora_parasitica&quot;                                   
+## [106] &quot;phytophthora_parasitica_cj01a1_gca_000365545&quot;              
+## [107] &quot;phytophthora_parasitica_gca_000509465&quot;                     
+## [108] &quot;phytophthora_parasitica_gca_000509485&quot;                     
+## [109] &quot;phytophthora_parasitica_gca_000509505&quot;                     
+## [110] &quot;phytophthora_parasitica_gca_000509525&quot;                     
+## [111] &quot;phytophthora_parasitica_inra_310_gca_000247585&quot;            
+## [112] &quot;phytophthora_parasitica_p10297_gca_000367145&quot;              
+## [113] &quot;phytophthora_parasitica_p1976_gca_000365525&quot;               
+## [114] &quot;phytophthora_ramorum&quot;                                      
+## [115] &quot;phytophthora_sojae&quot;                                        
+## [116] &quot;planoprotostelium_fungivorum_gca_003024175&quot;                
+## [117] &quot;plasmodiophora_brassicae_gca_001049375&quot;                    
+## [118] &quot;plasmodium_berghei&quot;                                        
+## [119] &quot;plasmodium_berghei_gca_900044335&quot;                          
+## [120] &quot;plasmodium_berghei_gca_900088445&quot;                          
+## [121] &quot;plasmodium_berghei_gca_900095585&quot;                          
+## [122] &quot;plasmodium_berghei_gca_900095635&quot;                          
+## [123] &quot;plasmodium_chabaudi&quot;                                       
+## [124] &quot;plasmodium_chabaudi_adami_gca_900095565&quot;                   
+## [125] &quot;plasmodium_chabaudi_chabaudi_gca_900095605&quot;                
+## [126] &quot;plasmodium_coatneyi_gca_001680005&quot;                         
+## [127] &quot;plasmodium_cynomolgi_strain_b_gca_000321355&quot;               
+## [128] &quot;plasmodium_falciparum&quot;                                     
+## [129] &quot;plasmodium_falciparum_7g8_gca_000150435&quot;                   
+## [130] &quot;plasmodium_falciparum_camp_malaysia_gca_000521115&quot;         
+## [131] &quot;plasmodium_falciparum_dd2_gca_000149795&quot;                   
+## [132] &quot;plasmodium_falciparum_fch_4_gca_000521155&quot;                 
+## [133] &quot;plasmodium_falciparum_hb3_gca_000149665&quot;                   
+## [134] &quot;plasmodium_falciparum_igh_cr14_gca_000186055&quot;              
+## [135] &quot;plasmodium_falciparum_malips096_e11_gca_000521035&quot;         
+## [136] &quot;plasmodium_falciparum_nf135_5_c10_gca_000521075&quot;           
+## [137] &quot;plasmodium_falciparum_nf54_gca_000401695&quot;                  
+## [138] &quot;plasmodium_falciparum_nf54_gca_002831795&quot;                  
+## [139] &quot;plasmodium_falciparum_palo_alto_uganda_gca_000521095&quot;      
+## [140] &quot;plasmodium_falciparum_raj116_gca_000186025&quot;                
+## [141] &quot;plasmodium_falciparum_santa_lucia_gca_000150455&quot;           
+## [142] &quot;plasmodium_falciparum_tanzania_2000708__gca_000521055&quot;     
+## [143] &quot;plasmodium_falciparum_ugt5_1_gca_000401715&quot;                
+## [144] &quot;plasmodium_falciparum_vietnam_oak_knoll_fvo__gca_000521015&quot;
+## [145] &quot;plasmodium_fragile_gca_000956335&quot;                          
+## [146] &quot;plasmodium_gaboni_gca_001602025&quot;                           
+## [147] &quot;plasmodium_gallinaceum_gca_900005855&quot;                      
+## [148] &quot;plasmodium_gonderi_gca_002157705&quot;                          
+## [149] &quot;plasmodium_inui_san_antonio_1_gca_000524495&quot;               
+## [150] &quot;plasmodium_knowlesi&quot;                                       
+## [151] &quot;plasmodium_knowlesi_gca_002140095&quot;                         
+## [152] &quot;plasmodium_knowlesi_strain_h_gca_900004885&quot;                
+## [153] &quot;plasmodium_malariae_gca_900088575&quot;                         
+## [154] &quot;plasmodium_malariae_gca_900090045&quot;                         
+## [155] &quot;plasmodium_ovale_curtisi_gca_900088555&quot;                    
+## [156] &quot;plasmodium_ovale_curtisi_gca_900088565&quot;                    
+## [157] &quot;plasmodium_ovale_gca_900090025&quot;                            
+## [158] &quot;plasmodium_ovale_wallikeri_gca_900088485&quot;                  
+## [159] &quot;plasmodium_ovale_wallikeri_gca_900088545&quot;                  
+## [160] &quot;plasmodium_reichenowi_gca_001601855&quot;                       
+## [161] &quot;plasmodium_reichenowi_gca_900097025&quot;                       
+## [162] &quot;plasmodium_relictum_gca_900005765&quot;                         
+## [163] &quot;plasmodium_sp_drc_itaito_gca_900240055&quot;                    
+## [164] &quot;plasmodium_sp_drc_itaito_gca_900257145&quot;                    
+## [165] &quot;plasmodium_sp_gorilla_clade_g2_gca_900097015&quot;              
+## [166] &quot;plasmodium_vinckei_petteri_gca_000524515&quot;                  
+## [167] &quot;plasmodium_vinckei_vinckei_gca_000709005&quot;                  
+## [168] &quot;plasmodium_vivax&quot;                                          
+## [169] &quot;plasmodium_vivax_brazil_i_gca_000320645&quot;                   
+## [170] &quot;plasmodium_vivax_gca_900093555&quot;                            
+## [171] &quot;plasmodium_vivax_india_vii_gca_000320625&quot;                  
+## [172] &quot;plasmodium_vivax_mauritania_i_gca_000320665&quot;               
+## [173] &quot;plasmodium_vivax_north_korean_gca_000320685&quot;               
+## [174] &quot;plasmodium_yoelii_17x_gca_000505035&quot;                       
+## [175] &quot;plasmodium_yoelii_gca_900002385&quot;                           
+## [176] &quot;plasmodium_yoelii_gca_900002395&quot;                           
+## [177] &quot;plasmodium_yoelii_yoelii_gca_000003085&quot;                    
+## [178] &quot;plasmopara_halstedii_gca_900000015&quot;                        
+## [179] &quot;pseudocohnilembus_persalinus_gca_001447515&quot;                
+## [180] &quot;pseudonitzschia_multistriata&quot;                              
+## [181] &quot;pythium_aphanidermatum&quot;                                    
+## [182] &quot;pythium_arrhenomanes&quot;                                      
+## [183] &quot;pythium_irregulare&quot;                                        
+## [184] &quot;pythium_iwayamai&quot;                                          
+## [185] &quot;pythium_ultimum&quot;                                           
+## [186] &quot;pythium_vexans&quot;                                            
+## [187] &quot;reticulomyxa_filosa_gca_000512085&quot;                         
+## [188] &quot;salpingoeca_rosetta_gca_000188695&quot;                         
+## [189] &quot;saprolegnia_diclina_vs20_gca_000281045&quot;                    
+## [190] &quot;saprolegnia_parasitica_cbs_223_65_gca_000151545&quot;           
+## [191] &quot;sphaeroforma_arctica_jp610_gca_001186125&quot;                  
+## [192] &quot;spironucleus_salmonicida_gca_000497125&quot;                    
+## [193] &quot;stentor_coeruleus_gca_001970955&quot;                           
+## [194] &quot;strigomonas_culicis_gca_000442495&quot;                         
+## [195] &quot;stylonychia_lemnae_gca_000751175&quot;                          
+## [196] &quot;symbiodinium_microadriaticum_gca_001939145&quot;                
+## [197] &quot;tetrahymena_thermophila&quot;                                   
+## [198] &quot;thalassiosira_oceanica_gca_000296195&quot;                      
+## [199] &quot;thalassiosira_pseudonana&quot;                                  
+## [200] &quot;thecamonas_trahens_atcc_50062_gca_000142905&quot;               
+## [201] &quot;theileria_equi_strain_wa_gca_000342415&quot;                    
+## [202] &quot;theileria_orientalis_gca_003072525&quot;                        
+## [203] &quot;theileria_orientalis_gca_003072535&quot;                        
+## [204] &quot;theileria_orientalis_gca_003072545&quot;                        
+## [205] &quot;theileria_orientalis_strain_shintoku_gca_000740895&quot;        
+## [206] &quot;theileria_parva_gca_000165365&quot;                             
+## [207] &quot;thraustotheca_clavata_gca_002081575&quot;                       
+## [208] &quot;tieghemostelium_lacteum_gca_001606155&quot;                     
+## [209] &quot;toxoplasma_gondii&quot;                                         
+## [210] &quot;toxoplasma_gondii_ari_gca_000250965&quot;                       
+## [211] &quot;toxoplasma_gondii_coug_gca_000338675&quot;                      
+## [212] &quot;toxoplasma_gondii_fou_gca_000224905&quot;                       
+## [213] &quot;toxoplasma_gondii_gab2_2007_gal_dom2_gca_000325525&quot;        
+## [214] &quot;toxoplasma_gondii_gca_000256705&quot;                           
+## [215] &quot;toxoplasma_gondii_gt1_gca_000149715&quot;                       
+## [216] &quot;toxoplasma_gondii_mas_gca_000224865&quot;                       
+## [217] &quot;toxoplasma_gondii_p89_gca_000224885&quot;                       
+## [218] &quot;toxoplasma_gondii_rub_gca_000224805&quot;                       
+## [219] &quot;toxoplasma_gondii_tgcatbr9_gca_000224825&quot;                  
+## [220] &quot;toxoplasma_gondii_tgcatprc2_gca_000256725&quot;                 
+## [221] &quot;toxoplasma_gondii_vand_gca_000224845&quot;                      
+## [222] &quot;toxoplasma_gondii_veg_gca_000150015&quot;                       
+## [223] &quot;tritrichomonas_foetus_gca_001839685&quot;                       
+## [224] &quot;trypanosoma_brucei&quot;                                        
+## [225] &quot;trypanosoma_brucei_equiperdum_gca_003543875&quot;               
+## [226] &quot;trypanosoma_conorhini_gca_003719485&quot;                       
+## [227] &quot;trypanosoma_cruzi_dm28c_gca_000496795&quot;                     
+## [228] &quot;trypanosoma_cruzi_gca_000209065&quot;                           
+## [229] &quot;trypanosoma_cruzi_gca_003177095&quot;                           
+## [230] &quot;trypanosoma_cruzi_gca_003177105&quot;                           
+## [231] &quot;trypanosoma_cruzi_gca_003719155&quot;                           
+## [232] &quot;trypanosoma_cruzi_gca_003719455&quot;                           
+## [233] &quot;trypanosoma_cruzi_marinkellei_gca_000300495&quot;               
+## [234] &quot;trypanosoma_equiperdum_gca_001457755&quot;                      
+## [235] &quot;trypanosoma_rangeli_gca_003719475&quot;                         
+## [236] &quot;trypanosoma_rangeli_sc58_gca_000492115&quot;                    
+## [237] &quot;trypanosoma_theileri_gca_002087225&quot;</code></pre>
+<p><strong>List ensembl genomes bacteria</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl&quot;))</code></pre>
+<pre><code>## [1] &quot;acanthochromis_polyacanthus&quot; &quot;ailuropoda_melanoleuca&quot;     
+## [3] &quot;amphilophus_citrinellus&quot;     &quot;amphiprion_ocellaris&quot;       
+## [5] &quot;amphiprion_percula&quot;          &quot;anabas_testudineus&quot;</code></pre>
+<p><strong>List ensembl genomes fungi</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_fungi&quot;))</code></pre>
+<pre><code>## [1] &quot;_candida_arabinofermentans_nrrl_yb_2248_gca_001661425&quot;
+## [2] &quot;_candida_auris_gca_001189475&quot;                         
+## [3] &quot;_candida_auris_gca_002759435&quot;                         
+## [4] &quot;_candida_auris_gca_002775015&quot;                         
+## [5] &quot;_candida_auris_gca_003013715&quot;                         
+## [6] &quot;_candida_auris_gca_003014415&quot;</code></pre>
+<p><strong>List ensembl genomes metazoa</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_metazoa&quot;))</code></pre>
+<pre><code>## [1] &quot;acyrthosiphon_pisum&quot;      &quot;adineta_vaga&quot;            
+## [3] &quot;aedes_aegypti&quot;            &quot;amphimedon_queenslandica&quot;
+## [5] &quot;anopheles_darlingi&quot;       &quot;anopheles_gambiae&quot;</code></pre>
+<p><strong>List ensembl genomes plants</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_plants&quot;))</code></pre>
+<pre><code>## [1] &quot;actinidia_chinensis&quot;  &quot;aegilops_tauschii&quot;    &quot;amborella_trichopoda&quot;
+## [4] &quot;arabidopsis_halleri&quot;  &quot;arabidopsis_lyrata&quot;   &quot;arabidopsis_thaliana&quot;</code></pre>
+<p><strong>List ensembl genomes protists</strong></p>
+<pre class="r"><code>head(bbListGenomes(&quot;ensembl_protists&quot;))</code></pre>
+<pre><code>## [1] &quot;acanthamoeba_castellanii_str_neff_gca_000313135&quot;
+## [2] &quot;achlya_hypogyna_gca_002081595&quot;                  
+## [3] &quot;albugo_laibachii&quot;                               
+## [4] &quot;angomonas_deanei_gca_000442575&quot;                 
+## [5] &quot;aphanomyces_astaci_gca_000520075&quot;               
+## [6] &quot;aphanomyces_astaci_gca_002197585&quot;</code></pre>
+</div>
 <div id="search-identifiers-and-keywords" class="section level2">
-<h2><span class="header-section-number">2.1</span> Search identifiers and keywords</h2>
+<h2><span class="header-section-number">2.4</span> Search identifiers and keywords</h2>
 <p>Searching dataset identfiers and keywords such as gene name, species name and accession is performed with bbSearch function by passing comma seperated terms.</p>
 <pre class="r"><code>bbSearch(&quot;tpi1,vav_human,homo_sapiens,ENST00000297261,10090&quot;)</code></pre>
-<pre><code>##             input       identfier    dataset
-## 1            TPI1 ENSG00000111669    ensembl
-## 2            TPI1      HGNC:12009       hgnc
-## 3       VAV_HUMAN          P15498    uniprot
-## 4    HOMO_SAPIENS            9606   taxonomy
-## 5 ENST00000297261 ENST00000297261 transcript
-## 6           10090           10090     entrez
-## 7           10090           10090     pubmed
-## 8           10090           10090   taxonomy</code></pre>
 <p>If source parameter is passed search performed within the dataset.</p>
 <pre class="r"><code>bbSearch(&quot;cas,shh&quot;,&quot;hgnc&quot;)</code></pre>
 <pre><code>##   input  identfier dataset
-## 1   CAS  HGNC:2431    hgnc
-## 2   CAS   HGNC:971    hgnc
+## 1   CAS   HGNC:971    hgnc
+## 2   CAS  HGNC:2431    hgnc
 ## 3   SHH HGNC:10848    hgnc</code></pre>
 <p>The bbURL function is used to get the unique URL of dataset identifier</p>
-<pre class="r"><code>bbURL(&quot;p15498&quot;,&quot;uniprot&quot;)</code></pre>
-<pre><code>## [1] &quot;//www.uniprot.org/uniprot/p15498&quot;</code></pre>
+<pre class="r"><code>bbURL(&quot;HGNC:12009&quot;,&quot;hgnc&quot;)</code></pre>
 </div>
 <div id="chain-mapping-and-filtering" class="section level2">
-<h2><span class="header-section-number">2.2</span> Chain mapping and filtering</h2>
+<h2><span class="header-section-number">2.5</span> Chain mapping and filtering</h2>
 <p>Mapping and filtering queries are performed via bibobtree’s mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format <code>map(dataset_id).filter(Boolean query expression).map(...).filter(...)...</code> and allow performing chain mapping among datasets. For mapping queries bbMapFilter function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.</p>
 <pre class="r"><code>bbMapFilter(&quot;AT5G3_HUMAN&quot;,'map(go)',attrs = &quot;type&quot;)</code></pre>
-<pre><code>##    mapping_id               type
-## 1  GO:0000276 cellular_component
-## 2  GO:0005741 cellular_component
-## 3  GO:0006754 biological_process
-## 4  GO:0008289 molecular_function
-## 5  GO:0015986 biological_process
-## 6  GO:0016021 cellular_component
-## 7  GO:0042407 biological_process
-## 8  GO:0042776 biological_process
-## 9  GO:0045263 cellular_component
-## 10 GO:0046933 molecular_function</code></pre>
 <pre class="r"><code>bbMapFilter(&quot;AT5G3_HUMAN&quot;,'map(go).filter(go.type==&quot;biological_process&quot;)',attrs = &quot;type&quot;)</code></pre>
-<pre><code>##   mapping_id               type
-## 1 GO:0006754 biological_process
-## 2 GO:0015986 biological_process
-## 3 GO:0042407 biological_process
-## 4 GO:0042776 biological_process</code></pre>
 <p>In the example for the first parameter single protein accession has been used but similar with bbSearch functions multiple identifers or keywords can be used. In the last query type attribute was used to filter mapping only with biological process go terms. Dataset attributes are used in the filters starts with their dataset name as in the above example it starts with <code>go.</code></p>
 <p>In order use in filter expressions, each datasets attributes lists with <code>bbAttr</code>function via sample identifier. For instance following query shows gene ontology attributes.</p>
 <pre class="r"><code>bbAttr(&quot;GO:0002020&quot;,'go')</code></pre>
-<pre><code>## [1] &quot;type&quot; &quot;name&quot;</code></pre>
 </div>
 </div>
 <div id="example-use-cases" class="section level1">
@@ -1852,99 +2210,35 @@ head(bbConfig@datasetIDs)</code></pre>
 <pre><code>## [1] &quot;names&quot;       &quot;symbols&quot;     &quot;locus_group&quot; &quot;location&quot;    &quot;locus_type&quot; 
 ## [6] &quot;status&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;tpi1&quot;,&quot;ensembl&quot;)</code></pre>
-<pre><code>## [1] &quot;name&quot;            &quot;description&quot;     &quot;start&quot;           &quot;end&quot;            
-## [5] &quot;biotype&quot;         &quot;genome&quot;          &quot;strand&quot;          &quot;seq_region_name&quot;
-## [9] &quot;branch&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;ENST00000297261&quot;,&quot;transcript&quot;)</code></pre>
-<pre><code>## [1] &quot;name&quot;            &quot;start&quot;           &quot;end&quot;             &quot;biotype&quot;        
-## [5] &quot;strand&quot;          &quot;seq_region_name&quot; &quot;branch&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;ENSE00001146308&quot;,&quot;exon&quot;)</code></pre>
-<pre><code>## [1] &quot;start&quot;           &quot;end&quot;             &quot;strand&quot;          &quot;seq_region_name&quot;</code></pre>
 <p>Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with <code>bbConfig</code>. Now lets build example mapping queries,</p>
 <p><strong>Map gene names to Ensembl transcript identifiers</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;ATP5MC3,TP53&quot;,'map(transcript)')
 head(res)</code></pre>
-<pre><code>##                     input input_dataset      mapping_id
-## 1 ATP5MC3-ENSG00000154518       ensembl ENST00000284727
-## 2                       -             - ENST00000392541
-## 3                       -             - ENST00000409194
-## 4                       -             - ENST00000472782
-## 5                       -             - ENST00000497075
-## 6    TP53-ENSG00000141510       ensembl ENST00000269305</code></pre>
 <p><strong>Map gene names to exon identifiers and retrieve the region</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;ATP5MC3,TP53&quot;,'map(transcript).map(exon)',attrs = &quot;seq_region_name&quot;)
 head(res)</code></pre>
-<pre><code>##                     input input_dataset      mapping_id seq_region_name
-## 1 ATP5MC3-ENSG00000154518       ensembl ENSE00001016410               2
-## 2                       -             - ENSE00001016412               2
-## 3                       -             - ENSE00001938775               2
-## 4                       -             - ENSE00003574305               2
-## 5                       -             - ENSE00003602002               2
-## 6                       -             - ENSE00001512331               2</code></pre>
 <p><strong>Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;homo_sapiens&quot;,'map(ensembl).filter(ensembl.seq_region_name==&quot;Y&quot; &amp;&amp; ensembl.biotype==&quot;lncRNA&quot;)',attrs = &quot;name&quot;)
 head(res)</code></pre>
-<pre><code>##        mapping_id    name
-## 1 ENSG00000129816  TTTY1B
-## 2 ENSG00000131538   TTTY6
-## 3 ENSG00000183385   TTTY8
-## 4 ENSG00000215560   TTTY5
-## 5 ENSG00000224075  TTTY22
-## 6 ENSG00000227439 TTTY17B</code></pre>
 <p><strong>Get all Ensembl human identifiers and gene names within or overlapping range</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;9606&quot;,'map(ensembl).filter((114129278&gt;ensembl.start &amp;&amp; 114129278&lt;ensembl.end) || (114129328&gt;ensembl.start &amp;&amp; 114129328&lt;ensembl.end))',attrs = &quot;name&quot;)</code></pre>
-<pre><code>##        mapping_id      name
-## 1 ENSG00000134207      SYT6
-## 2 ENSG00000165813   CCDC186
-## 3 ENSG00000080709     KCNN2
-## 4 ENSG00000109906    ZBTB16
-## 5 ENSG00000128573     FOXP2
-## 6 ENSG00000151577      DRD3
-## 7 ENSG00000185989     RASA3
-## 8 ENSG00000228624 HDAC2-AS2
-## 9 ENSG00000249853    HS3ST5</code></pre>
 <p>In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.</p>
 <p><strong>Map Affymetrix identifiers to Ensembl identifiers and gene names</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;202763_at,213596_at,209310_s_at&quot;,source =&quot;affy_hg_u133_plus_2&quot; ,'map(transcript).map(ensembl)',attrs = &quot;name&quot;)</code></pre>
-<pre><code>##         input       input_dataset      mapping_id  name
-## 1   202763_AT affy_hg_u133_plus_2 ENSG00000164305 CASP3
-## 2   213596_AT affy_hg_u133_plus_2 ENSG00000196954 CASP4
-## 3 209310_S_AT affy_hg_u133_plus_2 ENSG00000196954 CASP4</code></pre>
 <p>Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way</p>
 <pre class="r"><code>bbMapFilter(&quot;CASP3,CASP4&quot;,'map(transcript).map(affy_hg_u133_plus_2)')</code></pre>
-<pre><code>##                   input input_dataset  mapping_id
-## 1 CASP3-ENSG00000164305       ensembl   202763_AT
-## 2 CASP4-ENSG00000196954       ensembl 209310_S_AT
-## 3                     -             -   213596_AT</code></pre>
 <p><strong>Retrieve all the human gene names which contains TTY</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;homo sapiens&quot;,'map(ensembl).filter(ensembl.name.contains(&quot;TTY&quot;))',attrs = &quot;name&quot;)
 head(res)</code></pre>
-<pre><code>##        mapping_id    name
-## 1 ENSG00000129816  TTTY1B
-## 2 ENSG00000131538   TTTY6
-## 3 ENSG00000183385   TTTY8
-## 4 ENSG00000215560   TTTY5
-## 5 ENSG00000224075  TTTY22
-## 6 ENSG00000227439 TTTY17B</code></pre>
 <p><strong>Map gene to its ortholog identifiers</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;shh&quot;,'map(ortholog)')
 head(res)</code></pre>
-<pre><code>##           mapping_id
-## 1 ENSABRG00000018705
-## 2 ENSACAG00000011060
-## 3 ENSACIG00000002882
-## 4 ENSACIG00000018203
-## 5 ENSACIG00000018215
-## 6 ENSACLG00000027636</code></pre>
 <p><strong>Map gene to its paralog</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;fry&quot;,'map(paralog)',attrs = &quot;name&quot;,showInputColumn = TRUE)</code></pre>
-<pre><code>##                 input input_dataset      mapping_id name
-## 1 FRY-ENSG00000073910       ensembl ENSG00000075539 FRYL</code></pre>
 <p><strong>Map ensembl identifier or gene name to the entrez identifier</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;ENSG00000139618,shh&quot; ,'map(entrez)')</code></pre>
-<pre><code>##                 input input_dataset mapping_id
-## 1     ENSG00000139618       ensembl        675
-## 2 SHH-ENSG00000164690       ensembl       6469</code></pre>
 <p><strong>Map refseq identifiers to hgnc identifiers</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;NM_005359,NM_000546&quot;,'map(hgnc)',attrs = &quot;symbols&quot;)</code></pre>
 <pre><code>##       input input_dataset mapping_id symbols
@@ -1955,69 +2249,29 @@ head(res)</code></pre>
 <h2><span class="header-section-number">3.2</span> Protein centric use cases</h2>
 <p>Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let’s list some protein related datasets attributes and then execute example queries similary with gene centric examples,</p>
 <pre class="r"><code>bbAttr(&quot;p15498&quot;,&quot;uniprot&quot;)</code></pre>
-<pre><code>## [1] &quot;accessions&quot; &quot;names&quot;      &quot;sequence&quot;   &quot;reviewed&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;p15498_f12&quot;,&quot;ufeature&quot;)</code></pre>
-<pre><code>## [1] &quot;type&quot;        &quot;description&quot; &quot;id&quot;          &quot;original&quot;    &quot;variation&quot;  
-## [6] &quot;location&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;1gzh&quot;,&quot;pdb&quot;)</code></pre>
-<pre><code>## [1] &quot;method&quot;     &quot;chains&quot;     &quot;resolution&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;IPR017907&quot;,&quot;interpro&quot;)</code></pre>
-<pre><code>## [1] &quot;names&quot;      &quot;short_name&quot; &quot;type&quot;</code></pre>
 <p><strong>Map gene names to reviewed uniprot identifiers</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;msh6,stk11,bmpr1a,smad4,brca2&quot;,&quot;map(uniprot).filter(uniprot.reviewed)&quot;,source =&quot;ensembl&quot;)</code></pre>
-<pre><code>##                    input input_dataset mapping_id
-## 1   MSH6-ENSG00000116062       ensembl     P52701
-## 2  STK11-ENSG00000118046       ensembl     Q15831
-## 3 BMPR1A-ENSG00000107779       ensembl     P36894
-## 4  SMAD4-ENSG00000141646       ensembl     Q13485
-## 5  BRCA2-ENSG00000139618       ensembl     P51587</code></pre>
 <p><strong>Filter proteins by sequence mass and retrieve protein sequences</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;clock_human,shh_human,aicda_human,at5g3_human,p53_human&quot;,&quot;filter(uniprot.sequence.mass &gt; 45000)&quot; ,attrs = &quot;sequence$mass,sequence$seq&quot;)</code></pre>
-<pre><code>##                input input_dataset mapping_id sequence$mass
-## 1 CLOCK_HUMAN-O15516       uniprot     O15516         95304
-## 2   SHH_HUMAN-Q15465       uniprot     Q15465         49607
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     sequence$seq
-## 1 MLFTVSCSKMSSIVDRDDSSIFDGLVEEDDKDKAKRVSRNKSEKKRRDQFNVLIKELGSMLPGNARKMDKSTVLQKSIDFLRKHKEITAQSDASEIRQDWKPTFLSNEEFTQLMLEALDGFFLAIMTDGSIIYVSESVTSLLEHLPSDLVDQSIFNFIPEGEHSEVYKILSTHLLESDSLTPEYLKSKNQLEFCCHMLRGTIDPKEPSTYEYVKFIGNFKSLNSVSSSAHNGFEGTIQRTHRPSYEDRVCFVATVRLATPQFIKEMCTVEEPNEEFTSRHSLEWKFLFLDHRAPPIIGYLPFEVLGTSGYDYYHVDDLENLAKCHEHLMQYGKGKSCYYRFLTKGQQWIWLQTHYYITYHQWNSRPEFIVCTHTVVSYAEVRAERRRELGIEESLPETAADKSQDSGSDNRINTVSLKEALERFDHSPTPSASSRSSRKSSHTAVSDPSSTPTKIPTDTSTPPRQHLPAHEKMVQRRSSFSSQSINSQSVGSSLTQPVMSQATNLPIPQGMSQFQFSAQLGAMQHLKDQLEQRTRMIEANIHRQQEELRKIQEQLQMVHGQGLQMFLQQSNPGLNFGSVQLSSGNSSNIQQLAPINMQGQVVPTNQIQSGMNTGHIGTTQHMIQQQTLQSTSTQSQQNVLSGHSQQTSLPSQTQSTLTAPLYNTMVISQPAAGSMVQIPSSMPQNSTQSAAVTTFTQDRQIRFSQGQQLVTKLVTAPVACGAVMVPSTMLMGQVVTAYPTFATQQQQSQTLSVTQQQQQQSSQEQQLTSVQQPSQAQLTQPPQQFLQTSRLLHGNPSTQLILSAAFPLQQSTFPQSHHQQHQSQQQQQLSRHRTDSLPDPSKVQPQ
-## 2                                                                                                                                                                                                                                                                                                                                                                                                 MLLLARCLLLVLVSSLLVCSGLACGPGRGFGKRRHPKKLTPLAYKQFIPNVAEKTLGASGRYEGKISRNSERFKELTPNYNPDIIFKDEENTGADRLMTQRCKDKLNALAISVMNQWPGVKLRVTEGWDEDGHHSEESLHYEGRAVDITTSDRDRSKYGMLARLAVEAGFDWVYYESKAHIHCSVKAENSVAAKSGGCFPGSATVHLEQGGTKLVKDLSPGDRVLAADDQGRLLYSDFLTFLDRDDGAKKVFYVIETREPRERLLLTAAHLLFVAPHNDSATGEPEASSGSGPPSGGALGPRALFASRVRPGQRVYVVAERDGDRRLLPAAVHSVTLSEEAAGAYAPLTAQGTILINRVLASCYAVIEEHSWAHRAFAPFRLAHALLAALAPARTDRGGDSGGGDRGGGGGRVALTAPGAADAPGAGATAGIHWYSQLLYQIGTWLLDSEALHPLGMAVKSS</code></pre>
 <p><strong>Helix type feature locations of a protein</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;shh_human&quot;,'map(ufeature).filter(ufeature.type==&quot;helix&quot;)' ,attrs = &quot;location$begin,location$end&quot;)</code></pre>
-<pre><code>##    mapping_id location$begin location$end
-## 1 Q15465_F122             72           75
-## 2 Q15465_F125             94           96
-## 3 Q15465_F126            100          116
-## 4 Q15465_F128            139          142
-## 5 Q15465_F130            155          157
-## 6 Q15465_F131            158          167
-## 7 Q15465_F134            188          190</code></pre>
 <p><strong>All protein identifiers and sequences of childs of Salmonella species</strong></p>
 <pre class="r"><code>res&lt;-bbMapFilter(&quot;Salmonella enterica subsp. enterica&quot;,&quot;map(taxchild).map(uniprot)&quot;,attrs = &quot;sequence$seq&quot;)
 head(res)</code></pre>
-<pre><code>##   mapping_id
-## 1     Q01410
-## 2     Q06973
-## 3     Q01411
-## 4     Q8VPM1
-## 5     P0A1K8
-## 6     P0A1M0
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                sequence$seq
-## 1                                   MITPIIMAGGNGSRLWPLSRTLYPKQFLCLDGSQSMLQTTITRINNLNASDPIVICNEQHRFIVAEQLKELSKSSGDIILEPVGRNTAPAVALAALKCLKKNALLLVLAADHIIKDEETFCKTIQDARKYAEAGKLVTFGIVPTMPETGYGYIRRGQALFSAENDCSLAFRVAEFVEKPNLETAQSYLDSGEYYWNSGMFLFRADRYIEELKIRPDIYKACSLAMESAVTDLDFIRVDEDSFCACPDESIDYAVMEKTNDAVVVPLNAGWSDVGSWSSLWEISDKDSNGNVTKGDVLSHNADNCYLHAETGLVTAVGVKDLIVVQTKDAVLVANTNCVQDVKKIVEKIKLENRHEHITHREVYRPWGKYDSIDFGERYQVKRITVKPGEGISEQQHYHRAEHWIIVAGTAKITIKGEVKILTENESVYIPVGVKHCLENPGKIALELIEVRSGAYLGEDDIVRFSDKYGRN
-## 2 MAQVINTNSLSLLTQNNLNKSQSSLSSAIERLSSGLRINSAKDDAAGQAIANRFTSNIKGLTQASRNANDGISIAQTTEGALNEINNNLQRVRELSVQATNGTNSDSDLKSIQDEIQQRLEEIDRVSNQTQFNGVKVLSQDNQMKIQVGANDGETITIDLQKIDVKSLGLDGFNVNGPKEATVGDLKSSFKNVTGYDTYAAGANKYRVDINSGAVVTDDAAPDKVYVNAANGQLTTDDAENNTAVNLFKTTKSAAGTDEAKAIAGAIKGGKEGDTFDYKGVTFTIDTKTGDDGNGKVSTTINGEKVTLTVADIATGATDVNAATLQSSKNVYTSVVNGQFTFDDKTKNESAKLSDLEANNAVKGESKITVNGAEYTANAAGDKVTLAGKTMFIDKTASGVSTLINEDAAAAKKSTANPLASIDSALSKVDAVRSSLGAIQNRFDSAITNLGNTVTNLNSARSRIEDADYATEVSNMSKAQILQQAGTSVLAQANQVPQNVLSLLR
-## 3                                                  MNNLTCFKAYDIRGRLGEELNEDIAWRIGRAYGEYLKPKTIVLGGDVRLTSEALKLALAKGLQDAGVDVLDIGMSGTEEIYFATFHLGVDGGIEVTASHNPMDYNGMKLVREGARPISGDTGLRDVQRLAEAGDFPPVNDAARGSYRQISLRDAYIDHLLAYISVNNLTPLKLVVNSGNGAAGPVIDAIEARLKALGAPVEFIKIHNTPDGTFPNGIPNPLLPECRDDTRKAVIEHGADMGIAFDGDFDRCFLFDEKGQFIEGYYIVGLLAEAFLEKHPGAKIIHDPRLTWNTEAVVTAAGGTPVMSKTGHAFIKERMRTEDAIYGGEMSAHHYFRDFAYCDSGMIPWLLVAELVCLKGQSLGELVRDRMAAFPASGEINSRLAEPAAAIARVEAHFAEEAQAVDRTDGLSMSFADWRFNLRSSNTEPVVRLNVESRGDIPLMEARTKEILQLLNS
-## 4                                                                                                                                                                                                                                                                          MTKITLFPHNFRIQKQETTPLKEKSTEKNSLAKSILAVKNHFIKLNSKLSERFISHKNTESSATHFHRGSASEGRAVLTNKVVKNFMLQTLHDIDIRGSASKDPAYASQTREAILSAVYSKYKDQYCNLLISKGIDIAPFLKEIGEAAQNAGLPGATKNDVFTPSGAGANPFITPLITSAYSKYPHMFTSQHQKASFNIYAEKIIMTEVVPLFNECAMPTPQQFQQILENIANKYIQNAP
-## 5                                                                                                                                                                                                           MSLRVRQIDRREWLLAQTATECQRHGQEATLEYPTRQGMWVRLSDAEKRWSAWIQPGDWLEHVSPALAGAAVSAGAEHLVVPWLAATERPFELPVPHLSCRRLCVENPVPGSALPEGKLLHIMSDRGGLWFEYLPELPAVGGGRPKMLRWPLRFVIGSSDTQRSLLGRIGIGDVLLIRTSRAEVYCYAKKLGHFNRVEGGIIVETLDIQHIEEENNTTETAETLPGLNQLPVKLEFVLYRKNVTLAELEAMGQQQLLSLPTNAELNVEIMANGVLLGNGELVQMNDTLGVEIHEWLSESGNGE
-## 6                                                                                                                                                                                                                                                                                                                                                                                                                                    MDDLVFAGNKALYLVLILSGWPTIVATIIGLLVGLFQTVTQLQEQTLPFGIKLLGVCLCLFLLSGWYGEVLLSYGRQVIFLALAKG</code></pre>
 <p><strong>Get all variation identifiers from a gene with given condition</strong></p>
 <pre class="r"><code>bbMapFilter(&quot;tp53&quot;,'map(uniprot).map(ufeature).filter(ufeature.original==&quot;I&quot; &amp;&amp; ufeature.variation==&quot;S&quot;).map(variantid)',source = &quot;hgnc&quot;)</code></pre>
-<pre><code>##     mapping_id
-## 1  RS730882027
-## 2 RS1330865474
-## 3  RS876659675
-## 4  RS587780069
-## 5  RS760043106</code></pre>
 </div>
+</div>
+<div id="stop" class="section level1">
+<h1><span class="header-section-number">4</span> Stop</h1>
+<pre class="r"><code>bbStop()</code></pre>
+<pre><code>## [1] TRUE</code></pre>
 </div>
 <div id="session-info" class="section level1">
-<h1><span class="header-section-number">4</span> Session Info</h1>
+<h1><span class="header-section-number">5</span> Session Info</h1>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 3.6.1 (2019-07-05)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
@@ -2034,30 +2288,25 @@ head(res)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] biobtreeR_0.1.0  BiocStyle_2.13.2 BiocCheck_1.21.1
+## [1] BiocStyle_2.13.2 biobtreeR_0.1.0 
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] stringdist_0.9.5.2  xfun_0.10           remotes_2.1.0      
-##  [4] testthat_2.2.1      htmltools_0.4.0     usethis_1.5.1      
-##  [7] getopt_1.20.3       stats4_3.6.1        yaml_2.2.0         
-## [10] RBGL_1.61.0         XML_3.98-1.20       rlang_0.4.0        
-## [13] pkgbuild_1.0.6      later_1.0.0         optparse_1.6.4     
-## [16] glue_1.3.1          withr_2.1.2         BiocGenerics_0.31.6
-## [19] sessioninfo_1.1.1   stringr_1.4.0       devtools_2.2.1     
-## [22] evaluate_0.14       biocViews_1.53.2    codetools_0.2-16   
-## [25] memoise_1.1.0       Biobase_2.45.1      knitr_1.25         
-## [28] callr_3.3.2         httpuv_1.5.2        ps_1.3.0           
-## [31] RUnit_0.4.32        parallel_3.6.1      curl_4.2           
-## [34] Rcpp_1.0.2          promises_1.1.0      backports_1.1.5    
-## [37] BiocManager_1.30.7  desc_1.2.0          pkgload_1.0.2      
-## [40] graph_1.63.0        jsonlite_1.6        fs_1.3.1           
-## [43] digest_0.6.21       stringi_1.4.3       bookdown_0.14      
-## [46] processx_3.4.1      rprojroot_1.3-2     cli_1.1.0          
-## [49] tools_3.6.1         bitops_1.0-6        magrittr_1.5       
-## [52] RCurl_1.95-4.12     crayon_1.3.4        ellipsis_0.3.0     
-## [55] prettyunits_1.0.2   assertthat_0.2.1    rmarkdown_1.16     
-## [58] httr_1.4.1          rstudioapi_0.10     R6_2.4.0           
-## [61] compiler_3.6.1</code></pre>
+##  [1] Rcpp_1.0.2         BiocManager_1.30.7 compiler_3.6.1    
+##  [4] later_1.0.0        prettyunits_1.0.2  remotes_2.1.0     
+##  [7] sys_3.3            tools_3.6.1        testthat_2.2.1    
+## [10] digest_0.6.21      pkgbuild_1.0.6     pkgload_1.0.2     
+## [13] jsonlite_1.6       memoise_1.1.0      evaluate_0.14     
+## [16] rlang_0.4.0        cli_1.1.0          rstudioapi_0.10   
+## [19] curl_4.2           yaml_2.2.0         xfun_0.10         
+## [22] stringr_1.4.0      withr_2.1.2        httr_1.4.1        
+## [25] knitr_1.25         desc_1.2.0         fs_1.3.1          
+## [28] devtools_2.2.1     rprojroot_1.3-2    glue_1.3.1        
+## [31] R6_2.4.0           processx_3.4.1     bookdown_0.14     
+## [34] rmarkdown_1.16     sessioninfo_1.1.1  callr_3.3.2       
+## [37] magrittr_1.5       backports_1.1.5    ps_1.3.0          
+## [40] promises_1.1.0     ellipsis_0.3.0     htmltools_0.4.0   
+## [43] usethis_1.5.1      assertthat_0.2.1   httpuv_1.5.2      
+## [46] stringi_1.4.3      crayon_1.3.4</code></pre>
 </div>
 
 

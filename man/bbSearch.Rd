@@ -2,7 +2,7 @@
 % Please edit documentation in R/biobtreeR.R
 \name{bbSearch}
 \alias{bbSearch}
-\title{Search identifiers or special keywords such as gene name.}
+\title{Search identifiers or special keywords}
 \usage{
 bbSearch(terms, source = NULL, filter = NULL, page = NULL,
   lite = TRUE, limit = 1000)
@@ -32,10 +32,14 @@ can be several things for instance for uniprot an accession like "vav_human" can
 identifier "P15498". Or gene name can be also a keyword like "tpi1" which could points multiple dataset like ensembl and hgnc.
 }
 \examples{
-bbInit()
-bbSearch("vav_human,tpi1,homo sapiens")
-bbSearch("tpi1","hgnc")
+
+bbStart()
+bbSearch("P15498,tpi1,shh")
+
+\dontrun{
+# run this examplee with building the default dataset with bbBuildData()
 bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
+}
 
 }
 \author{

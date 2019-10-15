@@ -19,42 +19,122 @@ The biobtreeR package provides an interface to [biobtree](https://github.com/tam
 
 # Getting started 
 
-Once you have started the [biobtree](https://github.com/tamerh/biobtree) with your target datasets, biobtreeR package initialized with `bbInit` function and biobtreeR configuration instance created with name bbConfig which holds datasets meta information and package default parameters. For instance bbConfig@datasetIDs holds each datasets unique character and numeric identifiers as some of them shown with head function.
+## Build data
+biobtreeR process and store the datasets locally by downloading from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed 
+it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets. Following examples shows the example usages, 
+
 
 ```{r}
 library(biobtreeR)
-bbInit()
-head(bbConfig@datasetIDs)
 ```
+
+```{r}
+bbBuildData(datasets = "hgnc") 
+```
+
+
+```{r eval=FALSE}
+# build default datasets taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo
+# duration vary to network speed
+bbBuildData() 
+
+# build only specific datasets
+bbBuildData(datasets="uniprot,hgnc")
+
+# build both mouse and human genomes in ensembl insted of default human
+bbBuildData(genome="homo_sapiens,mus_musculus")
+
+# build genomes from ensembl genomes fungi
+bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
+
+# bacteria genomes with pattern
+bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
+
+```
+
+
+## Start/stop server
+
+Once the building data completed biobtree server starts with `bbStart` which allows performing queries and provide web interface. Once the analyses has been done server can be stopped `bbStop` 
+
+```{r}
+bbStart()
+```
+
+
+## List available Ensembl genomes 
+
+In order to use in the build process all the available Ensembl genomes names can be listed with with `bbListGenomes` function. 
+
+**List ensembl genomes**
+
+```{r}
+head(bbListGenomes("ensembl"))
+```
+
+**List ensembl genomes bacteria**
+
+```{r}
+head(bbListGenomes("ensembl"))
+```
+
+**List ensembl genomes fungi**
+
+```{r}
+head(bbListGenomes("ensembl_fungi"))
+```
+
+**List ensembl genomes metazoa**
+
+```{r}
+head(bbListGenomes("ensembl_metazoa"))
+```
+
+**List ensembl genomes plants**
+
+```{r}
+head(bbListGenomes("ensembl_plants"))
+```
+
+**List ensembl genomes protists**
+
+```{r}
+head(bbListGenomes("ensembl_protists"))
+```
+
 
 ## Search identifiers and keywords
 
 Searching dataset identfiers and keywords such as gene name, species name and accession is performed with bbSearch function by passing comma seperated terms.
 
 ```{r}
+bbSearch("cas,shh")
+```
+
+```{r eval = FALSE}
 bbSearch("tpi1,vav_human,homo_sapiens,ENST00000297261,10090")
 ```
 
 If source parameter is passed search performed within the dataset.
 
 ```{r}
-bbSearch("cas,shh","hgnc")
+bbSearch("cas,HGNC:12009","hgnc")
 ```
 
 The bbURL function is used to get the unique URL of dataset identifier 
 
 ```{r}
-bbURL("p15498","uniprot")
+bbURL("HGNC:12009","hgnc")
 ```
 
 ## Chain mapping and filtering 
 Mapping and filtering queries are performed via bibobtree's mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format `map(dataset_id).filter(Boolean query expression).map(...).filter(...)...` and allow performing chain mapping among datasets. For mapping queries bbMapFilter function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
 ```
 
@@ -62,7 +142,7 @@ In the example for the first parameter single protein accession has been used bu
 
 In order use in filter expressions, each datasets attributes lists with `bbAttr`function via sample identifier. For instance following query shows gene ontology attributes.
 
-```{r}
+```{r eval = FALSE}
 bbAttr("GO:0002020",'go')
 ```
 
@@ -78,15 +158,15 @@ Ensembl, Ensembl Genomes and HGNC datasets are used for gene related data. One o
 bbAttr("tpi1","hgnc")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("tpi1","ensembl")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("ENST00000297261","transcript")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("ENSE00001146308","exon")
 ```
 
@@ -94,28 +174,28 @@ Note that there are several other gene related datasets without attributes and c
 
 **Map gene names to Ensembl transcript identifiers**
 
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("ATP5MC3,TP53",'map(transcript)')
 head(res)
 ```
 
 **Map gene names to exon identifiers and retrieve the region**
 
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 head(res)
 ```
 
 
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
 head(res)
 ```
 
 
 **Get all Ensembl human identifiers and gene names within or overlapping range**
-```{r}
+```{r eval = FALSE}
 bbMapFilter("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
 ```
 
@@ -123,38 +203,38 @@ In the above example as a first parameter taxonomy identifier is used instead of
 
 **Map Affymetrix identifiers to Ensembl identifiers and gene names**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
 ```
 
 Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
 ```
 
 **Retrieve all the human gene names which contains TTY**
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
 head(res)
 ```
 
 **Map gene to its ortholog identifiers**
 
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("shh",'map(ortholog)')
 head(res)
 ```
 
 **Map gene to its paralog**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("fry",'map(paralog)',attrs = "name",showInputColumn = TRUE)
 ```
 
 
 **Map ensembl identifier or gene name to the entrez identifier**
-```{r}
+```{r eval = FALSE}
 bbMapFilter("ENSG00000139618,shh" ,'map(entrez)')
 ```
 
@@ -169,53 +249,60 @@ bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 
 Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let's list some protein related datasets attributes and then execute example queries similary with gene centric examples,
 
-```{r}
+```{r eval = FALSE}
 bbAttr("p15498","uniprot")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("p15498_f12","ufeature")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("1gzh","pdb")
 ```
 
-```{r}
+```{r eval = FALSE}
 bbAttr("IPR017907","interpro")
 ```
 
 
 **Map gene names to reviewed uniprot identifiers**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot).filter(uniprot.reviewed)",source ="ensembl")
 ```
 
 **Filter proteins by sequence mass and retrieve protein sequences**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
 ```
 
 **Helix type feature locations of a protein**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
 ```
 
 **All protein identifiers and sequences of childs of Salmonella species**
 
-```{r}
+```{r eval = FALSE}
 res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(uniprot)",attrs = "sequence$seq")
 head(res)
 ```
 
 **Get all variation identifiers from a gene with given condition**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
 ```
+
+# Clear data
+
+```{r}
+bbClearData()
+```
+
 
 # Session Info
 

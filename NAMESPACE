@@ -1,5 +1,8 @@
-importFrom(httr, GET, content)
+importFrom(httr, HEAD ,GET, content)
 importFrom(httpuv,encodeURIComponent)
+importFrom(sys,exec_background,exec_wait)
+importFrom(tools,pskill)
+importFrom(stringi,stri_trim)
 
-export(bbInit,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
+export(bbBuildData,bbClearData,bbStart,bbStop,bbListGenomes,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
 exportClasses(bbConfig)

@@ -1,35 +1,179 @@
 
-# To hold dataset meta data tool configuration
-#' @title class for holding configuration and dataset meta data
+biobtreeR.env <- new.env(parent = emptyenv())
+biobtreeR.env$config<-NULL
+
+#' @title Class for biobtreeR config
+#'
+#' @description This class holds the datasets meta data and web service endpoints and used while executing the search/mapping queries.
+#' Instance of this class with name bbConfig is globally set by bbStart function. About dataset meta data, this class instance
+#' holds all the datasets unqiue identifers, entry url templates etc. In biobtree each dataset has unique charachter
+#' and numeric identifier. For instance Uniprot's charachter identifier is "uniprot" and numeric identifier is 1.
+#' When performing queries the dataset charachter identifier is used for convinience but in actual database it is saved numerically.
+#'
 setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame", datasetMeta="list", datasetMetaByNum="list" ))
 
-#' @title Init function for biobtreeR
+
+#' @title Build your data
 #'
-#' @description Initialize all dataset meta information such as dataset identifiers.
-#' In biobtree each dataset has unique charachter and numeric identifier.
-#' For instance Uniprot charachter identifier is "uniprot" and numeric identifier is 1.
-#' When querying the dataset charachter identifier is used for convinience but in actual database it is saved numerically for efficiency.
-#' When this function is executed global bbConfig variable is set. This variable holds these meta information.
+#' @description This function allows to build your selected datasets locally for making search/mapping queries via biobtree executable. Available datasets
+#' are uniprot,ensembl,ensembl genomes,hgnc,taxonomy,chembl,hmdb,go,eco,efo,chebi,interpro,literature_mappings,uniparc,uniref50,uniref90,uniref100,uniprot_unreviewed.
+#' These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets.
 #'
-#' @param biobtreeURL Optional parameter. By default "http://localhost:8888" url is used to connect running actual biobtree.
-#' This parameter is allowed to change this url if biobtree is running from another machine or port.
+#' @param genome Comma seperated list of ensembl genomes. To list all the genome names \code{bbListGenomes} function can be used.
+#'
+#' @param datasets Comma seperated list of datasets for build. Default datasets are taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo chebi interpro
+#'
+#' @param genomePattern Alternative to the genome paramter to build set of genomes conveniently
+#'
+#' @param reset Override previously build data if exist
+#'
+#' @param rawArgs Directly run biobtree with its all available arguments. If this paramter used all other parameters are ignored
 #'
 #' @return returns empty
 #'
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
-bbInit <- function(biobtreeURL=NULL) {
+#'
+#' bbStop() # stop first if running
+#' bbBuildData(datasets="hgnc",reset=TRUE)
+#'
+#' \dontrun{
+#'
+#'   # build all the default dataset
+#'   bbBuildData()
+#'
+#'   # build both mouse and human genomes in ensembl insted of default human
+#'   bbBuildData(genome="homo_sapiens,mus_musculus")
+#'
+#'   # build default datasets with all the ensembl genomes with names contains "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
+#'   bbBuildData(genomePattern="mus")
+#'
+#'   # for ensembl genomes needs to specify seperately in datasets + means default dataset plus check all the genomes with bbListGenomes()
+#'   bbBuildData(datasets="+ensembl_metazoa",genomes="caenorhabditis_elegans,drosophila_melanogaster")
+#'   bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
+#'   bbBuildData(datasets="+ensembl_plants,ensembl_protists",genomes="arabidopsis_thaliana,phytophthora_parasitica")
+#'   bbBuildData(datasets="+ensembl_bacteria",genomes="salmonella_enterica")
+#'   # bacteria genomes with pattern
+#'   bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
+#'
+#'   #build only certain datasets
+#'   bbBuildData(datasets="uniprot,hgnc")
+#'
+#'
+#' }
+bbBuildData<-function(genome=NULL,datasets=NULL,genomePattern=NULL,reset=FALSE,rawArgs=NULL) {
 
   endpoint <- "http://localhost:8888"
+
+  metaEndp<-"http://localhost:8888/ws/meta"
+
+  if(isbbRunning(metaEndp)){
+    stop("There is a biobtree running. First stop that process by bbStop or kill manually")
+  }
+
+  rootDir<-getwd()
+
+  bbDir<-file.path(rootDir)
+
+  if(!reset && file.exists(file.path(bbDir,"out","db","db.meta.json"))){
+    stop("Biobtree build before to override use param reset=TRUE")
+  }
+
+  #dir.create(bbDir, showWarnings = FALSE)
+  #setwd(bbDir)
+
+  execFile <- bbExeFile()
+
+  if(length(rawArgs)>0){
+
+    system2(execFile,args=rawArgs)
+
+  }else{
+
+    args<-""
+
+    if(length(genome)>0){
+      args<-p(args," -s ",genome)
+    }else if (length(genomePattern)>0){
+      args<-p(args," -sp ",genomePattern)
+    }
+
+    if(length(datasets)>0){
+      args<-p(args," -d ",datasets)
+    }
+
+    args<-p(args," build")
+
+    system2(execFile,args=args)
+
+  }
+
+  #setwd(rootDir)
+}
+
+#' @title Start biobtreeR
+#'
+#' @description Once target datasets is built with \code{bbBuildData} this function used to start biobtree server in the background for performing search/mapping queries.
+#' This function also sets the bbConfig variable
+#'
+#' @param biobtreeURL Optional parameter. Use this this parameter if you running biobtree tool seperately such as in a remote server.
+#' Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
+#' Note that default port of biobtree is 8888.
+#'
+#'
+#' @return returns empty
+#'
+#' @author Tamer Gur
+#'
+#' @examples
+#' bbStart()
+#' bbStop()
+bbStart<-function(biobtreeURL=NULL) {
+
+  if (length(biobtreeURL) > 0) {
+
+    endpoint <- biobtreeURL
+
+  }else{
+
+
+    endpoint <- "http://localhost:8888"
+    metaEndpoint<-p(endpoint,"/ws/meta")
+    execFile <- bbExeFile()
+
+    if(!isbbRunning(metaEndpoint)){ #First check for running biobtree if found use it
+
+      rootDir<-getwd()
+      #bbDir<-file.path(rootDir,"biobtreeRoot")
+      biobtreePID<-exec_background(execFile,args=c("web"))
+      print(p("biobtree started in the background with pid->",biobtreePID))
+      #setwd(rootDir)
+      saveRDS(biobtreePID,"biobtreePID.rds")
+
+      # wait here until biobtree data process complete
+      print("Starting biobtree...")
+      while(TRUE){
+
+        Sys.sleep(1)
+
+        if(!isbbRunning(metaEndpoint)){
+          next
+        }
+
+        print("biobtree started")
+        break
+
+      }
+    }else{
+      print("biobtree started before. R Config will be refreshed")
+    }
+
+ }
+
   datasetIDs <- list()
   datasetMeta <- list()
   datasetMetaByNum <- list()
-
-  if (length(biobtreeURL) > 0) {
-    endpoint <- biobtreeURL
-  }
 
   rawmeta <- content(GET(p(endpoint,"/ws/meta")),as="parsed")
 
@@ -59,15 +203,131 @@ bbInit <- function(biobtreeURL=NULL) {
   }
   datasetIDs<-data.frame(id=strID,numeric_id=numID)
 
-  assign("bbConfig",new("bbConfig",
-                        endpoint=endpoint,
-                        datasetIDs=datasetIDs,
-                        datasetMeta=datasetMeta,
-                        datasetMetaByNum=datasetMetaByNum), envir = .GlobalEnv)
+  conf<-new("bbConfig",
+            endpoint=endpoint,
+            datasetIDs=datasetIDs,
+            datasetMeta=datasetMeta,
+            datasetMetaByNum=datasetMetaByNum)
+  biobtreeR.env$config<-conf
+
+  #assign("bbConfig",conf, envir = .GlobalEnv)
+
+
 
 }
 
-#' @title Search identifiers or special keywords such as gene name.
+#
+#Checks for running biobtree if found use it
+#
+isbbRunning <- function(metaEndpoint){
+
+
+  response <- tryCatch(
+    HEAD(metaEndpoint),
+    error=function(e) e
+  )
+
+  return(!inherits(response, "error"))
+
+}
+
+bbExeFile<- function(){
+
+  if (Sys.info()['sysname'] == "Windows") {
+
+  if(!file.exists("biobtree.exe")){
+    latestUrl<-p("https://github.com/tamerh/biobtree/releases/download/",latestbbVersion(),"/biobtree_Windows_64bit.zip")
+    download.file(latestUrl,"biobtree_Windows_64bit.zip",mode="wb")
+    system2("powershell.exe",args="-NoP -NonI -Command 'Expand-Archive '.\biobtree_Windows_64bit.zip' '.\'")
+    file.remove("biobtree_Windows_64bit.zip")
+
+  }
+    rootDir<-getwd()
+    bbExe<-file.path(rootDir,"biobtree.exe")
+    return(bbExe)
+
+  }else if (Sys.info()['sysname'] == "Darwin"){
+
+    if(!file.exists("biobtree")){
+
+      latestUrl<-p("https://github.com/tamerh/biobtree/releases/download/",latestbbVersion(),"/biobtree_MacOS_64bit.tar.gz")
+      download.file(latestUrl,"biobtree_MacOS_64bit.tar.gz",mode="wb")
+      system2("tar",args=" -xzvf biobtree_MacOS_64bit.tar.gz")
+      file.remove("biobtree_MacOS_64bit.tar.gz")
+
+    }
+    rootDir<-getwd()
+    bbExe<-file.path(rootDir,"biobtree")
+    return(bbExe)
+
+  }else if (Sys.info()['sysname'] == "Linux"){
+
+    if(!file.exists("biobtree")){
+
+      latestUrl<-p("https://github.com/tamerh/biobtree/releases/download/",latestbbVersion(),"/biobtree_Linux_64bit.tar.gz")
+      download.file(latestUrl,"biobtree_Linux_64bit.tar.gz",mode="wb")
+      system2("tar",args=" -xzvf biobtree_Linux_64bit.tar.gz")
+      file.remove("biobtree_Linux_64bit.tar.gz")
+
+    }
+    rootDir<-getwd()
+    bbExe<-file.path(rootDir,"biobtree")
+    return(bbExe)
+
+  }
+
+  stop(p("Unsupported OS -> ",Sys.info()['sysname']))
+
+}
+
+latestbbVersion<- function(){
+
+  relurl<-GET("https://github.com/tamerh/biobtree/releases/latest")
+  if (relurl$status_code!=200){
+    stop("Error while connecting github for retrieving file")
+  }
+  splittedurl<-unlist(strsplit(relurl$url,"/"))
+  return(splittedurl[length(splittedurl)])
+
+}
+
+#' @title List Genomes
+#'
+#' @description This function list the ensembl genome names. These names can be used in bbBuildData function
+#'
+#' @param ensemblType These param can be one of the following "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"
+#'
+#' @return returns list of genome names
+#'
+#' @examples
+#'
+#' bbStart()
+#' bbListGenomes("ensembl")
+#' #For ensembl genomes
+#' bbListGenomes("ensembl_bacteria")
+#' bbListGenomes("ensembl_fungi")
+#' bbListGenomes("ensembl_metazoa")
+#' bbListGenomes("ensembl_plants")
+#' bbListGenomes("ensembl_protists")
+#'
+bbListGenomes <- function(ensemblType){
+
+  if (ensemblType =="ensembl" || ensemblType =="ensembl_bacteria" || ensemblType =="ensembl_fungi"
+      || ensemblType =="ensembl_metazoa" || ensemblType =="ensembl_plants" || ensemblType =="ensembl_protists"){
+
+    geneomeJsonUrl <- p(biobtreeR.env$config@endpoint,"/genomes/",ensemblType,".paths.json")
+
+    res <- content(GET(geneomeJsonUrl),as="parsed")
+
+    return(names(res$jsons))
+
+  }else{
+    stop(p("Invalid ensembl type ",ensemblType))
+  }
+
+}
+
+#' @title Search identifiers or special keywords
 #'
 #' @description Search identifiers or special keywords terms uniformly and resolve their actual unique identifiers and datasets. Keywords
 #' can be several things for instance for uniprot an accession like "vav_human" can be a keyword which points to its original
@@ -88,17 +348,21 @@ bbInit <- function(biobtreeURL=NULL) {
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
-#' bbSearch("vav_human,tpi1,homo sapiens")
-#' bbSearch("tpi1","hgnc")
+#'
+#' bbStart()
+#' bbSearch("P15498,tpi1,shh")
+#'
+#' \dontrun{
+#' # run this examplee with building the default dataset with bbBuildData()
 #' bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
+#' }
 #'
 
 bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=1000){
 
   wsurl <- function(terms,source,filter,page){
 
-      searchurl <- p(bbConfig@endpoint,"/ws/?i=",encodeURIComponent(terms))
+      searchurl <- p(biobtreeR.env$config@endpoint,"/ws/?i=",encodeURIComponent(terms))
 
       if (length(page) > 0) {
         searchurl <-p(searchurl,"&p=" , page)
@@ -148,7 +412,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
         input[i]<-r$identifier
       }
       id[i]<-r$identifier
-      source[i]<-bbConfig@datasetMetaByNum[[r$dataset]]$id
+      source[i]<-biobtreeR.env$config@datasetMetaByNum[[r$dataset]]$id
       i=i+1
     }
     df<-data.frame(input=input,identfier=id,dataset=source)
@@ -158,7 +422,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 }
 
 
-#' @title Maps bioinformatics datasets identifiers and keywords
+#' @title Chain mapping and filtering
 #'
 #' @description Chain mapping identifiers or keywords with filtering and retrieving attributes if available.
 #'
@@ -180,7 +444,13 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
+#'
+#' bbStart()
+#' bbMapFilter("tpi1",'map(uniprot)')
+#' bbMapFilter("shh",'map(ensembl)')
+#'
+#' \dontrun{
+#' # run these examples with building the default dataset with bbBuildData()
 #' #Map protein to its go terms and retrieve go term types
 #' bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
 #'
@@ -193,11 +463,12 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #' #Map Affymetrix identifiers to Ensembl identifiers and gene names
 #' bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
 #'
+#'}
 bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
 
   wsurl <- function(terms,mapfilter,source,page){
 
-    mfurl <- p(bbConfig@endpoint,"/ws/map/?i=",encodeURIComponent(terms),"&m=",encodeURIComponent(mapfilter))
+    mfurl <- p(biobtreeR.env$config@endpoint,"/ws/map/?i=",encodeURIComponent(terms),"&m=",encodeURIComponent(mapfilter))
 
     if (length(page) > 0) {
       mfurl <-p(mfurl,"&p=" , page)
@@ -309,7 +580,7 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 
           if(multiInput){
             source_id<-results[[i]]$source$dataset
-            in_source[index]<-bbConfig@datasetMetaByNum[[source_id]]$id
+            in_source[index]<-biobtreeR.env$config@datasetMetaByNum[[source_id]]$id
           }
         }else{
           if(multiInput){
@@ -382,12 +653,14 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
-#' bbEntry("p15498","uniprot")
+#'
+#' bbStart()
+#' bbEntry("HGNC:12009","hgnc")
+#'
 
 bbEntry <- function(identifer,source){
 
-  searchurl <- p(bbConfig@endpoint,"/ws/entry/?i=",encodeURIComponent(identifer),"&s=",source)
+  searchurl <- p(biobtreeR.env$config@endpoint,"/ws/entry/?i=",encodeURIComponent(identifer),"&s=",source)
   res <- content(GET(searchurl),as="parsed")
   return(res)
 }
@@ -407,18 +680,22 @@ bbEntry <- function(identifer,source){
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
-#' bbEntryFilter("p15498","uniprot","go,kegg")
+#'
+#'
+#' bbStart()
+#' bbEntryFilter("HGNC:12009","hgnc","uniprot,ensembl")
+#'
+#'
+
 
 bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 
-  searchurl = p(bbConfig@endpoint,"/ws/filter/?i=",encodeURIComponent(identifer),'&s=', source , '&f=' ,filters)
+  searchurl = p(biobtreeR.env$config@endpoint,"/ws/filter/?i=",encodeURIComponent(identifer),'&s=', source , '&f=' ,filters)
 
   if (length(page) > 0) {
     searchurl =p(searchurl,"&p=" , page)
   }
 
-  print(searchurl)
   res <- content(GET(searchurl),as="parsed")
   return(res)
 
@@ -438,14 +715,15 @@ bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 #'
 #' @author Tamer Gur
 #'
-#' @examples
-#' bbInit()
-#' bbEntryPage("p15498","uniprot",0,6)
+#' bbStart()
+#' bbEntryPage("HGNC:12009","hgnc",0,0)
+#'
+#'
+
 bbEntryPage <- function (identifer, source, page, totalPage) {
 
-  searchurl = p(bbConfig@endpoint,"/ws/page/?i=" ,identifer , '&s=' , source , '&p=' , page , '&t=' , totalPage)
+  searchurl = p(biobtreeR.env$config@endpoint,"/ws/page/?i=" ,identifer , '&s=' , source , '&p=' , page , '&t=' , totalPage)
 
-  print(searchurl)
   res <-content(GET(searchurl),as="parsed")
   return(res)
 
@@ -463,27 +741,30 @@ bbEntryPage <- function (identifer, source, page, totalPage) {
 #'  @author Tamer Gur
 #'
 #' @examples
-#' bbInit()
+#' bbStart()
+#' bbURL("HGNC:12009","hgnc")
 #' bbURL("p15498","uniprot")
+#' bbStop()
+#'
 
 bbURL <-function(identifer,source){
 
-  if(length(bbConfig@datasetMeta[[source]])==0){
+  if(length(biobtreeR.env$config@datasetMeta[[source]])==0){
      stop(p("Invalid dataset ",source))
   }
-  if(length(bbConfig@datasetMeta[[source]]$url)==0){
+  if(length(biobtreeR.env$config@datasetMeta[[source]]$url)==0){
       stop("This dataset has no url confiGured")
   }
 
   if(source=="ufeature"){
 
     pid<-unlist(strsplit(identifer,"_"))
-    res<-gsub("\u00A3\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",pid[1],biobtreeR.env$config@datasetMeta[[source]]$url)
 
   }else if(source=="variantid"){
 
     pid<-tolower(identifer)
-    res<-gsub("\u00A3\\{id\\}",pid[1],bbConfig@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",pid[1],biobtreeR.env$config@datasetMeta[[source]]$url)
 
   }else if (source=="ensembl" || source=="transcript" || source=="exon"){
 
@@ -493,17 +774,17 @@ bbURL <-function(identifer,source){
     if (length(r[[1]]$Attributes$Ensembl)>0){
       branch<-r[[1]]$Attributes$Ensembl$branch
       if(branch==1){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$url)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$url)
       }else if(branch==2){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$bacteriaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$bacteriaUrl)
       }else if(branch==3){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$fungiUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$fungiUrl)
       }else if(branch==4){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$metazoaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$metazoaUrl)
       }else if(branch==5){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$plantsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$plantsUrl)
       }else if(branch==6){
-        res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$protistsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$protistsUrl)
       }
       if(source=="ensembl"){
         res<-gsub("\u00A3\\{sp\\}",r[[1]]$Attributes$Ensembl$genome,res)
@@ -512,7 +793,7 @@ bbURL <-function(identifer,source){
     }
 
   }else{
-    res<-gsub("\u00A3\\{id\\}",identifer,bbConfig@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$url)
   }
 
   return(res)
@@ -530,9 +811,11 @@ bbURL <-function(identifer,source){
 #'
 #' @author Tamer Gur
 #'
-#' @exampless
-#' bbInit()
-#' bbAttr("p15498","uniprot")
+#' @examples
+#' bbBuildData(datasets="hgnc",reset=TRUE)
+#' bbStart()
+#' bbAttr("HGNC:12009","hgnc")
+#'
 
 bbAttr <- function(identifer,source){
 
@@ -546,6 +829,55 @@ bbAttr <- function(identifer,source){
     reslist=eval(parse(text=attrsPath))
     return(names(reslist))
 
+}
+
+#'
+#' @title Stop biobtree
+#'
+#' @description Stops running background biobtree process which started with \code{bbStart}
+#' @return returns empty
+#'
+#' @examples
+#' bbStop()
+bbStop <- function(){
+
+  if(file.exists("biobtreePID.rds")){
+
+    biobtreePID<-readRDS("biobtreePID.rds")
+    res<-pskill(biobtreePID,signal = tools::SIGKILL)
+    if(res[1]){
+      file.remove("biobtreePID.rds")
+    }
+
+  }
+
+}
+
+#' @title Clear Data
+#'
+#' @description ATTENTION clear all the data. Instead new data can built with bbBuildData reset=TRUE
+#'
+#' @return returns empty
+#'
+bbClearData<- function(){
+
+  bbStop()
+  rootDir<-getwd()
+  unlink(file.path(rootDir,"conf"),recursive = TRUE)
+  unlink(file.path(rootDir,"out"),recursive = TRUE)
+  unlink(file.path(rootDir,"ensembl"),recursive = TRUE)
+  unlink(file.path(rootDir,"website"),recursive = TRUE)
+  unlink(file.path(rootDir,"sd"),recursive = TRUE)
+  deleteIfExist("biobtree.exe")
+  deleteIfExist("biobtree")
+  deleteIfExist("biobtreePID.rds")
+
+}
+
+deleteIfExist<-function(name){
+  if(file.exists(name)){
+    file.remove(name)
+  }
 }
 
 p <- function(..., sep='') {

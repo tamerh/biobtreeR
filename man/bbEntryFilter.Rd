@@ -22,8 +22,12 @@ returns biobtree json object
 Similar with entry retrieval but filtered mapping entries with given datasets.
 }
 \examples{
-bbInit()
-bbEntryFilter("p15498","uniprot","go,kegg")
+
+
+bbStart()
+bbEntryFilter("HGNC:12009","hgnc","uniprot,ensembl")
+
+
 }
 \author{
 Tamer Gur

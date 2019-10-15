@@ -20,6 +20,9 @@ returns unique url
 Provides unique url for the identifier and dataset
 }
 \examples{
-bbInit()
+bbStart()
+bbURL("HGNC:12009","hgnc")
 bbURL("p15498","uniprot")
+bbStop()
+
 }

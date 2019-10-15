@@ -22,10 +22,9 @@ returns biobtree json object
 \description{
 If an entry contains large set of mapping entries it is paginated by biobtree with confiGured paging size. This function retrieve these paging for an entry
 }
-\examples{
-bbInit()
-bbEntryPage("p15498","uniprot",0,6)
-}
 \author{
 Tamer Gur
+
+bbStart()
+bbEntryPage("HGNC:12009","hgnc",0,0)
 }
