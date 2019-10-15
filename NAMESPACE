@@ -1,6 +1,6 @@
 importFrom(httr, HEAD ,GET, content)
 importFrom(httpuv,encodeURIComponent)
-importFrom(sys,exec_background,exec_wait)
+importFrom(sys,exec_background,exec_wait,exec_status)
 importFrom(tools,pskill)
 importFrom(stringi,stri_trim)
 

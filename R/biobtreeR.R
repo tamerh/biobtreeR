@@ -236,7 +236,7 @@ bbExeFile<- function(){
   if (Sys.info()['sysname'] == "Windows") {
 
   if(!file.exists("biobtree.exe")){
-    
+
     latestUrl<-p("https://github.com/tamerh/biobtree/releases/download/",latestbbVersion(),"/biobtree_Windows_64bit.zip")
     download.file(latestUrl,"biobtree_Windows_64bit.zip",mode="wb")
     unzip("biobtree_Windows_64bit.zip")
@@ -849,6 +849,8 @@ bbStop <- function(){
     if(res[1]){
       file.remove("biobtreePID.rds")
     }
+    exec_status(biobtreePID)
+    rm(biobtreePID)
 
   }
 
