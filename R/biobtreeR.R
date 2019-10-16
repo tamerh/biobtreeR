@@ -879,9 +879,9 @@ bbClearData<- function(){
   unlink(file.path(rootDir,"ensembl"),recursive = TRUE)
   unlink(file.path(rootDir,"website"),recursive = TRUE)
   unlink(file.path(rootDir,"sd"),recursive = TRUE)
-  deleteIfExist("biobtree.exe")
-  deleteIfExist("biobtree")
-  deleteIfExist("biobtreePID.rds")
+  #deleteIfExist("biobtree.exe")
+  #deleteIfExist("biobtree")
+  #deleteIfExist("biobtreePID.rds")
 
 }
 

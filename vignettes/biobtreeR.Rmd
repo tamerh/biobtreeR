@@ -27,7 +27,7 @@ library(biobtreeR)
 ```
 
 ```{r}
-bbBuildData(datasets = "taxonomy,hgnc,uniprot,go",targetDatasets = "hgnc,uniprot,taxonomy,ufeature,go,pdb,taxchild,taxparent") 
+bbBuildData(datasets = "hgnc,uniprot,go",targetDatasets = "hgnc,uniprot,taxonomy,ufeature,go,pdb") 
 ```
 
 **Starting web server**
@@ -164,13 +164,6 @@ bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(un
 
 ```{r}
 bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
-```
-
-**All protein identifiers and sequences of childs of Salmonella species**
-
-```{r}
-res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(uniprot)",attrs = "sequence$seq")
-head(res)
 ```
 
 **Get all variation identifiers from a gene with given condition**
