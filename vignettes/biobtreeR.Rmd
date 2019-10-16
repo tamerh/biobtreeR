@@ -27,7 +27,7 @@ library(biobtreeR)
 ```
 
 ```{r}
-bbBuildData(datasets = "taxonomy,hgnc,uniprot,go") 
+bbBuildData(datasets = "taxonomy,hgnc,uniprot,go",targetDatasets = "hgnc,uniprot,taxonomy,ufeature,go,pdb,taxchild,taxparent") 
 ```
 
 **Starting web server**
@@ -293,7 +293,7 @@ bbMapFilter("ENSG00000139618,shh" ,'map(entrez)')
 
 **Map refseq identifiers to hgnc identifiers**
 
-```{r}
+```{r eval = FALSE}
 bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 

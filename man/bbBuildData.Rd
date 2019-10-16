@@ -4,13 +4,16 @@
 \alias{bbBuildData}
 \title{Build your data}
 \usage{
-bbBuildData(genome = NULL, datasets = NULL, genomePattern = NULL,
-  reset = FALSE, rawArgs = NULL)
+bbBuildData(genome = NULL, datasets = NULL, targetDatasets = NULL,
+  genomePattern = NULL, reset = FALSE, rawArgs = NULL)
 }
 \arguments{
 \item{genome}{Comma seperated list of ensembl genomes. To list all the genome names \code{bbListGenomes} function can be used.}
 
 \item{datasets}{Comma seperated list of datasets for build. Default datasets are taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo chebi interpro}
+
+\item{targetDatasets}{Comma seperated target datasets. This params allows to buld data with only given datasets. It is useful if interested only certain dataset mappings
+It speeds up the process and save disc space.}
 
 \item{genomePattern}{Alternative to the genome paramter to build set of genomes conveniently}
 
@@ -31,6 +34,7 @@ These datasets are called source datasets other dataset' identifers and mappings
 bbStop() # stop first if running
 bbBuildData(datasets="hgnc",reset=TRUE)
 
+bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl",reset=TRUE)
 \dontrun{
 
   # build all the default dataset

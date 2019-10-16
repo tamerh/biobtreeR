@@ -23,6 +23,9 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'
 #' @param datasets Comma seperated list of datasets for build. Default datasets are taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo chebi interpro
 #'
+#' @param targetDatasets Comma seperated target datasets. This params allows to buld data with only given datasets. It is useful if interested only certain dataset mappings
+#' It speeds up the process and save disc space.
+#'
 #' @param genomePattern Alternative to the genome paramter to build set of genomes conveniently
 #'
 #' @param reset Override previously build data if exist
@@ -38,6 +41,7 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #' bbStop() # stop first if running
 #' bbBuildData(datasets="hgnc",reset=TRUE)
 #'
+#' bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl",reset=TRUE)
 #' \dontrun{
 #'
 #'   # build all the default dataset
@@ -62,7 +66,7 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'
 #'
 #' }
-bbBuildData<-function(genome=NULL,datasets=NULL,genomePattern=NULL,reset=FALSE,rawArgs=NULL) {
+bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePattern=NULL,reset=FALSE,rawArgs=NULL) {
 
   endpoint <- "http://localhost:8888"
 
@@ -101,6 +105,10 @@ bbBuildData<-function(genome=NULL,datasets=NULL,genomePattern=NULL,reset=FALSE,r
 
     if(length(datasets)>0){
       args<-p(args," -d ",datasets)
+    }
+
+    if(length(targetDatasets)>0){
+      args<-p(args," -t ",targetDatasets)
     }
 
     args<-p(args," build")
