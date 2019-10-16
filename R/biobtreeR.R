@@ -509,9 +509,9 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
         stop(res$Err)
       }
 
-      for(i in 1:length(newres$results)){
+      for(i in seq_len(length(newres$results))){
           found=FALSE
-          for(j in 1:length(results)){
+          for(j in seq_len(length(results))){
             if ( identical(newres$results[[i]]$source$doman_id,results[[j]]$source$doman_id) && identical(newres$results[[i]]$source$identifier,results[[j]]$source$identifier)) {
               results[[j]]$targets<-append(results[[j]]$targets,newres$results[[i]]$targets)
               totalMapping=totalMapping+length(newres$results[[i]]$targets)
@@ -563,9 +563,9 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
     map_id<-c()
 
     index=1
-    for(i in 1:length(results)){
+    for(i in seq_len(length(results))){
 
-      for(j in 1:length(results[[i]]$targets)){
+      for(j in seq_len(length(results[[i]]$targets))){
 
         if(multiInput){
           if(length(results[[i]]$source$keyword)>0){

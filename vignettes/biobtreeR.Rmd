@@ -19,10 +19,8 @@ The biobtreeR package provides an interface to [biobtree](https://github.com/tam
 
 # Getting started 
 
-## Build data
-biobtreeR process and store the datasets locally by downloading from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed 
-it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets. Following examples shows the example usages, 
-
+**Building data**
+biobtreeR process and store the datasets locally by downloading from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets. For instance uniprot release cycle is monthly and ensembl is every 3 months. 
 
 ```{r}
 library(biobtreeR)
@@ -32,30 +30,9 @@ library(biobtreeR)
 bbBuildData(datasets = "taxonomy,hgnc,uniprot,go") 
 ```
 
+**Starting web server**
 
-```{r eval=FALSE}
-# build default datasets taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo
-# duration vary to network speed
-bbBuildData() 
-
-# build only specific datasets
-bbBuildData(datasets="uniprot,hgnc")
-
-# build both mouse and human genomes in ensembl insted of default human
-bbBuildData(genome="homo_sapiens,mus_musculus")
-
-# build genomes from ensembl genomes fungi
-bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
-
-# bacteria genomes with pattern
-bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
-
-```
-
-
-## Start/stop server
-
-Once the building data completed biobtree server starts with `bbStart` which allows performing queries and provide web interface. Once the analyses has been done server can be stopped `bbStop` 
+Once the building data completed web server starts with `bbStart` which allows performing queries from this package and provide web interface for data exploration.  
 
 ```{r}
 bbStart()
@@ -64,7 +41,7 @@ bbStart()
 
 ## List available Ensembl genomes 
 
-In order to use in the build process all the available Ensembl genomes names can be listed with with `bbListGenomes` function. 
+In order to use in the data build process for Ensembl genomes all the available Ensembl genomes names can be listed with with `bbListGenomes` function. 
 
 **List ensembl genomes**
 
@@ -150,7 +127,83 @@ bbAttr("GO:0002020",'go')
 
 In this section mapping functionality will be discussed in detail with example use cases for gene and protein centric use cases.
 
+## Protein centric use cases
+
+Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let's list some protein related datasets attributes and then execute example queries similary with gene centric examples,
+
+```{r}
+bbAttr("p15498","uniprot")
+```
+
+```{r}
+bbAttr("p15498_f12","ufeature")
+```
+
+```{r}
+bbAttr("1gzh","pdb")
+```
+
+```{r eval = FALSE}
+bbAttr("IPR017907","interpro")
+```
+
+
+**Map gene names to reviewed uniprot identifiers**
+
+```{r}
+bbMapFilter("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot).filter(uniprot.reviewed)",source ="hgnc")
+```
+
+**Filter proteins by sequence mass and retrieve protein sequences**
+
+```{r}
+bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
+```
+
+**Helix type feature locations of a protein**
+
+```{r}
+bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
+```
+
+**All protein identifiers and sequences of childs of Salmonella species**
+
+```{r}
+res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(uniprot)",attrs = "sequence$seq")
+head(res)
+```
+
+**Get all variation identifiers from a gene with given condition**
+
+```{r}
+bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
+```
+
 ## Gene centric use cases
+
+Rich gene centric usecase requires to build Ensembl data for instance Ensembl human data is built with following way
+
+```{r eval=FALSE}
+# build default datasets ensembl(homo_sapiens) uniprot(reviewed) hgnc taxonomy go eco efo interpro chebi
+bbBuildData() 
+```
+
+Examples usage of building other Ensembl genomes 
+```{r eval=FALSE}
+
+# build both mouse and human genomes in ensembl insted of default human
+bbBuildData(genome="homo_sapiens,mus_musculus")
+
+# build genomes from ensembl genomes fungi
+bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
+
+# multiple species genomes from ensembl genomes plants and protists
+bbBuildData(datasets="++ensembl_plants,ensembl_protists",genomes="arabidopsis_thaliana,phytophthora_parasitica")
+
+# multiple bacteria genomes with pattern
+bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
+
+```
 
 Ensembl, Ensembl Genomes and HGNC datasets are used for gene related data. One of the most common gene related dataset identfiers are `ensembl`,`hgnc`,`transcript`,`exon`. Let's start with listing their attiributes,
 
@@ -244,58 +297,6 @@ bbMapFilter("ENSG00000139618,shh" ,'map(entrez)')
 bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 
-
-## Protein centric use cases
-
-Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let's list some protein related datasets attributes and then execute example queries similary with gene centric examples,
-
-```{r}
-bbAttr("p15498","uniprot")
-```
-
-```{r}
-bbAttr("p15498_f12","ufeature")
-```
-
-```{r}
-bbAttr("1gzh","pdb")
-```
-
-```{r eval = FALSE}
-bbAttr("IPR017907","interpro")
-```
-
-
-**Map gene names to reviewed uniprot identifiers**
-
-```{r}
-bbMapFilter("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot).filter(uniprot.reviewed)",source ="hgnc")
-```
-
-**Filter proteins by sequence mass and retrieve protein sequences**
-
-```{r}
-bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
-```
-
-**Helix type feature locations of a protein**
-
-```{r}
-bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
-```
-
-**All protein identifiers and sequences of childs of Salmonella species**
-
-```{r}
-res<-bbMapFilter("Salmonella enterica subsp. enterica","map(taxchild).map(uniprot)",attrs = "sequence$seq")
-head(res)
-```
-
-**Get all variation identifiers from a gene with given condition**
-
-```{r}
-bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
-```
 
 # Clear data
 

@@ -8,3 +8,9 @@ biobtree
 biobtreeRoot
 biobtreeRoot/*
 .DS_Store
+conf/*
+ensembl/*
+out/*
+website/*
+LICENSE*.md
+biobtreePID.rds
