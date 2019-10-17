@@ -93,6 +93,17 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
     system2(execFile,args=rawArgs)
 
+  }else if (length(datasets)>0 && datasets=="sample_data"){
+
+    args<-" -d hgnc,uniprot,ensembl,interpro"
+    args<- p(args," --uniprot.file ",system.file("uniprot_sample.xml.gz",package="biobtreeR"))
+    args<- p(args," --interpro.file ",system.file("interpro_sample.xml.gz",package="biobtreeR"))
+    untar(system.file("ensembl_sample.json.tar.gz",package="biobtreeR"))
+    args<- p(args," --ensembl.file ","ensembl_sample.json")
+    args<-p(args," build")
+
+    system2(execFile,args=args)
+
   }else{
 
     args<-""
@@ -598,11 +609,19 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
           }
         }
         if(length(attrsNames)>0){
-          attrsPath<-p("results[[i]]$targets[[j]]$Attributes$",names(results[[i]]$targets[[j]]$Attributes)[1])
-          for(at in attrsNames){
-             atPath<-p(attrsPath,"$",at)
-             attrsVals[[at]][index]<-eval(parse(text=atPath))
+          attrName<-names(results[[i]]$targets[[j]]$Attributes)[1]
+          if(attrName!="Empty"){
+            attrsPath<-p("results[[i]]$targets[[j]]$Attributes$",attrName)
+            for(at in attrsNames){
+              atPath<-p(attrsPath,"$",at)
+              attrsVals[[at]][index]<-eval(parse(text=atPath))
+            }
+          }else{
+            for(at in attrsNames){
+              attrsVals[[at]][index]<-""
+            }
           }
+
         }
 
         if(length(inAttrsNames)>0){
