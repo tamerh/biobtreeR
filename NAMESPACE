@@ -1,4 +1,5 @@
 importFrom(httr, HEAD ,GET, content)
+importFrom(jsonlite, fromJSON)
 importFrom(httpuv,encodeURIComponent)
 importFrom(sys,exec_background,exec_wait,exec_status)
 importFrom(tools,pskill)

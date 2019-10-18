@@ -350,9 +350,11 @@ bbListGenomes <- function(ensemblType){
 
     geneomeJsonUrl <- p(getConfig()@endpoint,"/genomes/",ensemblType,".paths.json")
 
-    res <- content(GET(geneomeJsonUrl),as="parsed")
+    res<-content(GET(geneomeJsonUrl),as = "text")
 
-    return(names(res$jsons))
+    resjson <- fromJSON(res)
+
+    return(names(resjson$jsons))
 
   }else{
     stop(p("Invalid ensembl type ",ensemblType))
