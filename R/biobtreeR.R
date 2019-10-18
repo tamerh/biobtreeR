@@ -1,6 +1,5 @@
-
-biobtreeR.env <- new.env(parent = emptyenv())
-biobtreeR.env$config<-NULL
+biobtreeREnv <- new.env(parent = emptyenv())
+bbConfig<-NULL
 
 #' @title Class for biobtreeR config
 #'
@@ -153,9 +152,10 @@ bbStart<-function(biobtreeURL=NULL) {
   if (length(biobtreeURL) > 0) {
 
     endpoint <- biobtreeURL
+    getConfig(endpoint)
+    return(p("biobtreeR configured wth url ",biobtreeURL))
 
   }else{
-
 
     endpoint <- "http://localhost:8888"
     metaEndpoint<-p(endpoint,"/ws/meta")
@@ -180,22 +180,36 @@ bbStart<-function(biobtreeURL=NULL) {
           next
         }
 
-        print("biobtree started")
-        break
+        getConfig(endpoint)
+        return("biobtreeR started")
 
       }
     }else{
-      print("biobtree started before. R Config will be refreshed")
+
+      getConfig(endpoint)
+      return("biobtreeR started before.Config refreshed")
+
     }
 
  }
+
+}
+
+getConfig <- function(endpoint=NULL){
+
+  if (exists("bbConfig", envir=biobtreeREnv)){
+    return(get("bbConfig", envir=biobtreeREnv))
+  }
 
   datasetIDs <- list()
   datasetMeta <- list()
   datasetMetaByNum <- list()
 
-  rawmeta <- content(GET(p(endpoint,"/ws/meta")),as="parsed")
+  if(length(endpoint)<=0){
+    endpoint <- "http://localhost:8888"
+  }
 
+  rawmeta <- content(GET(p(endpoint,"/ws/meta")),as="parsed")
   #first sort by numeric id
   datasetNumericIds <- sort(as.numeric(names(rawmeta)))
 
@@ -227,11 +241,10 @@ bbStart<-function(biobtreeURL=NULL) {
             datasetIDs=datasetIDs,
             datasetMeta=datasetMeta,
             datasetMetaByNum=datasetMetaByNum)
-  biobtreeR.env$config<-conf
 
-  #assign("bbConfig",conf, envir = .GlobalEnv)
+  assign("bbConfig",conf, envir = biobtreeREnv)
 
-
+  return(conf)
 
 }
 
@@ -335,7 +348,7 @@ bbListGenomes <- function(ensemblType){
   if (ensemblType =="ensembl" || ensemblType =="ensembl_bacteria" || ensemblType =="ensembl_fungi"
       || ensemblType =="ensembl_metazoa" || ensemblType =="ensembl_plants" || ensemblType =="ensembl_protists"){
 
-    geneomeJsonUrl <- p(biobtreeR.env$config@endpoint,"/genomes/",ensemblType,".paths.json")
+    geneomeJsonUrl <- p(getConfig()@endpoint,"/genomes/",ensemblType,".paths.json")
 
     res <- content(GET(geneomeJsonUrl),as="parsed")
 
@@ -382,7 +395,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 
   wsurl <- function(terms,source,filter,page){
 
-      searchurl <- p(biobtreeR.env$config@endpoint,"/ws/?i=",encodeURIComponent(terms))
+      searchurl <- p(getConfig()@endpoint,"/ws/?i=",encodeURIComponent(terms))
 
       if (length(page) > 0) {
         searchurl <-p(searchurl,"&p=" , page)
@@ -432,7 +445,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
         input[i]<-r$identifier
       }
       id[i]<-r$identifier
-      source[i]<-biobtreeR.env$config@datasetMetaByNum[[r$dataset]]$id
+      source[i]<-getConfig()@datasetMetaByNum[[r$dataset]]$id
       i=i+1
     }
     df<-data.frame(input=input,identfier=id,dataset=source)
@@ -488,7 +501,7 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 
   wsurl <- function(terms,mapfilter,source,page){
 
-    mfurl <- p(biobtreeR.env$config@endpoint,"/ws/map/?i=",encodeURIComponent(terms),"&m=",encodeURIComponent(mapfilter))
+    mfurl <- p(getConfig()@endpoint,"/ws/map/?i=",encodeURIComponent(terms),"&m=",encodeURIComponent(mapfilter))
 
     if (length(page) > 0) {
       mfurl <-p(mfurl,"&p=" , page)
@@ -600,7 +613,7 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 
           if(multiInput){
             source_id<-results[[i]]$source$dataset
-            in_source[index]<-biobtreeR.env$config@datasetMetaByNum[[source_id]]$id
+            in_source[index]<-getConfig()@datasetMetaByNum[[source_id]]$id
           }
         }else{
           if(multiInput){
@@ -688,7 +701,7 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 
 bbEntry <- function(identifer,source){
 
-  searchurl <- p(biobtreeR.env$config@endpoint,"/ws/entry/?i=",encodeURIComponent(identifer),"&s=",source)
+  searchurl <- p(getConfig()@endpoint,"/ws/entry/?i=",encodeURIComponent(identifer),"&s=",source)
   res <- content(GET(searchurl),as="parsed")
   return(res)
 }
@@ -718,7 +731,7 @@ bbEntry <- function(identifer,source){
 
 bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 
-  searchurl = p(biobtreeR.env$config@endpoint,"/ws/filter/?i=",encodeURIComponent(identifer),'&s=', source , '&f=' ,filters)
+  searchurl = p(getConfig()@endpoint,"/ws/filter/?i=",encodeURIComponent(identifer),'&s=', source , '&f=' ,filters)
 
   if (length(page) > 0) {
     searchurl =p(searchurl,"&p=" , page)
@@ -750,7 +763,7 @@ bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 
 bbEntryPage <- function (identifer, source, page, totalPage) {
 
-  searchurl = p(biobtreeR.env$config@endpoint,"/ws/page/?i=" ,identifer , '&s=' , source , '&p=' , page , '&t=' , totalPage)
+  searchurl = p(getConfig()@endpoint,"/ws/page/?i=" ,identifer , '&s=' , source , '&p=' , page , '&t=' , totalPage)
 
   res <-content(GET(searchurl),as="parsed")
   return(res)
@@ -777,22 +790,23 @@ bbEntryPage <- function (identifer, source, page, totalPage) {
 
 bbURL <-function(identifer,source){
 
-  if(length(biobtreeR.env$config@datasetMeta[[source]])==0){
+  if(length(getConfig()@datasetMeta[[source]])==0){
      stop(p("Invalid dataset ",source))
   }
-  if(length(biobtreeR.env$config@datasetMeta[[source]]$url)==0){
+  if(length(getConfig()@datasetMeta[[source]]$url)==0){
       stop("This dataset has no url confiGured")
   }
 
+  config<-getConfig()
   if(source=="ufeature"){
 
     pid<-unlist(strsplit(identifer,"_"))
-    res<-gsub("\u00A3\\{id\\}",pid[1],biobtreeR.env$config@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",pid[1],config@datasetMeta[[source]]$url)
 
   }else if(source=="variantid"){
 
     pid<-tolower(identifer)
-    res<-gsub("\u00A3\\{id\\}",pid[1],biobtreeR.env$config@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",pid[1],config@datasetMeta[[source]]$url)
 
   }else if (source=="ensembl" || source=="transcript" || source=="exon"){
 
@@ -802,17 +816,17 @@ bbURL <-function(identifer,source){
     if (length(r[[1]]$Attributes$Ensembl)>0){
       branch<-r[[1]]$Attributes$Ensembl$branch
       if(branch==1){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$url)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$url)
       }else if(branch==2){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$bacteriaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$bacteriaUrl)
       }else if(branch==3){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$fungiUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$fungiUrl)
       }else if(branch==4){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$metazoaUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$metazoaUrl)
       }else if(branch==5){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$plantsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$plantsUrl)
       }else if(branch==6){
-        res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$protistsUrl)
+        res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$protistsUrl)
       }
       if(source=="ensembl"){
         res<-gsub("\u00A3\\{sp\\}",r[[1]]$Attributes$Ensembl$genome,res)
@@ -821,7 +835,7 @@ bbURL <-function(identifer,source){
     }
 
   }else{
-    res<-gsub("\u00A3\\{id\\}",identifer,biobtreeR.env$config@datasetMeta[[source]]$url)
+    res<-gsub("\u00A3\\{id\\}",identifer,config@datasetMeta[[source]]$url)
   }
 
   return(res)
