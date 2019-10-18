@@ -190,39 +190,6 @@ res<-bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_
 head(res)
 ```
 
-
-**Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
-```{r eval = FALSE}
-res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
-head(res)
-```
-
-
-**Get all Ensembl human identifiers and gene names within or overlapping range**
-```{r eval = FALSE}
-bbMapFilter("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
-```
-
-In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.
-
-**Map Affymetrix identifiers to Ensembl identifiers and gene names**
-
-```{r eval = FALSE}
-bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
-```
-
-Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
-
-```{r eval = FALSE}
-bbMapFilter("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
-```
-
-**Retrieve all the human gene names which contains TTY**
-```{r eval = FALSE}
-res<-bbMapFilter("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
-head(res)
-```
-
 **Map gene to its ortholog identifiers**
 
 ```{r eval = FALSE}
@@ -248,6 +215,38 @@ bbMapFilter("ENSG00000073910,shh" ,'map(entrez)')
 bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 
+**Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
+```{r eval = FALSE}
+res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
+head(res)
+```
+
+Following examples require to build real human genome dataset 
+
+**Get all Ensembl human identifiers and gene names within or overlapping range**
+```{r eval = FALSE}
+bbMapFilter("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
+```
+
+In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.
+
+**Map Affymetrix identifiers to Ensembl identifiers and gene names**
+
+```{r eval = FALSE}
+bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+```
+
+Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
+
+```{r eval = FALSE}
+bbMapFilter("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
+```
+
+**Retrieve all the human gene names which contains TTY**
+```{r eval = FALSE}
+res<-bbMapFilter("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
+head(res)
+```
 
 ## Protein centric use cases
 
