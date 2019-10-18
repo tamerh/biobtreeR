@@ -164,11 +164,7 @@ bbStart<-function(biobtreeURL=NULL) {
     if(!isbbRunning(metaEndpoint)){ #First check for running biobtree if found use it
 
       rootDir<-getwd()
-      #bbDir<-file.path(rootDir,"biobtreeRoot")
-      biobtreePID<-exec_background(execFile,args=c("web"))
-      print(p("biobtree started in the background with pid->",biobtreePID))
-      #setwd(rootDir)
-      saveRDS(biobtreePID,"biobtreePID.rds")
+      system2(execFile,args = "web",wait = FALSE)
 
       # wait here until biobtree data process complete
       print("Starting biobtree...")
@@ -885,27 +881,33 @@ bbAttr <- function(identifer,source){
 #' bbStop()
 bbStop <- function(){
 
-  if(file.exists("biobtreePID.rds")){
+  if(isbbRunning(getConfig()@endpoint)){
 
-    biobtreePID<-readRDS("biobtreePID.rds")
-    res<-pskill(biobtreePID,signal = tools::SIGKILL)
-    if(res[1]){
-      file.remove("biobtreePID.rds")
+    if (Sys.info()['sysname'] == "Windows") {
+
+        system2("taskkill",args = "/IM biobtree.exe /F")
+
+    }else if (Sys.info()['sysname'] == "Darwin"){
+
+      system2("killall",args = "biobtree")
+
+    }else if (Sys.info()['sysname'] == "Linux"){
+
+      system2("killall",args = "biobtree")
+
     }
-    exec_status(biobtreePID)
-    rm(biobtreePID)
 
   }
 
 }
 
-#' @title Clear Data
+#' @title Reset biobtreeR
 #'
-#' @description ATTENTION clear all the data. Instead new data can built with bbBuildData reset=TRUE
+#' @description ATTENTION clears everything. New data can also built with bbBuildData reset=TRUE
 #'
 #' @return returns empty
 #'
-bbClearData<- function(){
+bbClearAll<- function(){
 
   bbStop()
   rootDir<-getwd()
@@ -914,9 +916,8 @@ bbClearData<- function(){
   unlink(file.path(rootDir,"ensembl"),recursive = TRUE)
   unlink(file.path(rootDir,"website"),recursive = TRUE)
   unlink(file.path(rootDir,"sd"),recursive = TRUE)
-  #deleteIfExist("biobtree.exe")
-  #deleteIfExist("biobtree")
-  #deleteIfExist("biobtreePID.rds")
+  deleteIfExist("biobtree.exe")
+  deleteIfExist("biobtree")
 
 }
 

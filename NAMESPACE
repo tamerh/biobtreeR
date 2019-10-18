@@ -1,9 +1,7 @@
 importFrom(httr, HEAD ,GET, content)
 importFrom(httpuv,encodeURIComponent)
 importFrom(jsonlite,fromJSON)
-importFrom(sys,exec_background,exec_wait,exec_status)
-importFrom(tools,pskill)
 importFrom(stringi,stri_trim)
 
-export(bbBuildData,bbClearData,bbStart,bbStop,bbListGenomes,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
+export(bbBuildData,bbClearAll,bbStart,bbStop,bbListGenomes,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
 exportClasses(bbConfig)

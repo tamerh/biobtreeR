@@ -295,10 +295,10 @@ bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && 
 ```
 
 
-# Clear data
+# Clear all
 
 ```{r}
-bbClearData()
+bbClearAll()
 ```
 
 
