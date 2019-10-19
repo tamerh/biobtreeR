@@ -1,4 +1,4 @@
-importFrom(httr, HEAD ,GET, content)
+importFrom(httr,HEAD,content,GET)
 importFrom(httpuv,encodeURIComponent)
 importFrom(jsonlite,fromJSON)
 importFrom(stringi,stri_trim)

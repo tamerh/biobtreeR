@@ -1,7 +1,7 @@
 Package: biobtreeR
 Type: Package
 Title: Interface to biobtree tool
-Version: 0.99.8
+Version: 0.99.10
 Author: Tamer Gur
 Maintainer: Tamer Gur <tgur@ebi.ac.uk>
 Description: The biobtreeR package provides an interface to [biobtree](https://github.com/tamerh/biobtree) tool which covers large set of bioinformatics datasets and allows search and chain mappings functionalities.
@@ -12,7 +12,7 @@ NeedsCompilation: no
 URL: https://github.com/tamerh/biobtreeR
 BugReports: https://github.com/tamerh/biobtreeR/issues
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr, rmarkdown
+Suggests: BiocStyle, knitr
 Imports: httr, httpuv, stringi,jsonlite
 biocViews: Annotation
 RoxygenNote: 6.1.1

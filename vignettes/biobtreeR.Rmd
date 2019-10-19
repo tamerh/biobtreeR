@@ -26,11 +26,12 @@ biobtreeR process and store the datasets locally by downloading from their publi
 library(biobtreeR)
 ```
 
+Building with sample data
 ```{r}
 bbBuildData(datasets="sample_data")
 ```
 
-Examples usage of building real datasets 
+Examples for building with real datasets 
 ```{r eval=FALSE}
 
 # build default datasets ensembl(homo_sapiens) uniprot(reviewed) hgnc taxonomy go eco efo interpro chebi
@@ -59,7 +60,7 @@ bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar
 
 **Starting web server**
 
-Once the building data completed web server starts with `bbStart` which allows performing queries from this package and provide web interface for data exploration.  
+Once the building data completed web server is started with `bbStart` which allows performing queries and provide web interface data exploration.  
 
 ```{r}
 bbStart()
@@ -72,37 +73,37 @@ In order to use in the data build process for Ensembl genomes all the available 
 
 **List ensembl genomes**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl"))
 ```
 
 **List ensembl genomes bacteria**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl"))
 ```
 
 **List ensembl genomes fungi**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl_fungi"))
 ```
 
 **List ensembl genomes metazoa**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl_metazoa"))
 ```
 
 **List ensembl genomes plants**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl_plants"))
 ```
 
 **List ensembl genomes protists**
 
-```{r}
+```{r message=FALSE}
 head(bbListGenomes("ensembl_protists"))
 ```
 
@@ -147,7 +148,7 @@ In the example for the first parameter single protein accession has been used bu
 In order use in filter expressions, each datasets attributes lists with `bbAttr`function via sample identifier. For instance following query shows gene ontology attributes.
 
 ```{r}
-bbAttr("GO:0002020",'go')
+bbAttr("GO:0042776",'go')
 ```
 
 # Example Use cases
@@ -215,13 +216,13 @@ bbMapFilter("ENSG00000073910,shh" ,'map(entrez)')
 bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 
+Following examples require to build real human genome dataset 
+
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
 ```{r eval = FALSE}
 res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
 head(res)
 ```
-
-Following examples require to build real human genome dataset 
 
 **Get all Ensembl human identifiers and gene names within or overlapping range**
 ```{r eval = FALSE}

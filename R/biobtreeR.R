@@ -72,7 +72,7 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
   metaEndp<-"http://localhost:8888/ws/meta"
 
   if(isbbRunning(metaEndp)){
-    stop("There is a biobtree running. First stop that process by bbStop or kill manually")
+    stop("There is a running biobtree stop with bbStop()")
   }
 
   rootDir<-getwd()
@@ -94,11 +94,13 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
   }else if (length(datasets)>0 && datasets=="sample_data"){
 
-    args<-" -d hgnc,uniprot,ensembl,interpro"
+    args<-" -d go,hgnc,uniprot,ensembl,interpro"
     args<- p(args," --uniprot.file ",system.file("uniprot_sample.xml.gz",package="biobtreeR"))
     args<- p(args," --interpro.file ",system.file("interpro_sample.xml.gz",package="biobtreeR"))
     untar(system.file("ensembl_sample.json.tar.gz",package="biobtreeR"))
     args<- p(args," --ensembl.file ","ensembl_sample.json")
+    untar(system.file("go_sample.tar.gz",package="biobtreeR"))
+    args<- p(args," --go.file ","go_sample.owl")
     args<-p(args," build")
 
     system2(execFile,args=args)
@@ -205,7 +207,8 @@ getConfig <- function(endpoint=NULL){
     endpoint <- "http://localhost:8888"
   }
 
-  rawmeta <- content(GET(p(endpoint,"/ws/meta")),as="parsed")
+  rawmeta <- fromJSON(p(endpoint,"/ws/meta"),simplifyVector = FALSE,encoding = "UTF-8")
+
   #first sort by numeric id
   datasetNumericIds <- sort(as.numeric(names(rawmeta)))
 
@@ -410,10 +413,10 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 
   urlstr <- wsurl(terms,source,filter,page)
 
-  res <- content(GET(urlstr),as="parsed")
+  res <- fromJSON(urlstr,simplifyVector = FALSE,encoding = "UTF-8")
 
   if (length(res$Err)>0){
-    stop(res$Err)
+    return((res))
   }
 
   results<-res$results
@@ -422,14 +425,15 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
         lastpagekey=res$nextpage
         while(length(lastpagekey)>0 && length(results)<limit){
           urlstr<- wsurl(terms,source,filter,lastpagekey)
-          r <- content(GET(urlstr),as="parsed")
+          r <- fromJSON(urlstr,simplifyVector = FALSE,encoding = "UTF-8")
           if (length(r$Err)>0){
-            stop(r$Err)
+            return(r)
           }
           results<-append(results,r$results)
           lastpagekey<-r$nextpage
         }
   }
+
 
   if (lite){
     input<-c()
@@ -514,10 +518,9 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 
   totalMapping=0
   urlstr <- wsurl(terms,mapfilter,source,page)
-  res <- content(GET(urlstr),as="parsed")
-
+  res <- fromJSON(urlstr,simplifyVector = FALSE,encoding = "UTF-8")
   if (length(res$Err)>0){
-      stop(res$Err)
+      return(res)
   }
 
   results <- res$results
@@ -533,10 +536,10 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
     while(length(lastpagekey)>0 && totalMapping<limit){
 
       urlstr<- wsurl(terms,mapfilter,source,lastpagekey)
-      newres <- content(GET(urlstr),as="parsed")
+      newres <- fromJSON(urlstr,simplifyVector = FALSE,encoding = "UTF-8")
 
       if (length(newres$Err)>0){
-        stop(res$Err)
+        return(res$Err)
       }
 
       for(i in seq_len(length(newres$results))){
@@ -700,7 +703,7 @@ bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit
 bbEntry <- function(identifer,source){
 
   searchurl <- p(getConfig()@endpoint,"/ws/entry/?i=",encodeURIComponent(identifer),"&s=",source)
-  res <- content(GET(searchurl),as="parsed")
+  res <- fromJSON(searchurl,simplifyVector = FALSE,encoding = "UTF-8")
   return(res)
 }
 
@@ -735,7 +738,8 @@ bbEntryFilter <-function(identifer,source,filters,page=NULL) {
     searchurl =p(searchurl,"&p=" , page)
   }
 
-  res <- content(GET(searchurl),as="parsed")
+  res <- fromJSON(searchurl,simplifyVector = FALSE,encoding = "UTF-8")
+
   return(res)
 
 }
@@ -763,7 +767,8 @@ bbEntryPage <- function (identifer, source, page, totalPage) {
 
   searchurl = p(getConfig()@endpoint,"/ws/page/?i=" ,identifer , '&s=' , source , '&p=' , page , '&t=' , totalPage)
 
-  res <-content(GET(searchurl),as="parsed")
+  res <- fromJSON(searchurl,simplifyVector = FALSE,encoding = "UTF-8")
+
   return(res)
 
 }
@@ -789,10 +794,10 @@ bbEntryPage <- function (identifer, source, page, totalPage) {
 bbURL <-function(identifer,source){
 
   if(length(getConfig()@datasetMeta[[source]])==0){
-     stop(p("Invalid dataset ",source))
+     return(p("Error invalid dataset ",source))
   }
   if(length(getConfig()@datasetMeta[[source]]$url)==0){
-      stop("This dataset has no url confiGured")
+     return("Error dataset has no url confiGured")
   }
 
   config<-getConfig()
@@ -916,6 +921,9 @@ bbClearAll<- function(){
   unlink(file.path(rootDir,"ensembl"),recursive = TRUE)
   unlink(file.path(rootDir,"website"),recursive = TRUE)
   unlink(file.path(rootDir,"sd"),recursive = TRUE)
+  deleteIfExist("biobtree.exe")
+  deleteIfExist("ensembl_sample.json")
+  deleteIfExist("go_sample.owl")
   deleteIfExist("biobtree.exe")
   deleteIfExist("biobtree")
 
