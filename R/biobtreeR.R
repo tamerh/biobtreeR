@@ -71,11 +71,7 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #' }
 bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePattern=NULL,outDir=NULL,rawArgs=NULL) {
 
-  endpoint <- "http://localhost:8888"
-
-  metaEndp<-"http://localhost:8888/ws/meta"
-
-  if(isbbRunning(metaEndp)){
+  if(isbbRunning()){
     stop("There is a running biobtree stop with bbStop()")
   }
 
@@ -162,8 +158,7 @@ bbStart<-function(outDir=NULL,biobtreeURL=NULL) {
 
   if (length(biobtreeURL) > 0) {
 
-    endpoint <- biobtreeURL
-    getConfig(endpoint)
+    getConfig(biobtreeURL)
     return(p("biobtreeR configured wth url ",biobtreeURL))
 
   }else{
@@ -181,11 +176,9 @@ bbStart<-function(outDir=NULL,biobtreeURL=NULL) {
 
     setwd(bbDir)
 
-    endpoint <- "http://localhost:8888"
-    metaEndpoint<-p(endpoint,"/ws/meta")
     execFile <- bbExeFile()
 
-    if(!isbbRunning(metaEndpoint)){ #First check for running biobtree if found use it
+    if(!isbbRunning()){ #First check for running biobtree if found use it
 
       system2(execFile,args = "web",wait = FALSE)
 
@@ -195,18 +188,18 @@ bbStart<-function(outDir=NULL,biobtreeURL=NULL) {
 
         Sys.sleep(1)
 
-        if(!isbbRunning(metaEndpoint)){
+        if(!isbbRunning()){
           next
         }
 
-        getConfig(endpoint)
+        getConfig()
         setwd(rootDir)
         return("biobtreeR started")
 
       }
     }else{
 
-      getConfig(endpoint)
+      getConfig()
       setwd(rootDir)
       return("biobtreeR started before.Config refreshed")
 
@@ -279,8 +272,13 @@ getConfig <- function(endpoint=NULL){
 #
 #Checks for running biobtree if found use it
 #
-isbbRunning <- function(metaEndpoint){
+isbbRunning <- function(biobtreeURL=NULL){
 
+  if (length(biobtreeURL)>0){
+    metaEndpoint<-p(biobtreeURL,"/ws/meta")
+  }else{
+    metaEndpoint<-"http://localhost:8888/ws/meta"
+  }
 
   response <- tryCatch(
     HEAD(metaEndpoint),
@@ -380,9 +378,16 @@ latestbbVersion<- function(){
 #'
 bbListGenomes <- function(ensemblType,outDir=NULL,biobtreeURL=NULL){
 
-  if(!isbbRunning()){
 
-    if (length(biobtreeURL) <=0) {
+  if (length(biobtreeURL) > 0) {
+
+    if(!isbbRunning(biobtreeURL)){
+      stop("biobtree with given url is not running")
+    }
+
+  }else{
+
+    if(!isbbRunning()){
 
       if(length(outDir)>0){
         if(!file.exists(file.path(outDir))){
@@ -396,16 +401,16 @@ bbListGenomes <- function(ensemblType,outDir=NULL,biobtreeURL=NULL){
       if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
         bbBuildData(outDir = bbDir,datasets = "hgnc") # this just to allow user discover genomes without calling built data
       }
-
+      bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
     }
 
-    bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
   }
+
 
   if (ensemblType =="ensembl" || ensemblType =="ensembl_bacteria" || ensemblType =="ensembl_fungi"
       || ensemblType =="ensembl_metazoa" || ensemblType =="ensembl_plants" || ensemblType =="ensembl_protists"){
 
-    geneomeJsonUrl <- p(getConfig()@endpoint,"/genomes/",ensemblType,".paths.json")
+    geneomeJsonUrl <- p(getConfig(endpoint=biobtreeURL)@endpoint,"/genomes/",ensemblType,".paths.json")
 
     res<-content(GET(geneomeJsonUrl),as = "text")
 
@@ -438,9 +443,16 @@ bbListGenomes <- function(ensemblType,outDir=NULL,biobtreeURL=NULL){
 #'
 bbListDatasets <- function(outDir=NULL,biobtreeURL=NULL){
 
-  if(!isbbRunning()){
+  if (length(biobtreeURL) > 0) {
 
-    if (length(biobtreeURL) <=0) {
+    if(!isbbRunning(biobtreeURL)){
+      stop("biobtree with given url is not running")
+    }
+    return(getConfig(biobtreeURL)@datasetIDs)
+
+  }else{
+
+    if(!isbbRunning()){
 
       if(length(outDir)>0){
         if(!file.exists(file.path(outDir))){
@@ -454,13 +466,11 @@ bbListDatasets <- function(outDir=NULL,biobtreeURL=NULL){
       if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
         bbBuildData(outDir = bbDir,datasets = "hgnc") # this just to allow user discover genomes without calling built data
       }
-
+      bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
     }
+    return(getConfig()@datasetIDs)
 
-    bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
   }
-
-  return(getConfig()@datasetIDs)
 
 }
 
