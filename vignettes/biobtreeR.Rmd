@@ -116,37 +116,33 @@ head(bbListGenomes("ensembl_protists"))
 
 ## Search identifiers and keywords
 
-Searching dataset identfiers and keywords such as gene name, species name and accession is performed with bbSearch function by passing comma seperated terms.
+Searching dataset identfiers and keywords such as gene name or accessions is performed with bbSearch function by passing comma seperated terms.
 
 ```{r}
-bbSearch("cas,shh")
-```
-
-```{r}
-bbSearch("tpi1,vav_human,homo_sapiens,ENST00000297261,10090")
+bbSearch("tpi1,vav_human,ENST00000297261")
 ```
 
 If source parameter is passed search performed within the dataset.
 
 ```{r}
-bbSearch("cas,HGNC:12009","hgnc")
+bbSearch("tpi1,ENSG00000164690","ensembl")
 ```
 
 The bbURL function is used to get the unique URL of dataset identifier 
 
 ```{r}
-bbURL("HGNC:12009","hgnc")
+bbURL("ENSG00000164690","ensembl")
 ```
 
 ## Chain mapping and filtering 
-Mapping and filtering queries are performed via bibobtree's mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format `map(dataset_id).filter(Boolean query expression).map(...).filter(...)...` and allow performing chain mapping among datasets. For mapping queries bbMapFilter function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.
+Mapping and filtering queries are performed via bibobtree's mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format `map(dataset_id).filter(Boolean query expression).map(...).filter(...)...` and allow performing chain mapping among datasets. For mapping queries bbMapping function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.
 
 ```{r}
-bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
+bbMapping("AT5G3_HUMAN",'map(go)',attrs = "type")
 ```
 
 ```{r}
-bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
+bbMapping("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
 ```
 
 In the example for the first parameter single protein accession has been used but similar with bbSearch functions multiple identifers or keywords can be used. In the last query type attribute was used to filter mapping only with biological process go terms. Dataset attributes are used in the filters starts with their dataset name as in the above example it starts with `go.`
@@ -186,53 +182,53 @@ Note that there are several other gene related datasets without attributes and c
 **Map gene names to Ensembl transcript identifiers**
 
 ```{r}
-res<-bbMapFilter("ATP5MC3,TP53",'map(transcript)')
+res<-bbMapping("ATP5MC3,TP53",'map(transcript)')
 head(res)
 ```
 
 **Map gene names to exon identifiers and retrieve the region**
 
 ```{r}
-res<-bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
+res<-bbMapping("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 head(res)
 ```
 
 **Map gene to its ortholog identifiers**
 
 ```{r}
-res<-bbMapFilter("shh",'map(ortholog)')
+res<-bbMapping("shh",'map(ortholog)')
 head(res)
 ```
 
 **Map gene to its paralog**
 
 ```{r}
-bbMapFilter("fry",'map(paralog)',showInputColumn = TRUE)
+bbMapping("fry",'map(paralog)',showInputColumn = TRUE)
 ```
 
 
 **Map ensembl identifier or gene name to the entrez identifier**
 ```{r}
-bbMapFilter("ENSG00000073910,shh" ,'map(entrez)')
+bbMapping("ENSG00000073910,shh" ,'map(entrez)')
 ```
 
 **Map refseq identifiers to hgnc identifiers**
 
 ```{r}
-bbMapFilter("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
+bbMapping("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 
 Following examples require to build real human genome dataset 
 
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
 ```{r eval = FALSE}
-res<-bbMapFilter("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
+res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
 head(res)
 ```
 
 **Get all Ensembl human identifiers and gene names within or overlapping range**
 ```{r eval = FALSE}
-bbMapFilter("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
+bbMapping("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
 ```
 
 In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.
@@ -240,18 +236,18 @@ In the above example as a first parameter taxonomy identifier is used instead of
 **Map Affymetrix identifiers to Ensembl identifiers and gene names**
 
 ```{r eval = FALSE}
-bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+bbMapping("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
 ```
 
 Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
 
 ```{r eval = FALSE}
-bbMapFilter("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
+bbMapping("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
 ```
 
 **Retrieve all the human gene names which contains TTY**
 ```{r eval = FALSE}
-res<-bbMapFilter("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
+res<-bbMapping("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
 head(res)
 ```
 
@@ -279,25 +275,25 @@ bbAttr("IPR017907","interpro")
 **Map gene names to reviewed uniprot identifiers**
 
 ```{r}
-bbMapFilter("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot)",source ="hgnc")
+bbMapping("msh6,stk11,bmpr1a,smad4,brca2","map(uniprot)",source ="hgnc")
 ```
 
 **Filter proteins by sequence mass and retrieve protein sequences**
 
 ```{r}
-bbMapFilter("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
+bbMapping("clock_human,shh_human,aicda_human,at5g3_human,p53_human","filter(uniprot.sequence.mass > 45000)" ,attrs = "sequence$mass,sequence$seq")
 ```
 
 **Helix type feature locations of a protein**
 
 ```{r}
-bbMapFilter("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
+bbMapping("shh_human",'map(ufeature).filter(ufeature.type=="helix")' ,attrs = "location$begin,location$end")
 ```
 
 **Get all variation identifiers from a gene with given condition**
 
 ```{r}
-bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
+bbMapping("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && ufeature.variation=="S").map(variantid)',source = "hgnc")
 ```
 
 

@@ -184,11 +184,19 @@ bbStart<-function(outDir=NULL,biobtreeURL=NULL) {
 
       # wait here until biobtree data process complete
       print("Starting biobtree...")
+      elapsed<-0
+      timeoutDuration<-50
       while(TRUE){
+
+        if (elapsed > timeoutDuration){
+          bbStop()
+          stop("biobtree could not started. Please check that you have built data correctly")
+        }
 
         Sys.sleep(1)
 
         if(!isbbRunning()){
+          elapsed<-elapsed+1
           next
         }
 
@@ -563,7 +571,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
       source[i]<-getConfig()@datasetMetaByNum[[r$dataset]]$id
       i=i+1
     }
-    df<-data.frame(input=input,identfier=id,dataset=source)
+    df<-data.frame(input=input,identifier=id,dataset=source)
     return(df)
   }
   return(res)
@@ -594,26 +602,26 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #' @examples
 #'
 #' bbStart()
-#' bbMapFilter("tpi1",'map(uniprot)')
-#' bbMapFilter("shh",'map(ensembl)')
+#' bbMapping("tpi1",'map(uniprot)')
+#' bbMapping("shh",'map(ensembl)')
 #'
 #' \dontrun{
 #' # run these examples with building the default dataset with bbBuildData()
 #' #Map protein to its go terms and retrieve go term types
-#' bbMapFilter("AT5G3_HUMAN",'map(go)',attrs = "type")
+#' bbMapping("AT5G3_HUMAN",'map(go)',attrs = "type")
 #'
 #' #Map protein to its go terms with filter by its type and retrieve their types
-#' bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
+#' bbMapping("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
 #'
 #' #Map gene names to exon identifiers and retrieve the region
-#' bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
+#' bbMapping("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 #'
 #' #Map Affymetrix identifiers to Ensembl identifiers and gene names
-#' bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2"
+#' bbMapping("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2"
 #' ,'map(transcript).map(ensembl)',attrs = "name")
 #'
 #'}
-bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
+bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
 
   wsurl <- function(terms,mapfilter,source,page){
 
@@ -930,6 +938,10 @@ bbURL <-function(identifer,source){
     res<-""
     r<-bbEntry(identifer,source)
 
+    if (length(r$Err)>0){
+      return((r))
+    }
+
     if (length(r[[1]]$Attributes$Ensembl)>0){
       branch<-r[[1]]$Attributes$Ensembl$branch
       if(branch==1){
@@ -979,6 +991,11 @@ bbURL <-function(identifer,source){
 bbAttr <- function(identifer,source){
 
     res<- bbSearch(identifer,source,lite=FALSE)
+
+    if (length(res$Err)>0){
+      return((res))
+    }
+
     if(startsWith(source,"chembl")){
       attrsPath<-p("res$results[[1]]$Attributes$",names(res$results[[1]]$Attributes)[1],"$",names(res$results[[1]]$Attributes[[1]])[1])
     }else{

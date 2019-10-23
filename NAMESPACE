@@ -5,5 +5,5 @@ importFrom(stringi,stri_trim)
 importFrom(methods, new)
 importFrom(utils, download.file, untar, unzip)
 
-export(bbBuildData,bbStart,bbStop,bbListGenomes,bbListDatasets,bbSearch,bbMapFilter,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
+export(bbBuildData,bbStart,bbStop,bbListGenomes,bbListDatasets,bbSearch,bbMapping,bbEntry,bbEntryFilter,bbEntryPage,bbURL,bbAttr)
 exportClasses(bbConfig)

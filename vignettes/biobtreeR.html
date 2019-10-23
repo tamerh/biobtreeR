@@ -1885,8 +1885,8 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 </div>
 <div id="chain-mapping-and-filtering" class="section level2">
 <h2><span class="header-section-number">2.5</span> Chain mapping and filtering</h2>
-<p>Mapping and filtering queries are performed via bibobtree’s mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format <code>map(dataset_id).filter(Boolean query expression).map(...).filter(...)...</code> and allow performing chain mapping among datasets. For mapping queries bbMapFilter function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.</p>
-<pre class="r"><code>bbMapFilter(&quot;AT5G3_HUMAN&quot;,'map(go)',attrs = &quot;type&quot;)</code></pre>
+<p>Mapping and filtering queries are performed via bibobtree’s mapping query syntax which allowed chain mapping and filtering capability from identifiers to target identifiers or attributes. Mapping query syntax consist of single or multiple mapping queries in the format <code>map(dataset_id).filter(Boolean query expression).map(...).filter(...)...</code> and allow performing chain mapping among datasets. For mapping queries bbMapping function is used, for instance in following example, maps protein to its go terms and in the second query mapping has been done with filter.</p>
+<pre class="r"><code>bbMapping(&quot;AT5G3_HUMAN&quot;,'map(go)',attrs = &quot;type&quot;)</code></pre>
 <pre><code>##    mapping_id               type
 ## 1  GO:0000276 cellular_component
 ## 2  GO:0005741 cellular_component
@@ -1898,7 +1898,7 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 ## 8  GO:0042776 biological_process
 ## 9  GO:0045263 cellular_component
 ## 10 GO:0046933 molecular_function</code></pre>
-<pre class="r"><code>bbMapFilter(&quot;AT5G3_HUMAN&quot;,'map(go).filter(go.type==&quot;biological_process&quot;)',attrs = &quot;type&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;AT5G3_HUMAN&quot;,'map(go).filter(go.type==&quot;biological_process&quot;)',attrs = &quot;type&quot;)</code></pre>
 <pre><code>##   mapping_id               type
 ## 1 GO:0006754 biological_process
 ## 2 GO:0015986 biological_process
@@ -1930,7 +1930,7 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 <pre><code>## [1] &quot;start&quot;           &quot;end&quot;             &quot;strand&quot;          &quot;seq_region_name&quot;</code></pre>
 <p>Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with <code>bbListDataset</code>. Now lets build example mapping queries,</p>
 <p><strong>Map gene names to Ensembl transcript identifiers</strong></p>
-<pre class="r"><code>res&lt;-bbMapFilter(&quot;ATP5MC3,TP53&quot;,'map(transcript)')
+<pre class="r"><code>res&lt;-bbMapping(&quot;ATP5MC3,TP53&quot;,'map(transcript)')
 head(res)</code></pre>
 <pre><code>##                     input input_dataset      mapping_id
 ## 1 ATP5MC3-ENSG00000154518       ensembl ENST00000284727
@@ -1940,7 +1940,7 @@ head(res)</code></pre>
 ## 5                       -             - ENST00000497075
 ## 6    TP53-ENSG00000141510       ensembl ENST00000269305</code></pre>
 <p><strong>Map gene names to exon identifiers and retrieve the region</strong></p>
-<pre class="r"><code>res&lt;-bbMapFilter(&quot;ATP5MC3,TP53&quot;,'map(transcript).map(exon)',attrs = &quot;seq_region_name&quot;)
+<pre class="r"><code>res&lt;-bbMapping(&quot;ATP5MC3,TP53&quot;,'map(transcript).map(exon)',attrs = &quot;seq_region_name&quot;)
 head(res)</code></pre>
 <pre><code>##                     input input_dataset      mapping_id seq_region_name
 ## 1 ATP5MC3-ENSG00000154518       ensembl ENSE00001016410               2
@@ -1950,7 +1950,7 @@ head(res)</code></pre>
 ## 5                       -             - ENSE00003602002               2
 ## 6                       -             - ENSE00001512331               2</code></pre>
 <p><strong>Map gene to its ortholog identifiers</strong></p>
-<pre class="r"><code>res&lt;-bbMapFilter(&quot;shh&quot;,'map(ortholog)')
+<pre class="r"><code>res&lt;-bbMapping(&quot;shh&quot;,'map(ortholog)')
 head(res)</code></pre>
 <pre><code>##           mapping_id
 ## 1 ENSABRG00000018705
@@ -1960,32 +1960,32 @@ head(res)</code></pre>
 ## 5 ENSACIG00000018215
 ## 6 ENSACLG00000027636</code></pre>
 <p><strong>Map gene to its paralog</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;fry&quot;,'map(paralog)',showInputColumn = TRUE)</code></pre>
+<pre class="r"><code>bbMapping(&quot;fry&quot;,'map(paralog)',showInputColumn = TRUE)</code></pre>
 <pre><code>##                 input input_dataset      mapping_id
 ## 1 FRY-ENSG00000073910       ensembl ENSG00000075539</code></pre>
 <p><strong>Map ensembl identifier or gene name to the entrez identifier</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;ENSG00000073910,shh&quot; ,'map(entrez)')</code></pre>
+<pre class="r"><code>bbMapping(&quot;ENSG00000073910,shh&quot; ,'map(entrez)')</code></pre>
 <pre><code>##                 input input_dataset mapping_id
 ## 1     ENSG00000073910       ensembl      10129
 ## 2 SHH-ENSG00000164690       ensembl       6469</code></pre>
 <p><strong>Map refseq identifiers to hgnc identifiers</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;NM_005359,NM_000546&quot;,'map(hgnc)',attrs = &quot;symbols&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;NM_005359,NM_000546&quot;,'map(hgnc)',attrs = &quot;symbols&quot;)</code></pre>
 <pre><code>##       input input_dataset mapping_id symbols
 ## 1 NM_005359        refseq  HGNC:6770   SMAD4
 ## 2 NM_000546        refseq HGNC:11998    TP53</code></pre>
 <p>Following examples require to build real human genome dataset</p>
 <p><strong>Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type</strong></p>
-<pre class="r"><code>res&lt;-bbMapFilter(&quot;homo_sapiens&quot;,'map(ensembl).filter(ensembl.seq_region_name==&quot;Y&quot; &amp;&amp; ensembl.biotype==&quot;lncRNA&quot;)',attrs = &quot;name&quot;)
+<pre class="r"><code>res&lt;-bbMapping(&quot;homo_sapiens&quot;,'map(ensembl).filter(ensembl.seq_region_name==&quot;Y&quot; &amp;&amp; ensembl.biotype==&quot;lncRNA&quot;)',attrs = &quot;name&quot;)
 head(res)</code></pre>
 <p><strong>Get all Ensembl human identifiers and gene names within or overlapping range</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;9606&quot;,'map(ensembl).filter((114129278&gt;ensembl.start &amp;&amp; 114129278&lt;ensembl.end) || (114129328&gt;ensembl.start &amp;&amp; 114129328&lt;ensembl.end))',attrs = &quot;name&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;9606&quot;,'map(ensembl).filter((114129278&gt;ensembl.start &amp;&amp; 114129278&lt;ensembl.end) || (114129328&gt;ensembl.start &amp;&amp; 114129328&lt;ensembl.end))',attrs = &quot;name&quot;)</code></pre>
 <p>In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.</p>
 <p><strong>Map Affymetrix identifiers to Ensembl identifiers and gene names</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;202763_at,213596_at,209310_s_at&quot;,source =&quot;affy_hg_u133_plus_2&quot; ,'map(transcript).map(ensembl)',attrs = &quot;name&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;202763_at,213596_at,209310_s_at&quot;,source =&quot;affy_hg_u133_plus_2&quot; ,'map(transcript).map(ensembl)',attrs = &quot;name&quot;)</code></pre>
 <p>Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way</p>
-<pre class="r"><code>bbMapFilter(&quot;CASP3,CASP4&quot;,'map(transcript).map(affy_hg_u133_plus_2)')</code></pre>
+<pre class="r"><code>bbMapping(&quot;CASP3,CASP4&quot;,'map(transcript).map(affy_hg_u133_plus_2)')</code></pre>
 <p><strong>Retrieve all the human gene names which contains TTY</strong></p>
-<pre class="r"><code>res&lt;-bbMapFilter(&quot;homo sapiens&quot;,'map(ensembl).filter(ensembl.name.contains(&quot;TTY&quot;))',attrs = &quot;name&quot;)
+<pre class="r"><code>res&lt;-bbMapping(&quot;homo sapiens&quot;,'map(ensembl).filter(ensembl.name.contains(&quot;TTY&quot;))',attrs = &quot;name&quot;)
 head(res)</code></pre>
 </div>
 <div id="protein-centric-use-cases" class="section level2">
@@ -2000,7 +2000,7 @@ head(res)</code></pre>
 <pre><code>## [1] &quot;method&quot;     &quot;chains&quot;     &quot;resolution&quot;</code></pre>
 <pre class="r"><code>bbAttr(&quot;IPR017907&quot;,&quot;interpro&quot;)</code></pre>
 <p><strong>Map gene names to reviewed uniprot identifiers</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;msh6,stk11,bmpr1a,smad4,brca2&quot;,&quot;map(uniprot)&quot;,source =&quot;hgnc&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;msh6,stk11,bmpr1a,smad4,brca2&quot;,&quot;map(uniprot)&quot;,source =&quot;hgnc&quot;)</code></pre>
 <pre><code>##              input input_dataset mapping_id
 ## 1   MSH6-HGNC:7329          hgnc     P52701
 ## 2 STK11-HGNC:11389          hgnc     Q15831
@@ -2008,7 +2008,7 @@ head(res)</code></pre>
 ## 4  SMAD4-HGNC:6770          hgnc     Q13485
 ## 5  BRCA2-HGNC:1101          hgnc     P51587</code></pre>
 <p><strong>Filter proteins by sequence mass and retrieve protein sequences</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;clock_human,shh_human,aicda_human,at5g3_human,p53_human&quot;,&quot;filter(uniprot.sequence.mass &gt; 45000)&quot; ,attrs = &quot;sequence$mass,sequence$seq&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;clock_human,shh_human,aicda_human,at5g3_human,p53_human&quot;,&quot;filter(uniprot.sequence.mass &gt; 45000)&quot; ,attrs = &quot;sequence$mass,sequence$seq&quot;)</code></pre>
 <pre><code>##                input input_dataset mapping_id sequence$mass
 ## 1 CLOCK_HUMAN-O15516       uniprot     O15516         95304
 ## 2   SHH_HUMAN-Q15465       uniprot     Q15465         49607
@@ -2016,7 +2016,7 @@ head(res)</code></pre>
 ## 1 MLFTVSCSKMSSIVDRDDSSIFDGLVEEDDKDKAKRVSRNKSEKKRRDQFNVLIKELGSMLPGNARKMDKSTVLQKSIDFLRKHKEITAQSDASEIRQDWKPTFLSNEEFTQLMLEALDGFFLAIMTDGSIIYVSESVTSLLEHLPSDLVDQSIFNFIPEGEHSEVYKILSTHLLESDSLTPEYLKSKNQLEFCCHMLRGTIDPKEPSTYEYVKFIGNFKSLNSVSSSAHNGFEGTIQRTHRPSYEDRVCFVATVRLATPQFIKEMCTVEEPNEEFTSRHSLEWKFLFLDHRAPPIIGYLPFEVLGTSGYDYYHVDDLENLAKCHEHLMQYGKGKSCYYRFLTKGQQWIWLQTHYYITYHQWNSRPEFIVCTHTVVSYAEVRAERRRELGIEESLPETAADKSQDSGSDNRINTVSLKEALERFDHSPTPSASSRSSRKSSHTAVSDPSSTPTKIPTDTSTPPRQHLPAHEKMVQRRSSFSSQSINSQSVGSSLTQPVMSQATNLPIPQGMSQFQFSAQLGAMQHLKDQLEQRTRMIEANIHRQQEELRKIQEQLQMVHGQGLQMFLQQSNPGLNFGSVQLSSGNSSNIQQLAPINMQGQVVPTNQIQSGMNTGHIGTTQHMIQQQTLQSTSTQSQQNVLSGHSQQTSLPSQTQSTLTAPLYNTMVISQPAAGSMVQIPSSMPQNSTQSAAVTTFTQDRQIRFSQGQQLVTKLVTAPVACGAVMVPSTMLMGQVVTAYPTFATQQQQSQTLSVTQQQQQQSSQEQQLTSVQQPSQAQLTQPPQQFLQTSRLLHGNPSTQLILSAAFPLQQSTFPQSHHQQHQSQQQQQLSRHRTDSLPDPSKVQPQ
 ## 2                                                                                                                                                                                                                                                                                                                                                                                                 MLLLARCLLLVLVSSLLVCSGLACGPGRGFGKRRHPKKLTPLAYKQFIPNVAEKTLGASGRYEGKISRNSERFKELTPNYNPDIIFKDEENTGADRLMTQRCKDKLNALAISVMNQWPGVKLRVTEGWDEDGHHSEESLHYEGRAVDITTSDRDRSKYGMLARLAVEAGFDWVYYESKAHIHCSVKAENSVAAKSGGCFPGSATVHLEQGGTKLVKDLSPGDRVLAADDQGRLLYSDFLTFLDRDDGAKKVFYVIETREPRERLLLTAAHLLFVAPHNDSATGEPEASSGSGPPSGGALGPRALFASRVRPGQRVYVVAERDGDRRLLPAAVHSVTLSEEAAGAYAPLTAQGTILINRVLASCYAVIEEHSWAHRAFAPFRLAHALLAALAPARTDRGGDSGGGDRGGGGGRVALTAPGAADAPGAGATAGIHWYSQLLYQIGTWLLDSEALHPLGMAVKSS</code></pre>
 <p><strong>Helix type feature locations of a protein</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;shh_human&quot;,'map(ufeature).filter(ufeature.type==&quot;helix&quot;)' ,attrs = &quot;location$begin,location$end&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;shh_human&quot;,'map(ufeature).filter(ufeature.type==&quot;helix&quot;)' ,attrs = &quot;location$begin,location$end&quot;)</code></pre>
 <pre><code>##    mapping_id location$begin location$end
 ## 1 Q15465_F122             72           75
 ## 2 Q15465_F125             94           96
@@ -2026,7 +2026,7 @@ head(res)</code></pre>
 ## 6 Q15465_F131            158          167
 ## 7 Q15465_F134            188          190</code></pre>
 <p><strong>Get all variation identifiers from a gene with given condition</strong></p>
-<pre class="r"><code>bbMapFilter(&quot;tp53&quot;,'map(uniprot).map(ufeature).filter(ufeature.original==&quot;I&quot; &amp;&amp; ufeature.variation==&quot;S&quot;).map(variantid)',source = &quot;hgnc&quot;)</code></pre>
+<pre class="r"><code>bbMapping(&quot;tp53&quot;,'map(uniprot).map(ufeature).filter(ufeature.original==&quot;I&quot; &amp;&amp; ufeature.variation==&quot;S&quot;).map(variantid)',source = &quot;hgnc&quot;)</code></pre>
 <pre><code>##     mapping_id
 ## 1  RS730882027
 ## 2 RS1330865474
