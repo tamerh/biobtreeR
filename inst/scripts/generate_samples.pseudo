@@ -1,0 +1,105 @@
+##########
+# Description: In order to generate vignettes fastly sample datasets is used for ensembl,uniprot, interpro and go which are located at inst/extdata. 
+# This pseudo code explain how to generate this sample dataset. Note that in sample dataset full hgnc dataset are also used without any sample subset directly using from its public location by the tool.
+##########
+
+########### Generate Uniprot sample data set
+
+Download following proteins in their xml format
+
+wget https://www.uniprot.org/uniprot/P15498.xml .
+wget https://www.uniprot.org/uniprot/O15516.xml .
+wget https://www.uniprot.org/uniprot/Q15465.xml .
+wget https://www.uniprot.org/uniprot/Q9GZX7.xml .
+wget https://www.uniprot.org/uniprot/P48201.xml .
+wget https://www.uniprot.org/uniprot/P04637.xml .
+
+Once you  download these xml files simply merge them into 1 xml file containin these 6 proteins as a seperate protein entry. And then
+gzip this merged xml file with the name as 'uniprot_sample.xml.gz' and place it to inst/exdata.
+
+########### Generate Ensembl sample data set
+
+Download full human genome in json format.  
+
+wget http://ftp.ensemblorg.ebi.ac.uk/pub/current_json/homo_sapiens/homo_sapiens.json .
+
+Install jq and add to your path
+
+https://stedolan.github.io/jq/download/
+
+In sample data set following 7 genes are used. We are going to generate new sample json from these genes data. 
+     FRY ENSG00000073910 
+     SHH ENSG00000164690 
+ ATP5MC3 ENSG00000154518 
+    TP53 ENSG00000141510 
+    TPI1 ENSG00000111669 
+   CASP3 ENSG00000164305 
+   CASP4 ENSG00000196954 
+
+Simply run following command to fetch theses 7 genes data within all.
+
+cat homo_sapiens.json | jq '.genes[] | select(.id=="ENSG00000073910" or .id=="ENSG00000164690" or .id=="ENSG00000154518" or .id=="ENSG00000141510" or .id=="ENSG00000111669" or .id=="ENSG00000164305" or .id=="ENSG00000196954")' > selected_entries.json
+
+This command will create a file 'selected_entries.json'. This file contains genes only. To mimic this file exactly like full dataset 
+add following 3 lines to the beginig of file
+{
+  "is_reference": "false",
+  "genes": [
+
+And append following 2 lines to end of file
+]
+}
+
+This will make file valid json which looks similarly to the orginal full dataset with only containing our 7 genes.
+Once this file created create archived gzip file with following way and and place it to inst/exdata.
+
+tar -cvzf ensembl_sample.json.tar.gz merged_file
+
+########### Generate GO sample data 
+
+Download full GO data 
+
+wget http://purl.obolibrary.org/obo/go.owl .
+
+From full data set we will use following GO terms data 
+
+GO:0000276
+GO:0005741
+GO:0006754
+GO:0008289
+GO:0015986
+GO:0016021
+GO:0042407
+GO:0042776
+GO:0045263
+GO:0046933
+
+From full dataset simple get these each go term's owl:Class xml data. For instance for the first go term owl:Class starting from following line
+
+<owl:Class rdf:about="http://purl.obolibrary.org/obo/GO_0000276">
+
+
+And simple merge all these data to a single file and convert it to  archived gzip with name go_sample.tar.gz with following way and place it to inst/exdata.
+
+tar -cvzf go_sample.tar.gz merged_file
+
+########### Generate Interpro sample data 
+
+Download full interpro data 
+
+wget http://ftp.ebi.ac.uk/pub/databases/interpro/current/interpro.xml.gz .
+
+From full data set we will use following 2 interpro dataset with identifier
+
+IPR000001
+IPR017907
+
+Simple from full dataset grep the dataset belonging to these 2 identifiers. For instance for the first identifier data starts with following line
+
+<interpro id="IPR000001" protein_count="6430" short_name="Kringle" type="Domain">
+
+Once the data belongs to these 2 identifiers retrieved similar to previous dataset merge them to a file and gzip it with name interpro_sample.xml.gz
+and place it to inst/exdata.
+
+
+

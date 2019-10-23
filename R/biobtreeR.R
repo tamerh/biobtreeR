@@ -16,7 +16,8 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'
 #' @description This function allows to build your selected datasets locally for making search/mapping queries via biobtree executable. Available datasets
 #' are uniprot,ensembl,ensembl genomes,hgnc,taxonomy,chembl,hmdb,go,eco,efo,chebi,interpro,literature_mappings,uniparc,uniref50,uniref90,uniref100,uniprot_unreviewed.
-#' These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets.
+#' These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets. Note that any new call
+#' of this function overrides previously built data.
 #'
 #' @param genome Comma seperated list of ensembl genomes. To list all the genome names \code{bbListGenomes} function can be used.
 #'
@@ -27,7 +28,7 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'
 #' @param genomePattern Alternative to the genome paramter to build set of genomes conveniently
 #'
-#' @param reset Override previously build data if exist
+#' @param outDir Output directory for biobtree data. If not specified temp directory is used.
 #'
 #' @param rawArgs Directly run biobtree with its all available arguments. If this paramter used all other parameters are ignored
 #'
@@ -38,9 +39,9 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #' @examples
 #'
 #' bbStop() # stop first if running
-#' bbBuildData(datasets="hgnc",reset=TRUE)
+#' bbBuildData(datasets="hgnc")
 #'
-#' bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl",reset=TRUE)
+#' bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl")
 #' \dontrun{
 #'
 #'   # build all the default dataset
@@ -49,13 +50,16 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'   # build both mouse and human genomes in ensembl insted of default human
 #'   bbBuildData(genome="homo_sapiens,mus_musculus")
 #'
-#'   # build default datasets with all the ensembl genomes with names contains "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
+#'   # build default datasets with all the ensembl genomes with names contains
+#'   # "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
 #'   bbBuildData(genomePattern="mus")
 #'
-#'   # for ensembl genomes needs to specify seperately in datasets + means default dataset plus check all the genomes with bbListGenomes()
+#'   # for ensembl genomes needs to specify seperately in datasets
+#'   # + means default dataset plus check all the genomes with bbListGenomes()
 #'   bbBuildData(datasets="+ensembl_metazoa",genomes="caenorhabditis_elegans,drosophila_melanogaster")
 #'   bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
-#'   bbBuildData(datasets="+ensembl_plants,ensembl_protists",genomes="arabidopsis_thaliana,phytophthora_parasitica")
+#'   bbBuildData(datasets="+ensembl_plants,ensembl_protists", \
+#'   genomes="arabidopsis_thaliana,phytophthora_parasitica")
 #'   bbBuildData(datasets="+ensembl_bacteria",genomes="salmonella_enterica")
 #'   # bacteria genomes with pattern
 #'   bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
@@ -65,7 +69,7 @@ setClass("bbConfig", representation(endpoint="character",datasetIDs="data.frame"
 #'
 #'
 #' }
-bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePattern=NULL,reset=FALSE,rawArgs=NULL) {
+bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePattern=NULL,outDir=NULL,rawArgs=NULL) {
 
   endpoint <- "http://localhost:8888"
 
@@ -77,14 +81,17 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
   rootDir<-getwd()
 
-  bbDir<-file.path(rootDir)
-
-  if(!reset && file.exists(file.path(bbDir,"out","db","db.meta.json"))){
-    stop("Biobtree build before to override use param reset=TRUE")
+  if(length(outDir)>0){
+    if(!file.exists(file.path(outDir))){
+      stop("Specified outDir is not exist")
+    }
+    bbDir<-file.path(outDir)
+  }else{
+    bbDir<-tempdir()
   }
 
   #dir.create(bbDir, showWarnings = FALSE)
-  #setwd(bbDir)
+  setwd(bbDir)
 
   execFile <- bbExeFile()
 
@@ -95,11 +102,11 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
   }else if (length(datasets)>0 && datasets=="sample_data"){
 
     args<-" -d go,hgnc,uniprot,ensembl,interpro"
-    args<- p(args," --uniprot.file ",system.file("uniprot_sample.xml.gz",package="biobtreeR"))
-    args<- p(args," --interpro.file ",system.file("interpro_sample.xml.gz",package="biobtreeR"))
-    untar(system.file("ensembl_sample.json.tar.gz",package="biobtreeR"))
+    args<- p(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
+    args<- p(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
+    untar(system.file("exdata/ensembl_sample.json.tar.gz",package="biobtreeR"))
     args<- p(args," --ensembl.file ","ensembl_sample.json")
-    untar(system.file("go_sample.tar.gz",package="biobtreeR"))
+    untar(system.file("exdata/go_sample.tar.gz",package="biobtreeR"))
     args<- p(args," --go.file ","go_sample.owl")
     args<-p(args," build")
 
@@ -129,7 +136,7 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
   }
 
-  #setwd(rootDir)
+  setwd(rootDir)
 }
 
 #' @title Start biobtreeR
@@ -137,7 +144,9 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 #' @description Once target datasets is built with \code{bbBuildData} this function used to start biobtree server in the background for performing search/mapping queries.
 #' This function also sets the bbConfig variable
 #'
-#' @param biobtreeURL Optional parameter. Use this this parameter if you running biobtree tool seperately such as in a remote server.
+#' @param outDir If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.
+#'
+#' @param biobtreeURL Use this this parameter if you running biobtree tool seperately such as in a remote server.
 #' Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
 #' Note that default port of biobtree is 8888.
 #'
@@ -149,7 +158,7 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 #' @examples
 #' bbStart()
 #' bbStop()
-bbStart<-function(biobtreeURL=NULL) {
+bbStart<-function(outDir=NULL,biobtreeURL=NULL) {
 
   if (length(biobtreeURL) > 0) {
 
@@ -159,13 +168,25 @@ bbStart<-function(biobtreeURL=NULL) {
 
   }else{
 
+    rootDir<-getwd()
+
+    if(length(outDir)>0){
+      if(!file.exists(file.path(outDir))){
+        stop("Specified outDir is not exist")
+      }
+      bbDir<-file.path(outDir)
+    }else{
+      bbDir<-tempdir()
+    }
+
+    setwd(bbDir)
+
     endpoint <- "http://localhost:8888"
     metaEndpoint<-p(endpoint,"/ws/meta")
     execFile <- bbExeFile()
 
     if(!isbbRunning(metaEndpoint)){ #First check for running biobtree if found use it
 
-      rootDir<-getwd()
       system2(execFile,args = "web",wait = FALSE)
 
       # wait here until biobtree data process complete
@@ -179,12 +200,14 @@ bbStart<-function(biobtreeURL=NULL) {
         }
 
         getConfig(endpoint)
+        setwd(rootDir)
         return("biobtreeR started")
 
       }
     }else{
 
       getConfig(endpoint)
+      setwd(rootDir)
       return("biobtreeR started before.Config refreshed")
 
     }
@@ -227,13 +250,19 @@ getConfig <- function(endpoint=NULL){
 
   strID<-c()
   numID<-c()
+  types<-c()
   i=1
   for(v in datasetNumericIds){
     strID[i]<-datasetMetaByNum[[v]]$id
     numID[i]<-v
+    if(i<30){
+      types[i]<-"source&target"
+    }else{
+      types[i]<-"target"
+    }
     i=i+1
   }
-  datasetIDs<-data.frame(id=strID,numeric_id=numID)
+  datasetIDs<-data.frame(id=strID,numeric_id=numID,type=types)
 
   conf<-new("bbConfig",
             endpoint=endpoint,
@@ -325,15 +354,22 @@ latestbbVersion<- function(){
 
 #' @title List Genomes
 #'
-#' @description This function list the ensembl genome names. These names can be used in bbBuildData function
+#' @description This function list the ensembl genome names. These names can be used in bbBuildData function. If biobtree web server
+#' is not runnint this function triggers to run it. And also if no data built with bbBuildData before it create a example data using
+#' hgnc just to show the list the genomes since biobtree web server require at least one built data to properly start.
 #'
 #' @param ensemblType These param can be one of the following "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"
+#'
+#' @param outDir If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.
+#'
+#' @param biobtreeURL Use this this parameter if you running biobtree tool seperately such as in a remote server.
+#' Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
+#' Note that default port of biobtree is 8888.
 #'
 #' @return returns list of genome names
 #'
 #' @examples
 #'
-#' bbStart()
 #' bbListGenomes("ensembl")
 #' #For ensembl genomes
 #' bbListGenomes("ensembl_bacteria")
@@ -342,7 +378,29 @@ latestbbVersion<- function(){
 #' bbListGenomes("ensembl_plants")
 #' bbListGenomes("ensembl_protists")
 #'
-bbListGenomes <- function(ensemblType){
+bbListGenomes <- function(ensemblType,outDir=NULL,biobtreeURL=NULL){
+
+  if(!isbbRunning()){
+
+    if (length(biobtreeURL) <=0) {
+
+      if(length(outDir)>0){
+        if(!file.exists(file.path(outDir))){
+          stop("Specified outDir is not exist")
+        }
+        bbDir<-file.path(outDir)
+      }else{
+        bbDir<-tempdir()
+      }
+
+      if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
+        bbBuildData(outDir = bbDir,datasets = "hgnc") # this just to allow user discover genomes without calling built data
+      }
+
+    }
+
+    bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
+  }
 
   if (ensemblType =="ensembl" || ensemblType =="ensembl_bacteria" || ensemblType =="ensembl_fungi"
       || ensemblType =="ensembl_metazoa" || ensemblType =="ensembl_plants" || ensemblType =="ensembl_protists"){
@@ -358,6 +416,51 @@ bbListGenomes <- function(ensemblType){
   }else{
     stop(p("Invalid ensembl type ",ensemblType))
   }
+
+}
+
+#' @title List available datasets
+#'
+#' @description This function list the available source and target datasets with their numeric identifiers. If biobtree web server
+#' is not runnint this function triggers to run it. And also if no data built with bbBuildData before it create a example data using
+#' hgnc just to show the available datasets since biobtree web server require at least one built data to properly start.
+#'
+#' @param outDir If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.
+#'
+#' @param biobtreeURL Use this this parameter if you running biobtree tool seperately such as in a remote server.
+#' Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
+#' Note that default port of biobtree is 8888.
+#' @return returns list of datasets
+#'
+#' @examples
+#'
+#' bbListDatasets()
+#'
+bbListDatasets <- function(outDir=NULL,biobtreeURL=NULL){
+
+  if(!isbbRunning()){
+
+    if (length(biobtreeURL) <=0) {
+
+      if(length(outDir)>0){
+        if(!file.exists(file.path(outDir))){
+          stop("Specified outDir is not exist")
+        }
+        bbDir<-file.path(outDir)
+      }else{
+        bbDir<-tempdir()
+      }
+
+      if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
+        bbBuildData(outDir = bbDir,datasets = "hgnc") # this just to allow user discover genomes without calling built data
+      }
+
+    }
+
+    bbStart(outDir = bbDir,biobtreeURL = biobtreeURL)
+  }
+
+  return(getConfig()@datasetIDs)
 
 }
 
@@ -496,7 +599,8 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,lite=TRUE,limit=10
 #' bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 #'
 #' #Map Affymetrix identifiers to Ensembl identifiers and gene names
-#' bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+#' bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2"
+#' ,'map(transcript).map(ensembl)',attrs = "name")
 #'
 #'}
 bbMapFilter <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
@@ -857,7 +961,7 @@ bbURL <-function(identifer,source){
 #' @author Tamer Gur
 #'
 #' @examples
-#' bbBuildData(datasets="hgnc",reset=TRUE)
+#' bbBuildData(datasets="hgnc")
 #' bbStart()
 #' bbAttr("HGNC:12009","hgnc")
 #'
@@ -903,29 +1007,6 @@ bbStop <- function(){
     }
 
   }
-
-}
-
-#' @title Reset biobtreeR
-#'
-#' @description ATTENTION clears everything. New data can also built with bbBuildData reset=TRUE
-#'
-#' @return returns empty
-#'
-bbClearAll<- function(){
-
-  bbStop()
-  rootDir<-getwd()
-  unlink(file.path(rootDir,"conf"),recursive = TRUE)
-  unlink(file.path(rootDir,"out"),recursive = TRUE)
-  unlink(file.path(rootDir,"ensembl"),recursive = TRUE)
-  unlink(file.path(rootDir,"website"),recursive = TRUE)
-  unlink(file.path(rootDir,"sd"),recursive = TRUE)
-  deleteIfExist("biobtree.exe")
-  deleteIfExist("ensembl_sample.json")
-  deleteIfExist("go_sample.owl")
-  deleteIfExist("biobtree.exe")
-  deleteIfExist("biobtree")
 
 }
 

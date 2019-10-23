@@ -18,7 +18,7 @@ returns attributes names
 Provides list of available attributes for a dataset to use in search and mapping queries. This function works with a sample identifer.
 }
 \examples{
-bbBuildData(datasets="hgnc",reset=TRUE)
+bbBuildData(datasets="hgnc")
 bbStart()
 bbAttr("HGNC:12009","hgnc")
 

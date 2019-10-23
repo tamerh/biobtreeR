@@ -54,7 +54,8 @@ bbMapFilter("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs 
 bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 
 #Map Affymetrix identifiers to Ensembl identifiers and gene names
-bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
+bbMapFilter("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2"
+,'map(transcript).map(ensembl)',attrs = "name")
 
 }
 }

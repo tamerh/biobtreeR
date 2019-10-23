@@ -5,7 +5,7 @@
 \title{Build your data}
 \usage{
 bbBuildData(genome = NULL, datasets = NULL, targetDatasets = NULL,
-  genomePattern = NULL, reset = FALSE, rawArgs = NULL)
+  genomePattern = NULL, outDir = NULL, rawArgs = NULL)
 }
 \arguments{
 \item{genome}{Comma seperated list of ensembl genomes. To list all the genome names \code{bbListGenomes} function can be used.}
@@ -17,7 +17,7 @@ It speeds up the process and save disc space.}
 
 \item{genomePattern}{Alternative to the genome paramter to build set of genomes conveniently}
 
-\item{reset}{Override previously build data if exist}
+\item{outDir}{Output directory for biobtree data. If not specified temp directory is used.}
 
 \item{rawArgs}{Directly run biobtree with its all available arguments. If this paramter used all other parameters are ignored}
 }
@@ -27,14 +27,15 @@ returns empty
 \description{
 This function allows to build your selected datasets locally for making search/mapping queries via biobtree executable. Available datasets
 are uniprot,ensembl,ensembl genomes,hgnc,taxonomy,chembl,hmdb,go,eco,efo,chebi,interpro,literature_mappings,uniparc,uniref50,uniref90,uniref100,uniprot_unreviewed.
-These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets.
+These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets. Note that any new call
+of this function overrides previously built data.
 }
 \examples{
 
 bbStop() # stop first if running
-bbBuildData(datasets="hgnc",reset=TRUE)
+bbBuildData(datasets="hgnc")
 
-bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl",reset=TRUE)
+bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl")
 \dontrun{
 
   # build all the default dataset
@@ -43,13 +44,16 @@ bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl",reset=TRUE)
   # build both mouse and human genomes in ensembl insted of default human
   bbBuildData(genome="homo_sapiens,mus_musculus")
 
-  # build default datasets with all the ensembl genomes with names contains "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
+  # build default datasets with all the ensembl genomes with names contains
+  # "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
   bbBuildData(genomePattern="mus")
 
-  # for ensembl genomes needs to specify seperately in datasets + means default dataset plus check all the genomes with bbListGenomes()
+  # for ensembl genomes needs to specify seperately in datasets
+  # + means default dataset plus check all the genomes with bbListGenomes()
   bbBuildData(datasets="+ensembl_metazoa",genomes="caenorhabditis_elegans,drosophila_melanogaster")
   bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
-  bbBuildData(datasets="+ensembl_plants,ensembl_protists",genomes="arabidopsis_thaliana,phytophthora_parasitica")
+  bbBuildData(datasets="+ensembl_plants,ensembl_protists", \\
+  genomes="arabidopsis_thaliana,phytophthora_parasitica")
   bbBuildData(datasets="+ensembl_bacteria",genomes="salmonella_enterica")
   # bacteria genomes with pattern
   bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")

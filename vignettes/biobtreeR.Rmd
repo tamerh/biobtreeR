@@ -19,8 +19,8 @@ The biobtreeR package provides an interface to [biobtree](https://github.com/tam
 
 # Getting started 
 
-**Building data**
-biobtreeR process and store the datasets locally by downloading from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets. For instance uniprot release cycle is monthly and ensembl is every 3 months. 
+## Build data
+biobtreeR process and store the datasets locally by fetching datasets from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets.
 
 ```{r}
 library(biobtreeR)
@@ -58,18 +58,24 @@ bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar
 ```
 
 
-**Starting web server**
+## Start web server
 
-Once the building data completed web server is started with `bbStart` which allows performing queries and provide web interface data exploration.  
+Once the building data completed web server is started with `bbStart` which allows performing queries and provide web interface data exploration.
 
 ```{r}
 bbStart()
 ```
 
 
-## List available Ensembl genomes 
+## List available datasets and Ensembl genomes 
 
-In order to use in the data build process for Ensembl genomes all the available Ensembl genomes names can be listed with with `bbListGenomes` function. 
+In order to use in the data build process availabe datasets and Ensembl genomes are listed in following way
+
+**List datasets**
+
+```{r message=FALSE}
+head(bbListDatasets())
+```
 
 **List ensembl genomes**
 
@@ -80,7 +86,7 @@ head(bbListGenomes("ensembl"))
 **List ensembl genomes bacteria**
 
 ```{r message=FALSE}
-head(bbListGenomes("ensembl"))
+head(bbListGenomes("ensembl_bacteria"))
 ```
 
 **List ensembl genomes fungi**
@@ -175,7 +181,7 @@ bbAttr("ENST00000297261","transcript")
 bbAttr("ENSE00001146308","exon")
 ```
 
-Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbConfig`. Now lets build example mapping queries,
+Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbListDataset`. Now lets build example mapping queries,
 
 **Map gene names to Ensembl transcript identifiers**
 
@@ -186,14 +192,14 @@ head(res)
 
 **Map gene names to exon identifiers and retrieve the region**
 
-```{r eval = FALSE}
+```{r}
 res<-bbMapFilter("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
 head(res)
 ```
 
 **Map gene to its ortholog identifiers**
 
-```{r eval = FALSE}
+```{r}
 res<-bbMapFilter("shh",'map(ortholog)')
 head(res)
 ```
@@ -295,12 +301,11 @@ bbMapFilter("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && 
 ```
 
 
-# Clear all
+# Stop web server
 
 ```{r}
-bbClearAll()
+bbStop()
 ```
-
 
 # Session Info
 

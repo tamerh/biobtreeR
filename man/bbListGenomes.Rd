@@ -4,20 +4,27 @@
 \alias{bbListGenomes}
 \title{List Genomes}
 \usage{
-bbListGenomes(ensemblType)
+bbListGenomes(ensemblType, outDir = NULL, biobtreeURL = NULL)
 }
 \arguments{
 \item{ensemblType}{These param can be one of the following "ensembl", "ensembl_bacteria", "ensembl_fungi", "ensembl_metazoa", "ensembl_plants", "ensembl_protists"}
+
+\item{outDir}{If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.}
+
+\item{biobtreeURL}{Use this this parameter if you running biobtree tool seperately such as in a remote server.
+Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
+Note that default port of biobtree is 8888.}
 }
 \value{
 returns list of genome names
 }
 \description{
-This function list the ensembl genome names. These names can be used in bbBuildData function
+This function list the ensembl genome names. These names can be used in bbBuildData function. If biobtree web server
+is not runnint this function triggers to run it. And also if no data built with bbBuildData before it create a example data using
+hgnc just to show the list the genomes since biobtree web server require at least one built data to properly start.
 }
 \examples{
 
-bbStart()
 bbListGenomes("ensembl")
 #For ensembl genomes
 bbListGenomes("ensembl_bacteria")
