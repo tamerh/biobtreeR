@@ -128,10 +128,10 @@ If source parameter is passed search performed within the dataset.
 bbSearch("tpi1,ENSG00000164690","ensembl")
 ```
 
-The bbURL function is used to get the unique URL of dataset identifier 
+Search results url is retrieved with 
 
 ```{r}
-bbURL("ENSG00000164690","ensembl")
+bbSearch("tpi1,vav_human,ENST00000297261",showURL =TRUE)
 ```
 
 ## Chain mapping and filtering 
@@ -147,10 +147,14 @@ bbMapping("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = 
 
 In the example for the first parameter single protein accession has been used but similar with bbSearch functions multiple identifers or keywords can be used. In the last query type attribute was used to filter mapping only with biological process go terms. Dataset attributes are used in the filters starts with their dataset name as in the above example it starts with `go.`
 
-In order use in filter expressions, each datasets attributes lists with `bbAttr`function via sample identifier. For instance following query shows gene ontology attributes.
+In order use in filter expressions, each datasets attributes lists with `bbListAttrs`function via sample identifier. For instance following query shows gene ontology attributes.
 
 ```{r}
-bbAttr("GO:0042776",'go')
+bbListAttrs("go")
+```
+
+```{r}
+bbListAttrs("uniprot")
 ```
 
 # Example Use cases
@@ -162,19 +166,19 @@ In this section mapping functionality will be discussed in detail with example u
 Ensembl, Ensembl Genomes and HGNC datasets are used for gene related data. One of the most common gene related dataset identfiers are `ensembl`,`hgnc`,`transcript`,`exon`. Let's start with listing their attiributes,
 
 ```{r}
-bbAttr("tpi1","hgnc")
+bbListAttrs("hgnc")
 ```
 
 ```{r}
-bbAttr("tpi1","ensembl")
+bbListAttrs("ensembl")
 ```
 
 ```{r}
-bbAttr("ENST00000297261","transcript")
+bbListAttrs("transcript")
 ```
 
 ```{r}
-bbAttr("ENSE00001146308","exon")
+bbListAttrs("exon")
 ```
 
 Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbListDataset`. Now lets build example mapping queries,
@@ -256,19 +260,19 @@ head(res)
 Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let's list some protein related datasets attributes and then execute example queries similary with gene centric examples,
 
 ```{r}
-bbAttr("p15498","uniprot")
+bbListAttrs("uniprot")
 ```
 
 ```{r}
-bbAttr("p15498_f12","ufeature")
+bbListAttrs("ufeature")
 ```
 
 ```{r}
-bbAttr("1gzh","pdb")
+bbListAttrs("pdb")
 ```
 
-```{r eval = FALSE}
-bbAttr("IPR017907","interpro")
+```{r}
+bbListAttrs("interpro")
 ```
 
 

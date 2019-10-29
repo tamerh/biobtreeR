@@ -5,6 +5,8 @@
 #'
 #' @param outDir If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.
 #'
+#' @return character
+#'
 #' @examples
 #' bbStart()
 #' bbStop()
@@ -28,47 +30,59 @@ bbStart<-function(outDir=NULL) {
 
     }
 
-    setwd(bbDir)
+    tryCatch(
+      {
 
-    execFile <- bbExeFile()
+        setwd(bbDir)
 
-    running<-isbbRunning()
+        execFile <- bbExeFile()
 
-    if(!running){
+        running<-isbbRunning()
 
-      system2(execFile,args = "web",wait = FALSE)
+        if(!running){
 
-      # wait here until biobtree data process complete
-      print("Starting biobtree...")
-      elapsed<-0
-      timeoutDuration<-50
-      while(TRUE){
+          if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
+            stop("Built data couldn't found. Make sure data built or directory set correctly")
+          }
 
-        if (elapsed > timeoutDuration){
-          bbStop()
-          setwd(rootDir)
-          stop("biobtree could not started. Please check that you have built data correctly")
+          system2(execFile,args = "web",wait = FALSE)
+
+          # wait here until biobtree data process complete
+          print("Starting biobtree...")
+          elapsed<-0
+          timeoutDuration<-50
+          while(TRUE){
+
+            if (elapsed > timeoutDuration){
+              bbStop()
+              setwd(rootDir)
+              stop("biobtree could not started. Please check that you have built data correctly")
+            }
+
+            Sys.sleep(1)
+
+            if(!isbbRunning()){
+              elapsed<-elapsed+1
+              next
+            }
+
+            setConfig()
+            return("biobtreeR started")
+
+          }
+        }else{
+
+          setConfig()
+          return("biobtreeR started before.Config refreshed")
+
         }
 
-        Sys.sleep(1)
-
-        if(!isbbRunning()){
-          elapsed<-elapsed+1
-          next
-        }
-
-        setConfig()
+      },finally = {
         setwd(rootDir)
-        return("biobtreeR started")
-
       }
-    }else{
 
-      setConfig()
-      setwd(rootDir)
-      return("biobtreeR started before.Config refreshed")
+    )
 
-    }
 
 }
 

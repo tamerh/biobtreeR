@@ -2,18 +2,18 @@ test_that("Build data test", {
 
     bbDir<-tempdir()
     tempDir<-tempdir()
-    clearGeneratedFiles(bbDir)
+    clearGeneratedFiles(tempdir())
     setwd(bbDir)
 
     args<-testDatasetBBArgs()
 
     expect_false(file.exists(file.path(bbDir,"out","db","db.meta.json")))
 
-    bbBuildData(rawArgs = args)
+    bbBuildData(outDir = bbDir, rawArgs = args)
 
     expect_true(file.exists(file.path(bbDir,"out","db","db.meta.json")))
 
-    # now test with user defined outdir instead of tempdir
+    # test with user defined
     clearGeneratedFiles(bbDir)
     bbDir<-file.path(tempDir,"userOut")
     expect_true(dir.create(bbDir))

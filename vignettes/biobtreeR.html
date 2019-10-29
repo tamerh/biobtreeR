@@ -12,7 +12,7 @@
 
 <meta name="author" content="Tamer Gür" />
 
-<meta name="date" content="2019-10-23" />
+<meta name="date" content="2019-10-29" />
 
 <title>The biobtreeR users guide</title>
 
@@ -1759,9 +1759,9 @@ div.tocify {
 
 <h1 class="title toc-ignore">The biobtreeR users guide</h1>
 <p class="author-name">Tamer Gür</p>
-<h4 class="date">23 October 2019</h4>
+<h4 class="date">29 October 2019</h4>
 <h4 class="package">Package</h4>
-<p>biobtreeR 0.99.10</p>
+<p>biobtreeR 0.99.14</p>
 
 </div>
 
@@ -1812,13 +1812,13 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 <p>In order to use in the data build process availabe datasets and Ensembl genomes are listed in following way</p>
 <p><strong>List datasets</strong></p>
 <pre class="r"><code>head(bbListDatasets())</code></pre>
-<pre><code>##         id numeric_id          type
-## 1  uniprot          1 source&amp;target
-## 2  ensembl          2 source&amp;target
-## 3 taxonomy          3 source&amp;target
-## 4       go          4 source&amp;target
-## 5     hgnc          5 source&amp;target
-## 6  uniparc          6 source&amp;target</code></pre>
+<pre><code>##         id numeric_id               type
+## 1  uniprot          1 data source&amp;target
+## 2  ensembl          2 data source&amp;target
+## 3 taxonomy          3 data source&amp;target
+## 4       go          4 data source&amp;target
+## 5     hgnc          5 data source&amp;target
+## 6  uniparc          6 data source&amp;target</code></pre>
 <p><strong>List ensembl genomes</strong></p>
 <pre class="r"><code>head(bbListGenomes(&quot;ensembl&quot;))</code></pre>
 <pre><code>## [1] &quot;acanthochromis_polyacanthus&quot; &quot;ailuropoda_melanoleuca&quot;     
@@ -1860,28 +1860,30 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 </div>
 <div id="search-identifiers-and-keywords" class="section level2">
 <h2><span class="header-section-number">2.4</span> Search identifiers and keywords</h2>
-<p>Searching dataset identfiers and keywords such as gene name, species name and accession is performed with bbSearch function by passing comma seperated terms.</p>
-<pre class="r"><code>bbSearch(&quot;cas,shh&quot;)</code></pre>
-<pre><code>##   input       identfier dataset
-## 1   CAS        HGNC:971    hgnc
-## 2   CAS       HGNC:2431    hgnc
-## 3   SHH ENSG00000164690 ensembl
-## 4   SHH      HGNC:10848    hgnc</code></pre>
-<pre class="r"><code>bbSearch(&quot;tpi1,vav_human,homo_sapiens,ENST00000297261,10090&quot;)</code></pre>
-<pre><code>##             input       identfier    dataset
+<p>Searching dataset identfiers and keywords such as gene name or accessions is performed with bbSearch function by passing comma seperated terms.</p>
+<pre class="r"><code>bbSearch(&quot;tpi1,vav_human,ENST00000297261&quot;)</code></pre>
+<pre><code>##             input      identifier    dataset
 ## 1            TPI1 ENSG00000111669    ensembl
 ## 2            TPI1      HGNC:12009       hgnc
 ## 3       VAV_HUMAN          P15498    uniprot
 ## 4 ENST00000297261 ENST00000297261 transcript</code></pre>
 <p>If source parameter is passed search performed within the dataset.</p>
-<pre class="r"><code>bbSearch(&quot;cas,HGNC:12009&quot;,&quot;hgnc&quot;)</code></pre>
-<pre><code>##        input  identfier dataset
-## 1        CAS   HGNC:971    hgnc
-## 2        CAS  HGNC:2431    hgnc
-## 3 HGNC:12009 HGNC:12009    hgnc</code></pre>
-<p>The bbURL function is used to get the unique URL of dataset identifier</p>
-<pre class="r"><code>bbURL(&quot;HGNC:12009&quot;,&quot;hgnc&quot;)</code></pre>
-<pre><code>## [1] &quot;https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:12009&quot;</code></pre>
+<pre class="r"><code>bbSearch(&quot;tpi1,ENSG00000164690&quot;,&quot;ensembl&quot;)</code></pre>
+<pre><code>##             input      identifier dataset
+## 1            TPI1 ENSG00000111669 ensembl
+## 2 ENSG00000164690 ENSG00000164690 ensembl</code></pre>
+<p>Search results url is retrieved with</p>
+<pre class="r"><code>bbSearch(&quot;tpi1,vav_human,ENST00000297261&quot;,showURL =TRUE)</code></pre>
+<pre><code>##             input      identifier    dataset
+## 1            TPI1 ENSG00000111669    ensembl
+## 2            TPI1      HGNC:12009       hgnc
+## 3       VAV_HUMAN          P15498    uniprot
+## 4 ENST00000297261 ENST00000297261 transcript
+##                                                                               url
+## 1     https://www.ensembl.org/homo_sapiens/Gene/Summary?db=core;g=ENSG00000111669
+## 2         https://www.genenames.org/data/gene-symbol-report/#!/hgnc_id/HGNC:12009
+## 3                                                //www.uniprot.org/uniprot/P15498
+## 4 https://www.ensembl.org/Multi/Search/Results?q=ENST00000297261;site=ensembl_all</code></pre>
 </div>
 <div id="chain-mapping-and-filtering" class="section level2">
 <h2><span class="header-section-number">2.5</span> Chain mapping and filtering</h2>
@@ -1905,9 +1907,13 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 ## 3 GO:0042407 biological_process
 ## 4 GO:0042776 biological_process</code></pre>
 <p>In the example for the first parameter single protein accession has been used but similar with bbSearch functions multiple identifers or keywords can be used. In the last query type attribute was used to filter mapping only with biological process go terms. Dataset attributes are used in the filters starts with their dataset name as in the above example it starts with <code>go.</code></p>
-<p>In order use in filter expressions, each datasets attributes lists with <code>bbAttr</code>function via sample identifier. For instance following query shows gene ontology attributes.</p>
-<pre class="r"><code>bbAttr(&quot;GO:0042776&quot;,'go')</code></pre>
-<pre><code>## [1] &quot;type&quot; &quot;name&quot;</code></pre>
+<p>In order use in filter expressions, each datasets attributes lists with <code>bbListAttrs</code>function via sample identifier. For instance following query shows gene ontology attributes.</p>
+<pre class="r"><code>bbListAttrs(&quot;go&quot;)</code></pre>
+<pre><code>## [1] &quot;type&quot;       &quot;name&quot;       &quot;[]synonyms&quot;</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;uniprot&quot;)</code></pre>
+<pre><code>## [1] &quot;[]accessions&quot;        &quot;[]genes&quot;             &quot;[]names&quot;            
+## [4] &quot;[]alternative_names&quot; &quot;[]submitted_names&quot;   &quot;sequence.seq&quot;       
+## [7] &quot;sequence.mass&quot;       &quot;reviewed&quot;</code></pre>
 </div>
 </div>
 <div id="example-use-cases" class="section level1">
@@ -1916,17 +1922,18 @@ bbBuildData(datasets=&quot;+ensembl_bacteria&quot;,genomePattern=&quot;serovar_i
 <div id="gene-centric-use-cases" class="section level2">
 <h2><span class="header-section-number">3.1</span> Gene centric use cases</h2>
 <p>Ensembl, Ensembl Genomes and HGNC datasets are used for gene related data. One of the most common gene related dataset identfiers are <code>ensembl</code>,<code>hgnc</code>,<code>transcript</code>,<code>exon</code>. Let’s start with listing their attiributes,</p>
-<pre class="r"><code>bbAttr(&quot;tpi1&quot;,&quot;hgnc&quot;)</code></pre>
-<pre><code>## [1] &quot;names&quot;       &quot;symbols&quot;     &quot;locus_group&quot; &quot;location&quot;    &quot;locus_type&quot; 
-## [6] &quot;status&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;tpi1&quot;,&quot;ensembl&quot;)</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;hgnc&quot;)</code></pre>
+<pre><code>## [1] &quot;[]names&quot;        &quot;[]symbols&quot;      &quot;locus_group&quot;    &quot;[]aliases&quot;     
+## [5] &quot;locus_type&quot;     &quot;[]prev_names&quot;   &quot;[]prev_symbols&quot; &quot;status&quot;        
+## [9] &quot;[]gene_groups&quot;</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;ensembl&quot;)</code></pre>
 <pre><code>## [1] &quot;name&quot;            &quot;description&quot;     &quot;start&quot;           &quot;end&quot;            
 ## [5] &quot;biotype&quot;         &quot;genome&quot;          &quot;strand&quot;          &quot;seq_region_name&quot;
 ## [9] &quot;branch&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;ENST00000297261&quot;,&quot;transcript&quot;)</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;transcript&quot;)</code></pre>
 <pre><code>## [1] &quot;name&quot;            &quot;start&quot;           &quot;end&quot;             &quot;biotype&quot;        
 ## [5] &quot;strand&quot;          &quot;seq_region_name&quot; &quot;branch&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;ENSE00001146308&quot;,&quot;exon&quot;)</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;exon&quot;)</code></pre>
 <pre><code>## [1] &quot;start&quot;           &quot;end&quot;             &quot;strand&quot;          &quot;seq_region_name&quot;</code></pre>
 <p>Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with <code>bbListDataset</code>. Now lets build example mapping queries,</p>
 <p><strong>Map gene names to Ensembl transcript identifiers</strong></p>
@@ -1953,12 +1960,12 @@ head(res)</code></pre>
 <pre class="r"><code>res&lt;-bbMapping(&quot;shh&quot;,'map(ortholog)')
 head(res)</code></pre>
 <pre><code>##           mapping_id
-## 1 ENSABRG00000018705
-## 2 ENSACAG00000011060
-## 3 ENSACIG00000002882
-## 4 ENSACIG00000018203
-## 5 ENSACIG00000018215
-## 6 ENSACLG00000027636</code></pre>
+## 1 ENSACIG00000002882
+## 2 ENSACIG00000018215
+## 3 ENSACLG00000027636
+## 4 ENSAMEG00000001204
+## 5 ENSAMXG00000008367
+## 6 ENSAMXG00000034481</code></pre>
 <p><strong>Map gene to its paralog</strong></p>
 <pre class="r"><code>bbMapping(&quot;fry&quot;,'map(paralog)',showInputColumn = TRUE)</code></pre>
 <pre><code>##                 input input_dataset      mapping_id
@@ -1991,14 +1998,19 @@ head(res)</code></pre>
 <div id="protein-centric-use-cases" class="section level2">
 <h2><span class="header-section-number">3.2</span> Protein centric use cases</h2>
 <p>Uniprot is used for protein related dataset such as protein identifiers, accession, sequence, features, variants, and mapping information to other datasets. Let’s list some protein related datasets attributes and then execute example queries similary with gene centric examples,</p>
-<pre class="r"><code>bbAttr(&quot;p15498&quot;,&quot;uniprot&quot;)</code></pre>
-<pre><code>## [1] &quot;accessions&quot; &quot;names&quot;      &quot;sequence&quot;   &quot;reviewed&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;p15498_f12&quot;,&quot;ufeature&quot;)</code></pre>
-<pre><code>## [1] &quot;type&quot;        &quot;description&quot; &quot;id&quot;          &quot;original&quot;    &quot;variation&quot;  
-## [6] &quot;location&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;1gzh&quot;,&quot;pdb&quot;)</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;uniprot&quot;)</code></pre>
+<pre><code>## [1] &quot;[]accessions&quot;        &quot;[]genes&quot;             &quot;[]names&quot;            
+## [4] &quot;[]alternative_names&quot; &quot;[]submitted_names&quot;   &quot;sequence.seq&quot;       
+## [7] &quot;sequence.mass&quot;       &quot;reviewed&quot;</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;ufeature&quot;)</code></pre>
+<pre><code>##  [1] &quot;type&quot;               &quot;description&quot;        &quot;id&quot;                
+##  [4] &quot;original&quot;           &quot;variation&quot;          &quot;location.begin&quot;    
+##  [7] &quot;location.end&quot;       &quot;[]evidences.type&quot;   &quot;[]evidences.source&quot;
+## [10] &quot;[]evidences.id&quot;</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;pdb&quot;)</code></pre>
 <pre><code>## [1] &quot;method&quot;     &quot;chains&quot;     &quot;resolution&quot;</code></pre>
-<pre class="r"><code>bbAttr(&quot;IPR017907&quot;,&quot;interpro&quot;)</code></pre>
+<pre class="r"><code>bbListAttrs(&quot;interpro&quot;)</code></pre>
+<pre><code>## [1] &quot;[]names&quot;       &quot;short_name&quot;    &quot;type&quot;          &quot;protein_count&quot;</code></pre>
 <p><strong>Map gene names to reviewed uniprot identifiers</strong></p>
 <pre class="r"><code>bbMapping(&quot;msh6,stk11,bmpr1a,smad4,brca2&quot;,&quot;map(uniprot)&quot;,source =&quot;hgnc&quot;)</code></pre>
 <pre><code>##              input input_dataset mapping_id
@@ -2057,25 +2069,20 @@ head(res)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] BiocStyle_2.12.0  biobtreeR_0.99.10
+## [1] BiocStyle_2.12.0  biobtreeR_0.99.14 testthat_2.2.1   
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.2         BiocManager_1.30.8 compiler_3.6.1    
-##  [4] later_1.0.0        prettyunits_1.0.2  remotes_2.1.0     
-##  [7] tools_3.6.1        testthat_2.2.1     digest_0.6.21     
-## [10] pkgbuild_1.0.6     pkgload_1.0.2      evaluate_0.14     
-## [13] jsonlite_1.6       memoise_1.1.0      rlang_0.4.0       
-## [16] cli_1.1.0          rstudioapi_0.10    yaml_2.2.0        
-## [19] curl_4.2           xfun_0.10          stringr_1.4.0     
-## [22] withr_2.1.2        httr_1.4.1         knitr_1.25        
-## [25] desc_1.2.0         fs_1.3.1           devtools_2.2.1    
-## [28] rprojroot_1.3-2    glue_1.3.1         R6_2.4.0          
-## [31] processx_3.4.1     bookdown_0.14      rmarkdown_1.16    
-## [34] sessioninfo_1.1.1  callr_3.3.2        magrittr_1.5      
-## [37] htmltools_0.4.0    backports_1.1.5    promises_1.1.0    
-## [40] ps_1.3.0           ellipsis_0.3.0     usethis_1.5.1     
-## [43] assertthat_0.2.1   httpuv_1.5.2       stringi_1.4.3     
-## [46] crayon_1.3.4</code></pre>
+##  [1] Rcpp_1.0.2         rstudioapi_0.10    knitr_1.25        
+##  [4] magrittr_1.5       pkgload_1.0.2      R6_2.4.0          
+##  [7] rlang_0.4.0        stringr_1.4.0      httr_1.4.1        
+## [10] tools_3.6.1        xfun_0.10          withr_2.1.2       
+## [13] htmltools_0.4.0    yaml_2.2.0         assertthat_0.2.1  
+## [16] rprojroot_1.3-2    digest_0.6.21      bookdown_0.14     
+## [19] crayon_1.3.4       BiocManager_1.30.8 later_1.0.0       
+## [22] promises_1.1.0     curl_4.2           evaluate_0.14     
+## [25] rmarkdown_1.16     stringi_1.4.3      compiler_3.6.1    
+## [28] desc_1.2.0         backports_1.1.5    jsonlite_1.6      
+## [31] httpuv_1.5.2</code></pre>
 </div>
 
 

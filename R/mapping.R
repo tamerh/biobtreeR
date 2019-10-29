@@ -85,12 +85,10 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
       }
 
       for(i in seq_len(length(newres$results))){
-          found=FALSE
           for(j in seq_len(length(results))){
             if ( identical(newres$results[[i]]$source$doman_id,results[[j]]$source$doman_id) && identical(newres$results[[i]]$source$identifier,results[[j]]$source$identifier)) {
               results[[j]]$targets<-append(results[[j]]$targets,newres$results[[i]]$targets)
               totalMapping=totalMapping+length(newres$results[[i]]$targets)
-              found=TRUE
               break
             }
           }
@@ -144,8 +142,7 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
 
         map_id[index]<-results[[i]]$targets[[j]]$identifier
 
-        if(j==1){
-         if(multiInput){
+        if(j==1 && multiInput){
             if(length(results[[i]]$source$keyword)>0){
               in_id[index]<-paste0(results[[i]]$source$keyword,"-",results[[i]]$source$identifier)
             }else{
@@ -153,12 +150,9 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
             }
             source_id<-results[[i]]$source$dataset
             in_source[index]<-getConfig()@datasetMetaByNum[[paste(source_id)]]$id
-          }
-        }else{
-          if(multiInput){
+        }else if(multiInput){
             in_id[index]<-"-"
             in_source[index]<-"-"
-          }
         }
 
         if(length(attrsNames)>0){
@@ -189,6 +183,7 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
       }
 
     }
+
     if(multiInput){
       df<-data.frame(input=in_id,input_dataset=in_source)
 

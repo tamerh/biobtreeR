@@ -11,6 +11,7 @@
 #' @param page By default no need to pass this parameter since it returns all the results. It can be used with limit parameter for very large results to process them in paginated manner.
 #' About paging every long search or mapping result paginated in biobtree and for paginated results every response contains a key to get the next page results. So if this
 #' parameter is set with this key specified next page results returned for the given search term.
+#' @param showURL allows returning the dataset source url
 #' @param lite By default it is TRUE and allow function return quickly with data.frame containing most important fields. If set to TRUE function return raw results converted from json.
 #' @param limit  Limits the number of search results. By default without any limit all the results returned.
 #'

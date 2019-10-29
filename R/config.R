@@ -113,12 +113,14 @@ setConfig<-function(){
 
 }
 
+#' @title Use remote server
 #'
+#' @description Use this function if you running biobtree tool seperately in a remote server
 #'
-#' @param remoteEndpoint Use this function if you running biobtree tool seperately such as in a remote server.
-#' Then set this parameter with the endpoint of this running biobtree url with its ip address and port http://${IP}:${PORT} .
+#' @param remoteEndpoint remote endpoint url with ip address and port in the form of http://${IP}:${PORT} .
 #' Note that default port of biobtree is 8888.
 #'
+#' @return empty
 #'
 bbUseRemoteServer<-function(remoteEndpoint){
 
@@ -126,7 +128,7 @@ bbUseRemoteServer<-function(remoteEndpoint){
       conf<-getConfig()
       conf@remote=TRUE
       conf@endpoint=remoteEndpoint
-      conf@metaEndpoint=p(remoteEndpoint,"/ws/meta")
+      conf@metaEndpoint=paste0(remoteEndpoint,"/ws/meta")
       assign("bbConfig",conf, envir = biobtreeREnv)
 
 }
@@ -136,7 +138,6 @@ setOutDir<-function(outDir){
   conf<-getConfig()
   conf@bbDir=outDir
   assign("bbConfig",conf, envir = biobtreeREnv)
-  setConfig()
   return(0)
 
 }

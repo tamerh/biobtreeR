@@ -9,9 +9,9 @@ test_that("Mapping test", {
 
     args<-testDatasetBBArgs(hgnc=TRUE)
 
-    bbBuildData(rawArgs = args)
+    bbBuildData(outDir = bbDir, rawArgs = args)
 
-    bbStart()
+    bbStart(outDir = bbDir)
 
     res<-bbMapping("AT5G3_HUMAN",'map(go)',attrs = "type")
 

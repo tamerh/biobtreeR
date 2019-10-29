@@ -73,52 +73,62 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
       bbDir<-tempdir()
   }
 
-  setwd(bbDir)
+  tryCatch(
+    {
 
-  execFile <- bbExeFile()
+      setwd(bbDir)
 
-  if(length(rawArgs)>0){
+      execFile <- bbExeFile()
 
-    system2(execFile,args=rawArgs)
+      if(length(rawArgs)>0){
 
-  }else if (length(datasets)>0 && datasets=="sample_data"){
+        system2(execFile,args=rawArgs)
 
-    args<-" -d go,hgnc,uniprot,ensembl,interpro"
-    args<- paste0(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
-    args<- paste0(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
-    untar(system.file("exdata/ensembl_sample.json.tar.gz",package="biobtreeR"))
-    args<- paste0(args," --ensembl.file ","ensembl_sample.json")
-    untar(system.file("exdata/go_sample.tar.gz",package="biobtreeR"))
-    args<- paste0(args," --go.file ","go_sample.owl")
-    args<-paste0(args," build")
+      }else if (length(datasets)>0 && datasets=="sample_data"){
 
-    system2(execFile,args=args)
+        args<-" -d go,hgnc,uniprot,ensembl,interpro"
+        args<- paste0(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
+        args<- paste0(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
+        untar(system.file("exdata/ensembl_sample.json.tar.gz",package="biobtreeR"))
+        args<- paste0(args," --ensembl.file ","ensembl_sample.json")
+        untar(system.file("exdata/go_sample.tar.gz",package="biobtreeR"))
+        args<- paste0(args," --go.file ","go_sample.owl")
+        args<-paste0(args," build")
 
-  }else{
+        system2(execFile,args=args)
 
-    args<-""
+      }else{
 
-    if(length(genome)>0){
-      args<-paste0(args," -s ",genome)
-    }else if (length(genomePattern)>0){
-      args<-paste0(args," -sp ",genomePattern)
+        args<-""
+
+        if(length(genome)>0){
+          args<-paste0(args," -s ",genome)
+        }else if (length(genomePattern)>0){
+          args<-paste0(args," -sp ",genomePattern)
+        }
+
+        if(length(datasets)>0){
+          args<-paste0(args," -d ",datasets)
+        }
+
+        if(length(targetDatasets)>0){
+          args<-paste0(args," -t ",targetDatasets)
+        }
+
+        args<-paste0(args," build")
+
+        system2(execFile,args=args)
+
+      }
+
+      setConfig()
+
+    },finally = {
+
+      setwd(rootDir)
+
     }
 
-    if(length(datasets)>0){
-      args<-paste0(args," -d ",datasets)
-    }
+  )
 
-    if(length(targetDatasets)>0){
-      args<-paste0(args," -t ",targetDatasets)
-    }
-
-    args<-paste0(args," build")
-
-    system2(execFile,args=args)
-
-  }
-
-  setConfig()
-
-  setwd(rootDir)
 }
