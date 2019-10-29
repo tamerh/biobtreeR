@@ -13,6 +13,12 @@ clearGeneratedFiles<-function(bbDir){
 
 }
 
+deleteIfExist<-function(name){
+  if(file.exists(name)){
+    file.remove(name)
+  }
+}
+
 unlinkIfExist<-function(targetDir){
 
   if(file.exists(targetDir)){
@@ -30,21 +36,21 @@ testDatasetBBArgs <- function(hgnc=FALSE){
       args<-" -d go,uniprot,ensembl,interpro"
     }
 
-    args<- p(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
-    args<- p(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
+    args<- paste0(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
+    args<- paste0(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
     untar(system.file("exdata/ensembl_sample.json.tar.gz",package="biobtreeR"))
-    args<- p(args," --ensembl.file ",file.path("ensembl_sample.json"))
+    args<- paste0(args," --ensembl.file ",file.path("ensembl_sample.json"))
     untar(system.file("exdata/go_sample.tar.gz",package="biobtreeR"))
-    args<- p(args," --go.file ",file.path("go_sample.owl"))
-    args<-p(args," build")
+    args<- paste0(args," --go.file ",file.path("go_sample.owl"))
+    args<-paste0(args," build")
     return(args)
 }
 
 testDatasetBBArgs2 <- function(){
 
   args<-" -d interpro"
-  args<- p(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
-  args<-p(args," build")
+  args<- paste0(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
+  args<-paste0(args," build")
   return(args)
 
 }

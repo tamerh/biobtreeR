@@ -1,18 +1,5 @@
 test_that("List genomes test", {
 
-    tryCatch({
-
-        bbDir<-tempdir()
-
-        clearGeneratedFiles(bbDir)
-        setwd(bbDir)
-
-        args<-testDatasetBBArgs2()
-
-        bbBuildData(rawArgs = args)
-
-        bbStart()
-
         res<- bbListGenomes("ensembl")
 
         expect_true('homo_sapiens' %in% res)
@@ -48,27 +35,9 @@ test_that("List genomes test", {
         expect_true('corynebacterium_pseudotuberculosis' %in% res)
         expect_true('yersinia_rohdei' %in% res)
 
-
-    }, finally = {
-        bbStop()
-    })
-
 })
 
 test_that("List datasets test ", {
-
-    tryCatch({
-
-        bbDir<-tempdir()
-
-        clearGeneratedFiles(bbDir)
-        setwd(bbDir)
-
-        args<-testDatasetBBArgs2()
-
-        bbBuildData(rawArgs = args)
-
-        bbStart()
 
         res<- bbListDatasets()
 
@@ -80,10 +49,24 @@ test_that("List datasets test ", {
         expect_true('transcript' %in% res$id)
         expect_true('exon' %in% res$id)
 
-    }, finally = {
+})
 
-        bbStop()
+test_that("List attr test", {
+       
+        res<-bbListAttrs("hgnc")
+        expect_true(length(res)>=6)
+        expect_true('locus_group' %in% res)
 
-    })
+        res<-bbListAttrs("ensembl")
+        expect_true(length(res)>=9)
+        expect_true('seq_region_name' %in% res)
+
+        res<-bbListAttrs("transcript")
+        expect_true(length(res)>=7)
+        expect_true('start' %in% res)
+
+        res<-bbListAttrs("exon")
+        expect_true(length(res)>=4)
+        expect_true('start' %in% res)
 
 })
