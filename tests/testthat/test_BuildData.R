@@ -1,31 +1,48 @@
 test_that("Build data test", {
 
-    bbDir<-tempdir()
-    tempDir<-tempdir()
-    clearGeneratedFiles(tempdir())
-    setwd(bbDir)
+    wdir<-getwd()
 
-    args<-testDatasetBBArgs()
+    tryCatch(
+        {
+            if(exists("bbConfig",envir = biobtreeREnv)){
+                remove("bbConfig",envir = biobtreeREnv)
+            }
 
-    expect_false(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+            bbDir<-tempdir()
+            tempDir<-tempdir()
+            clearGeneratedFiles(tempdir())
+            setwd(bbDir)
 
-    bbBuildData(outDir = bbDir, rawArgs = args)
+            args<-testDatasetBBArgs()
 
-    expect_true(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+            expect_false(file.exists(file.path(bbDir,"out","db","db.meta.json")))
 
-    # test with user defined
-    clearGeneratedFiles(bbDir)
-    bbDir<-file.path(tempDir,"userOut")
-    expect_true(dir.create(bbDir))
+            bbBuildData(outDir = bbDir, rawArgs = args)
 
-    setwd(bbDir)
-    args<-testDatasetBBArgs() # need to build again with new path
+            expect_true(file.exists(file.path(bbDir,"out","db","db.meta.json")))
 
-    expect_false(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+            # test with user defined
+            clearGeneratedFiles(bbDir)
+            bbDir<-file.path(tempDir,"userOut")
+            expect_true(dir.create(bbDir))
 
-    bbBuildData(rawArgs = args,outDir=bbDir)
+            setwd(bbDir)
+            args<-testDatasetBBArgs() # need to build again with new path
 
-    expect_true(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+            expect_false(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+
+            bbBuildData(rawArgs = args,outDir=bbDir)
+
+            expect_true(file.exists(file.path(bbDir,"out","db","db.meta.json")))
+
+        },finally = {
+            setwd(wdir)
+        }
+
+    )
+
+
+
 
 })
 

@@ -2,45 +2,51 @@ test_that("Mapping test", {
 
     tryCatch({
 
-    bbDir<-tempdir()
+            if(exists("bbConfig",envir = biobtreeREnv)){
+             remove("bbConfig",envir = biobtreeREnv)
+            }
 
-    clearGeneratedFiles(bbDir)
-    setwd(bbDir)
+            wdir<-getwd()
 
-    args<-testDatasetBBArgs(hgnc=TRUE)
+            bbDir<-tempdir()
 
-    bbBuildData(outDir = bbDir, rawArgs = args)
+            clearGeneratedFiles(bbDir)
+            setwd(bbDir)
 
-    bbStart(outDir = bbDir)
+            args<-testDatasetBBArgs(hgnc=TRUE)
 
-    res<-bbMapping("AT5G3_HUMAN",'map(go)',attrs = "type")
+            bbBuildData(rawArgs = args)
+            bbStart()
 
-    expect_length(res,2)
-    expect_length(res[1]$mapping_id,10)
-    expect_length(res[2]$type,10)
+            res<-bbMapping("AT5G3_HUMAN",'map(go)',attrs = "type")
 
-    res<-res[order(res$mapping_id),]
+            expect_length(res,2)
+            expect_length(res[1]$mapping_id,10)
+            expect_length(res[2]$type,10)
 
-    expected_res <- data.frame(mapping_id=c("GO:0000276","GO:0005741","GO:0006754","GO:0008289",
-                                            "GO:0015986","GO:0016021","GO:0042407","GO:0042776",
-                                            "GO:0045263","GO:0046933"))
+            res<-res[order(res$mapping_id),]
 
-    expected_res<-expected_res[order("mapping_id")]
+            expected_res <- data.frame(mapping_id=c("GO:0000276","GO:0005741","GO:0006754","GO:0008289",
+                                                    "GO:0015986","GO:0016021","GO:0042407","GO:0042776",
+                                                    "GO:0045263","GO:0046933"))
 
-    expect_true(all.equal(expected_res["mapping_id"],res["mapping_id"],check.attributes=FALSE))
+            expected_res<-expected_res[order("mapping_id")]
 
-    # Test filtering
-    expected_res <- data.frame(mapping_id=c("GO:0006754","GO:0015986","GO:0042407","GO:0042776"))
+            expect_true(all.equal(expected_res["mapping_id"],res["mapping_id"],check.attributes=FALSE))
 
-    expected_res<-expected_res[order("mapping_id")]
+            # Test filtering
+            expected_res <- data.frame(mapping_id=c("GO:0006754","GO:0015986","GO:0042407","GO:0042776"))
 
-    res <-bbMapping("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
-    res<-res[order(res$mapping_id),]
+            expected_res<-expected_res[order("mapping_id")]
 
-    expect_true(all.equal(expected_res["mapping_id"],res["mapping_id"],check.attributes=FALSE))
+            res <-bbMapping("AT5G3_HUMAN",'map(go).filter(go.type=="biological_process")',attrs = "type")
+            res<-res[order(res$mapping_id),]
+
+            expect_true(all.equal(expected_res["mapping_id"],res["mapping_id"],check.attributes=FALSE))
 
     }, finally = {
         bbStop()
+        setwd(wdir)
     })
 
 

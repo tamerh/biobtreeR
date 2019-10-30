@@ -1,5 +1,9 @@
 test_that("List genomes test", {
 
+        if(exists("bbConfig",envir = biobtreeREnv)){
+                remove("bbConfig",envir = biobtreeREnv)
+        }
+
         res<- bbListGenomes("ensembl")
 
         expect_true('homo_sapiens' %in% res)
@@ -39,6 +43,10 @@ test_that("List genomes test", {
 
 test_that("List datasets test ", {
 
+        if(exists("bbConfig",envir = biobtreeREnv)){
+                remove("bbConfig",envir = biobtreeREnv)
+        }
+
         res<- bbListDatasets()
 
         expect_true('uniprot' %in% res$id)
@@ -52,7 +60,11 @@ test_that("List datasets test ", {
 })
 
 test_that("List attr test", {
-       
+
+        if(exists("bbConfig",envir = biobtreeREnv)){
+                remove("bbConfig",envir = biobtreeREnv)
+        }
+
         res<-bbListAttrs("hgnc")
         expect_true(length(res)>=6)
         expect_true('locus_group' %in% res)

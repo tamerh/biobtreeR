@@ -2,35 +2,42 @@ test_that("Search test", {
 
     tryCatch({
 
-    bbDir<-tempdir()
+        if(exists("bbConfig",envir = biobtreeREnv)){
+            remove("bbConfig",envir = biobtreeREnv)
+        }
 
-    clearGeneratedFiles(bbDir)
-    setwd(bbDir)
+        wdir<-getwd()
 
-    args<-testDatasetBBArgs(hgnc=TRUE)
+        bbDir<-tempdir()
 
-    bbBuildData(rawArgs = args)
+        clearGeneratedFiles(bbDir)
+        setwd(bbDir)
 
-    bbStart()
+        args<-testDatasetBBArgs(hgnc=TRUE)
 
-    res<-bbSearch("tpi1,vav_human,ENST00000297261")
+        bbBuildData(rawArgs = args)
 
-    expect_length(res,3)
-    expect_length(res[1]$input,4)
-    expect_length(res[2]$identifier,4)
-    expect_length(res[3]$dataset,4)
+        bbStart()
 
-    res<-res[order(res$dataset),]
+        res<-bbSearch("tpi1,vav_human,ENST00000297261")
+
+        expect_length(res,3)
+        expect_length(res[1]$input,4)
+        expect_length(res[2]$identifier,4)
+        expect_length(res[3]$dataset,4)
+
+        res<-res[order(res$dataset),]
 
 
-    expected_res <- data.frame(input=c("TPI1","TPI1","ENST00000297261","VAV_HUMAN"),
-                               identifier=c("ENSG00000111669","HGNC:12009","ENST00000297261","P15498"),
-                           dataset=c("ensembl","hgnc","transcript","uniprot"))
+        expected_res <- data.frame(input=c("TPI1","TPI1","ENST00000297261","VAV_HUMAN"),
+                                   identifier=c("ENSG00000111669","HGNC:12009","ENST00000297261","P15498"),
+                               dataset=c("ensembl","hgnc","transcript","uniprot"))
 
-    expect_true(all.equal(expected_res,res,check.attributes=FALSE))
+        expect_true(all.equal(expected_res,res,check.attributes=FALSE))
 
     }, finally = {
         bbStop()
+        setwd(wdir)
     })
 
 })
