@@ -58,6 +58,8 @@ bbListGenomes <- function(ensemblType){
 #'
 #' @description Lists the available source and target datasets with their numeric identifiers.
 #'
+#' @return returns datasets
+#'
 #' @examples
 #'
 #' bbListDatasets()

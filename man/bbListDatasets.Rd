@@ -6,6 +6,9 @@
 \usage{
 bbListDatasets()
 }
+\value{
+returns datasets
+}
 \description{
 Lists the available source and target datasets with their numeric identifiers.
 }
