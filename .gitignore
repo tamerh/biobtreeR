@@ -15,3 +15,5 @@ website/*
 LICENSE*.md
 biobtreePID.rds
 ensembl_sample.json
+tmpp/
+tmp/

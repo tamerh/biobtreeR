@@ -7,7 +7,7 @@
 \description{
 This class holds the datasets meta data and web service endpoints and used while executing the search/mapping queries.
 Instance of this class with name bbConfig is globally set by bbStart function. About dataset meta data, this class instance
-holds all the datasets unqiue identifers, entry url templates etc. In biobtree each dataset has unique charachter
+holds all the datasets unqiue identifers, entry url templates etc. In biobtree each dataset has unique character
 and numeric identifier. For instance Uniprot's charachter identifier is "uniprot" and numeric identifier is 1.
 When performing queries the dataset charachter identifier is used for convinience but in actual database it is saved numerically.
 }

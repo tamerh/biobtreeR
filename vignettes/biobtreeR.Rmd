@@ -19,98 +19,52 @@ The biobtreeR package provides an interface to [biobtree](https://github.com/tam
 
 # Getting started 
 
-## Build data
-biobtreeR process and store the datasets locally by fetching datasets from their public locations. To build the datasets `bbBuildData` is used. And once this process is completed it does not require to perform again unless to work on new datasets or fetching the latest version of the datasets.
-
 ```{r}
 library(biobtreeR)
+
+# Create an folder and set as an output directory 
+# It is used for database and configuration files
+
+# temporary directory is used for demonstration purpose
+bbUseOutDir(tempdir())
+
+# bbUseOutDir("/Users/tgur/Desktop/projects/biobtreeR/tmpp")
 ```
 
-Building with sample data
+
+## Build database 
+For mapping queries, biobtreeR use a database which stored in local storage. Database can be built 2 ways, first way is to retrieve pre built database. These database consist of commonly studied datasets and model organism and updated regularly following the major uniprot and ensembl data releases. 
+
+
 ```{r}
-bbBuildData(datasets="sample_data")
+# Called once and saves the built in database to local disk
+
+# Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
+# Included uniprot proteins and ensembl genomes belongs to following organisms:
+# homo_sapiens, danio_rerio(zebrafish), gallus_gallus(chicken), mus_musculus, Rattus norvegicus, saccharomyces_cerevisiae, 
+# arabidopsis_thaliana, drosophila_melanogaster, caenorhabditis_elegans, Escherichia coli, Escherichia coli str. K-12 substr. MG1655, Escherichia coli K-12
+
+bbBuiltInDB()
+
 ```
 
-Examples for building with real datasets 
+For the genomes which are not included in the pre built database can be built in local computer. All the ensembl and ensembl genomes organisms are supported.
+List of these genomes and their taxonomy identifiers can be seen from ensembl websites [1](https://www.ensembl.org/info/about/species.html),[2](http://bacteria.ensembl.org/species.html),[3](http://fungi.ensembl.org/species.html),[4](http://plants.ensembl.org/species.html),[5](http://protists.ensembl.org/index.html),[6](http://metazoa.ensembl.org/species.html),
 ```{r eval=FALSE}
 
-# build default datasets ensembl(homo_sapiens) uniprot(reviewed) hgnc taxonomy go eco efo interpro chebi
-bbBuildData() 
-
-#only specific datasets
-bbBuildData(datasets = "hgnc,uniprot,go,taxonomy")
-
-#only specific datasets with specific mappings to save disk space
-bbBuildData(datasets = "hgnc,uniprot,go,taxonomy",targetDatasets = "hgnc,uniprot,taxonomy,ufeature,go,pdb,taxchild,taxparent") 
-
-# build both mouse and human genomes in ensembl insted of default human
-bbBuildData(genome="homo_sapiens,mus_musculus")
-
-# build genomes from ensembl genomes fungi
-bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
-
-# multiple species genomes from ensembl genomes plants and protists
-bbBuildData(datasets="++ensembl_plants,ensembl_protists",genomes="arabidopsis_thaliana,phytophthora_parasitica")
-
-# multiple bacteria genomes with pattern
-bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
+# multiple species genomes supported with comma seperated taxonomy identifiers
+bbBuildCustomDB(taxonomyIDs = "1408103,206403")
 
 ```
 
 
 ## Start web server
 
-Once the building data completed web server is started with `bbStart` which allows performing queries and provide web interface data exploration.
+Once database is retrieved or built to local disk queries are performed via lightweight local server. Local server provide web interface for data expoloration in addition to the R functions for performing queries for R pipelines. Local server runs as a background process so both web interface and R functions can be used at the same time once it is started. While web server running web interface can be accessed via address http://localhost:8888/ui
+
 
 ```{r}
-bbStart()
-```
-
-
-## List available datasets and Ensembl genomes 
-
-In order to use in the data build process availabe datasets and Ensembl genomes are listed in following way
-
-**List datasets**
-
-```{r message=FALSE}
-head(bbListDatasets())
-```
-
-**List ensembl genomes**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl"))
-```
-
-**List ensembl genomes bacteria**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl_bacteria"))
-```
-
-**List ensembl genomes fungi**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl_fungi"))
-```
-
-**List ensembl genomes metazoa**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl_metazoa"))
-```
-
-**List ensembl genomes plants**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl_plants"))
-```
-
-**List ensembl genomes protists**
-
-```{r message=FALSE}
-head(bbListGenomes("ensembl_protists"))
+ bbStart()
 ```
 
 
@@ -181,7 +135,7 @@ bbListAttrs("transcript")
 bbListAttrs("exon")
 ```
 
-Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbListDataset`. Now lets build example mapping queries,
+Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbListDatasets`. Now lets build example mapping queries,
 
 **Map gene names to Ensembl transcript identifiers**
 
@@ -204,10 +158,10 @@ res<-bbMapping("shh",'map(ortholog)')
 head(res)
 ```
 
-**Map gene to its paralog**
+**Map gene to its paralogs**
 
 ```{r}
-bbMapping("fry",'map(paralog)',showInputColumn = TRUE)
+bbMapping("fry,mog",'map(paralog)',showInputColumn = TRUE)
 ```
 
 
@@ -225,32 +179,43 @@ bbMapping("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 Following examples require to build real human genome dataset 
 
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
-```{r eval = FALSE}
-res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region_name=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
+```{r}
+res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
 head(res)
 ```
 
 **Get all Ensembl human identifiers and gene names within or overlapping range**
-```{r eval = FALSE}
+```{r}
 bbMapping("9606",'map(ensembl).filter((114129278>ensembl.start && 114129278<ensembl.end) || (114129328>ensembl.start && 114129328<ensembl.end))',attrs = "name")
 ```
 
 In the above example as a first parameter taxonomy identifier is used instead of specifying as homo sapiens like in the previous example. Both of these usage are equivalent and produce same output as homo sapiens refer to taxonomy identifer 9606.
 
+**Built in function for genomic range queries**
+
+To simplfy previous use case query 3 builtin range query functions are provided. These functions are `overlaps`, `within` and `covers`. These functions can be used for `ensembl`, `transcript` and `exon`
+entries which have start and end genome coordinates. For instance previous query can be written following way with `overlaps` function which list all the overlapping genes in human with given range.
+
+```{r}
+bbMapping("9606",'map(ensembl).filter(ensembl.overlaps(114129278,114129328))',attrs = "name")
+```
+
+
+
 **Map Affymetrix identifiers to Ensembl identifiers and gene names**
 
-```{r eval = FALSE}
+```{r}
 bbMapping("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2" ,'map(transcript).map(ensembl)',attrs = "name")
 ```
 
 Note that all mappings can be done with opposite way, for instance from gene name to Affymetrix identifiers mapping is performed following way
 
-```{r eval = FALSE}
+```{r}
 bbMapping("CASP3,CASP4",'map(transcript).map(affy_hg_u133_plus_2)')
 ```
 
 **Retrieve all the human gene names which contains TTY**
-```{r eval = FALSE}
+```{r}
 res<-bbMapping("homo sapiens",'map(ensembl).filter(ensembl.name.contains("TTY"))',attrs = "name")
 head(res)
 ```

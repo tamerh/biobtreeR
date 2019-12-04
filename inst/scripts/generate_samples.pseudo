@@ -17,43 +17,11 @@ wget https://www.uniprot.org/uniprot/P04637.xml .
 Once you  download these xml files simply merge them into 1 xml file containin these 6 proteins as a seperate protein entry. And then
 gzip this merged xml file with the name as 'uniprot_sample.xml.gz' and place it to inst/exdata.
 
-########### Generate Ensembl sample data set
+########### sample data for ensembl
 
-Download full human genome in json format.  
+human chromosome 21 gff3 data is used
 
-wget http://ftp.ensemblorg.ebi.ac.uk/pub/current_json/homo_sapiens/homo_sapiens.json .
-
-Install jq and add to your path
-
-https://stedolan.github.io/jq/download/
-
-In sample data set following 7 genes are used. We are going to generate new sample json from these genes data. 
-     FRY ENSG00000073910 
-     SHH ENSG00000164690 
- ATP5MC3 ENSG00000154518 
-    TP53 ENSG00000141510 
-    TPI1 ENSG00000111669 
-   CASP3 ENSG00000164305 
-   CASP4 ENSG00000196954 
-
-Simply run following command to fetch theses 7 genes data within all.
-
-cat homo_sapiens.json | jq '.genes[] | select(.id=="ENSG00000073910" or .id=="ENSG00000164690" or .id=="ENSG00000154518" or .id=="ENSG00000141510" or .id=="ENSG00000111669" or .id=="ENSG00000164305" or .id=="ENSG00000196954")' > selected_entries.json
-
-This command will create a file 'selected_entries.json'. This file contains genes only. To mimic this file exactly like full dataset 
-add following 3 lines to the beginig of file
-{
-  "is_reference": "false",
-  "genes": [
-
-And append following 2 lines to end of file
-]
-}
-
-This will make file valid json which looks similarly to the orginal full dataset with only containing our 7 genes.
-Once this file created create archived gzip file with following way and and place it to inst/exdata.
-
-tar -cvzf ensembl_sample.json.tar.gz merged_file
+wget http://ftp.ensembl.org/pub/current_gff3/homo_sapiens/Homo_sapiens.GRCh38.98.chromosome.21.gff3.gz
 
 ########### Generate GO sample data 
 

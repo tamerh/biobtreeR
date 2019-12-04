@@ -20,9 +20,10 @@
 #' @author Tamer Gur
 #'
 #' @examples
-#'
 #' bbStart()
+#'
 #' bbMapping("tpi1",'map(uniprot)')
+#'
 #' bbMapping("shh",'map(ensembl)')
 #'
 #' \dontrun{
@@ -41,6 +42,7 @@
 #' ,'map(transcript).map(ensembl)',attrs = "name")
 #'
 #'}
+#'
 bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1000,inattrs=NULL,attrs=NULL,showInputColumn=FALSE){
 
   wsurl <- function(terms,mapfilter,source,page){

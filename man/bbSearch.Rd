@@ -35,13 +35,10 @@ identifier "P15498". Or gene name can be also a keyword like "tpi1" which could 
 }
 \examples{
 
-bbStart()
-bbSearch("P15498,tpi1,shh")
+bbSearch("hunk,vav_human")
 
-\dontrun{
-# run this examplee with building the default dataset with bbBuildData()
-bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
-}
+bbSearch("hunk","ensembl",filter='ensembl.genome=="homo_sapiens"')
+
 
 }
 \author{

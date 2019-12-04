@@ -11,7 +11,7 @@
 #'
 #' @examples
 #'
-#' bbStart()
+#' bbStart() # if not already started
 #' bbEntry("HGNC:12009","hgnc")
 #'
 
@@ -39,7 +39,7 @@ bbEntry <- function(identifer,source){
 #' @examples
 #'
 #'
-#' bbStart()
+#' bbStart() # if not already started
 #' bbEntryFilter("HGNC:12009","hgnc","uniprot,ensembl")
 #'
 #'
@@ -61,20 +61,23 @@ bbEntryFilter <-function(identifer,source,filters,page=NULL) {
 
 #' @title Retrieve entry result page
 #'
-#' @description If an entry contains large set of mapping entries it is paginated by biobtree with confiGured paging size. This function retrieve these paging for an entry
+#' @description If an entry contains large set of mapping entries it is paginated by biobtree with confiGured paging size.
+#' This function retrieve these paging for an entry. Biobtree paging size for each entry is 200.
 #'
 #' @param identifer Identifer for the entry.
 #' @param source Dataset identifier
 #' @param page Page index it starts from 0
 #' @param totalPage Total number of page for the entry. This value needs to calculate by user via using total number of entries which is available at the root result for the entry
-#' and divide it confiGured biobtree paging size which has default value of 200
+#' and divide it to the paging sizeb of 200
 #'
 #' @return returns biobtree json object
 #'
 #' @author Tamer Gur
 #'
-#' bbStart()
-#' bbEntryPage("HGNC:12009","hgnc",0,0)
+#' @examples
+#'
+#' bbStart() # if not already started
+#' bbEntryPage("ENSG00000141956","ensembl",0,0)
 #'
 #'
 

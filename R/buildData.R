@@ -1,22 +1,30 @@
-#' @title Build your data
+#' @title Get pre build biobtree database
 #'
-#' @description This function allows to build your selected datasets locally for making search/mapping queries via biobtree executable. Available datasets
-#' are uniprot,ensembl,ensembl genomes,hgnc,taxonomy,chembl,hmdb,go,eco,efo,chebi,interpro,literature_mappings,uniparc,uniref50,uniref90,uniref100,uniprot_unreviewed.
-#' These datasets are called source datasets other dataset' identifers and mappings retrieved from these source datasets. Note that any new call
-#' of this function overrides previously built data.
+#' @description Pre build biobtree database for commonly studied datasets and model organism genomes. Once this function called it retrieves
+#' the pre build database saves to users output directory.
 #'
-#' @param genome Comma seperated list of ensembl genomes. To list all the genome names \code{bbListGenomes} function can be used.
+#' @param type built in database type accepted values are 1,2 and 3. Currently there are 3 different builtin database;
+#' Type 1
+#' Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
+#' Included uniprot proteins and ensembl genomes belongs to following organisms
+#' homo_sapiens 9606 --> ensembl
+#' danio_rerio 7955 zebrafish --> ensembl
+#' gallus_gallus 9031 chicken --> ensembl
+#' mus_musculus 10090 --> ensembl
+#' Rattus norvegicus 10116 ---> ensembl
+#' saccharomyces_cerevisiae 4932--> ensembl
+#' arabidopsis_thaliana 3702--> ensembl
+#' drosophila_melanogaster 7227 --> ensembl
+#' caenorhabditis_elegans 6239 --> ensembl
+#' Escherichia coli 562 --> ensembl_bacteria
+#' Escherichia coli str. K-12 substr. MG1655 511145 --> ensembl_bacteria
+#' Escherichia coli K-12 83333 --> ensembl_bacteria
 #'
-#' @param datasets Comma seperated list of datasets for build. Default datasets are taxonomy ensembl(homo_sapiens) uniprot(reviewed) hgnc go eco efo chebi interpro
+#' Type 2
+#' Instead of genomes in in the type 1 it contains human and all the mouse strains genomes in the ensembl
 #'
-#' @param targetDatasets Comma seperated target datasets. This params allows to buld data with only given datasets. It is useful if interested only certain dataset mappings
-#' It speeds up the process and save disc space.
-#'
-#' @param genomePattern Alternative to the genome paramter to build set of genomes conveniently
-#'
-#' @param outDir Output directory for biobtree data. If not specified temp directory is used.
-#'
-#' @param rawArgs Directly run biobtree with its all available arguments. If this paramter used all other parameters are ignored
+#' Type 3
+#' Contains no genome but it contains all the uniprot data.
 #'
 #' @return returns empty
 #'
@@ -24,38 +32,17 @@
 #'
 #' @examples
 #'
-#' bbStop() # stop first if running
-#' bbBuildData(datasets="hgnc")
-#'
-#' bbBuildData(datasets="hgnc",targetDatasets="uniprot,ensembl")
-#' \dontrun{
-#'
-#'   # build all the default dataset
-#'   bbBuildData()
-#'
-#'   # build both mouse and human genomes in ensembl insted of default human
-#'   bbBuildData(genome="homo_sapiens,mus_musculus")
-#'
-#'   # build default datasets with all the ensembl genomes with names contains
-#'   # "mus" which are "mus_caroli", "mus_musculus", "mus_musculus_129s1svimj" ...
-#'   bbBuildData(genomePattern="mus")
-#'
-#'   # for ensembl genomes needs to specify seperately in datasets
-#'   # + means default dataset plus check all the genomes with bbListGenomes()
-#'   bbBuildData(datasets="+ensembl_metazoa",genomes="caenorhabditis_elegans,drosophila_melanogaster")
-#'   bbBuildData(datasets="+ensembl_fungi",genomes="saccharomyces_cerevisiae")
-#'   bbBuildData(datasets="+ensembl_plants,ensembl_protists", \
-#'   genomes="arabidopsis_thaliana,phytophthora_parasitica")
-#'   bbBuildData(datasets="+ensembl_bacteria",genomes="salmonella_enterica")
-#'   # bacteria genomes with pattern
-#'   bbBuildData(datasets="+ensembl_bacteria",genomePattern="serovar_infantis,serovar_virchow")
-#'
-#'   #build only certain datasets
-#'   bbBuildData(datasets="uniprot,hgnc")
+#' bbUseOutDir(tempdir()) # temp dir for demo purpose
+#' bbBuiltInDB("demo") # small demo database for real database use 1, 2 or 3
 #'
 #'
-#' }
-bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePattern=NULL,outDir=NULL,rawArgs=NULL) {
+bbBuiltInDB<- function(type="1"){
+  retrbbData(type,"d")
+}
+
+
+# Retrieve pre built data hosted in the https://github.com/tamerh/biobtree-conf/releases
+retrbbData<- function(index,type){
 
   if(isbbRunning()){
     stop("There is a running biobtree stop with bbStop()")
@@ -63,15 +50,75 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
   rootDir<-getwd()
 
-  if(length(outDir)>0){
-      if(!file.exists(file.path(outDir))){
-        stop("Specified outDir is not exist")
-      }
-      bbDir<-file.path(outDir)
-      setOutDir(outDir)
-  }else{
-      bbDir<-tempdir()
+  conf<-getConfig()
+
+  if(length(conf@bbDir)==0){
+    stop("out directory is not set")
   }
+
+  tryCatch(
+    {
+
+      setwd(conf@bbDir)
+
+      if(file.exists(file.path(conf@bbDir,"out"))){
+         unlink(file.path(conf@bbDir,"out"),recursive = TRUE)
+      }
+
+      bbConfVersion<-latestbbConfVersion()
+      targetFile<-paste0("biobtree-conf-",bbConfVersion,"-set",index,type,".tar.gz")
+      targetFileUrl<-paste0("https://github.com/tamerh/biobtree-conf/releases/download/",bbConfVersion,"/",targetFile)
+      download.file(targetFileUrl,targetFile,mode="wb")
+      system2("tar",args=paste0(" -xzvf ",targetFile))
+      file.remove(targetFile)
+
+    },finally = {
+
+      setwd(rootDir)
+
+    }
+
+  )
+
+}
+
+#' @title Build custom DB
+#'
+#' @description biobtree covers all the genomes in ensembl and ensembl genomes. If the the studied organism genome is not included
+#' in the default pre built in databases then this function is used and build the biobtree database locally for given genomes.
+#'
+#' @param taxonomyIDs Comma seperated list of taxonomy identifiers for building the genomes
+#'
+#' @param rawArgs For using all available biobtree command line arguments directly
+#'
+#' @return returns empty
+#'
+#' @author Tamer Gur
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' bbUseOutDir("your directory path")
+#' bbBuildCustomDB(taxonomyIDs="1408103,206403")
+#'
+#'}
+#'
+bbBuildCustomDB<- function(taxonomyIDs=NULL,rawArgs=NULL){
+
+  if(isbbRunning()){
+    stop("There is a running biobtree stop with bbStop()")
+  }
+
+  rootDir<-getwd()
+
+  conf<-getConfig()
+
+  if(length(conf@bbDir)==0){
+    stop("out directory is not set")
+  }
+
+  bbDir<-conf@bbDir
 
   tryCatch(
     {
@@ -84,38 +131,15 @@ bbBuildData<-function(genome=NULL,datasets=NULL,targetDatasets=NULL,genomePatter
 
         system2(execFile,args=rawArgs)
 
-      }else if (length(datasets)>0 && datasets=="sample_data"){
-
-        args<-" -d go,hgnc,uniprot,ensembl,interpro"
-        args<- paste0(args," --uniprot.file ",system.file("exdata/uniprot_sample.xml.gz",package="biobtreeR"))
-        args<- paste0(args," --interpro.file ",system.file("exdata/interpro_sample.xml.gz",package="biobtreeR"))
-        untar(system.file("exdata/ensembl_sample.json.tar.gz",package="biobtreeR"))
-        args<- paste0(args," --ensembl.file ","ensembl_sample.json")
-        untar(system.file("exdata/go_sample.tar.gz",package="biobtreeR"))
-        args<- paste0(args," --go.file ","go_sample.owl")
-        args<-paste0(args," build")
-
-        system2(execFile,args=args)
-
       }else{
 
-        args<-""
-
-        if(length(genome)>0){
-          args<-paste0(args," -s ",genome)
-        }else if (length(genomePattern)>0){
-          args<-paste0(args," -sp ",genomePattern)
+        if(length(taxonomyIDs)==0){
+          stop("At least one taxonomy identifier is required to build custom data")
         }
 
-        if(length(datasets)>0){
-          args<-paste0(args," -d ",datasets)
-        }
+        retrbbData("3","r")
 
-        if(length(targetDatasets)>0){
-          args<-paste0(args," -t ",targetDatasets)
-        }
-
-        args<-paste0(args," build")
+        args<-paste0(" -tax ",taxonomyIDs," --keep --ensembl-orthologs"," build")
 
         system2(execFile,args=args)
 

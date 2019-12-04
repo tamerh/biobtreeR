@@ -3,79 +3,70 @@
 #' @description Once target datasets is built with \code{bbBuildData} this function used to start biobtree server
 #' in the background for performing search/mapping queries.
 #'
-#' @param outDir If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.
-#'
 #' @return character
 #'
 #' @examples
+#'
 #' bbStart()
 #' bbStop()
-bbStart<-function(outDir=NULL) {
+#'
+bbStart<-function() {
 
-    conf<-getConfig()
+    if(isbbRunning()){
+      print("There is a running biobtree which can be used or first bbStop() to start again")
+      return(FALSE)
+    }
 
     rootDir<-getwd()
 
-    if(length(outDir)>0){
+    conf<-getConfig()
 
-      if(!file.exists(file.path(outDir))){
-        stop("Specified outDir is not exist")
-      }
-      bbDir<-file.path(outDir)
-      setOutDir(outDir)
-
-    }else{
-
-      bbDir<-conf@bbDir
-
+    if(length(conf@bbDir)==0){
+      stop("out directory is not set. It must be set first with useOutDir function")
     }
+
+    bbDir<-conf@bbDir
 
     tryCatch(
       {
+
+        print(bbDir)
 
         setwd(bbDir)
 
         execFile <- bbExeFile()
 
-        running<-isbbRunning()
 
-        if(!running){
+        if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
+          stop("Built data couldn't found. Make sure data built or directory set correctly")
+        }
 
-          if(!file.exists(file.path(bbDir,"out","db","db.meta.json"))){
-            stop("Built data couldn't found. Make sure data built or directory set correctly")
+        system2(execFile,args = "--no-web-popup web",wait = FALSE)
+
+        # wait here until biobtree data process complete
+        print("Starting biobtree...")
+        elapsed<-0
+        timeoutDuration<-50
+        while(TRUE){
+
+          if (elapsed > timeoutDuration){
+            bbStop()
+            setwd(rootDir)
+            stop("biobtree could not started. Please check that you have built data correctly")
           }
 
-          system2(execFile,args = "web",wait = FALSE)
+          Sys.sleep(1)
 
-          # wait here until biobtree data process complete
-          print("Starting biobtree...")
-          elapsed<-0
-          timeoutDuration<-50
-          while(TRUE){
-
-            if (elapsed > timeoutDuration){
-              bbStop()
-              setwd(rootDir)
-              stop("biobtree could not started. Please check that you have built data correctly")
-            }
-
-            Sys.sleep(1)
-
-            if(!isbbRunning()){
-              elapsed<-elapsed+1
-              next
-            }
-
-            setConfig()
-            return("biobtreeR started")
-
+          if(!isbbRunning()){
+            elapsed<-elapsed+1
+            next
           }
-        }else{
 
           setConfig()
-          return("biobtreeR started before.Config refreshed")
+          return("biobtreeR started")
 
         }
+
 
       },finally = {
         setwd(rootDir)
@@ -90,6 +81,7 @@ bbStart<-function(outDir=NULL) {
 #' @title Stop biobtree
 #'
 #' @description Stops running background biobtree process which started with \code{bbStart}
+#'
 #' @return returns empty
 #'
 #' @examples
@@ -131,3 +123,4 @@ isbbRunning <- function(biobtreeURL=NULL){
   return(!inherits(response, "error"))
 
 }
+

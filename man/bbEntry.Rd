@@ -19,7 +19,7 @@ Returns entry for an identifier and dataset. Entry contains all the data raw dat
 }
 \examples{
 
-bbStart()
+bbStart() # if not already started
 bbEntry("HGNC:12009","hgnc")
 
 }

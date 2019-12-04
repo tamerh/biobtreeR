@@ -24,7 +24,7 @@ Similar with entry retrieval but filtered mapping entries with given datasets.
 \examples{
 
 
-bbStart()
+bbStart() # if not already started
 bbEntryFilter("HGNC:12009","hgnc","uniprot,ensembl")
 
 

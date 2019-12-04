@@ -21,13 +21,10 @@
 #'
 #' @examples
 #'
-#' bbStart()
-#' bbSearch("P15498,tpi1,shh")
+#' bbSearch("hunk,vav_human")
 #'
-#' \dontrun{
-#' # run this examplee with building the default dataset with bbBuildData()
-#' bbSearch("tpi1","ensembl",filter='ensembl.genome=="homo_sapiens"')
-#' }
+#' bbSearch("hunk","ensembl",filter='ensembl.genome=="homo_sapiens"')
+#'
 #'
 
 bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,limit=1000,showURL=FALSE,lite=TRUE){
@@ -83,6 +80,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,limit=1000,showURL
     input<-c()
     id<-c()
     source<-c()
+    mappingCount<-c()
     if(showURL){
       urls<-c()
     }
@@ -94,6 +92,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,limit=1000,showURL
         input[i]<-r$identifier
       }
       id[i]<-r$identifier
+      mappingCount[i]<-r$count
       source[i]<-getConfig()@datasetMetaByNum[[paste(r$dataset)]]$id
       if(showURL){
         urls[i]<-r$url
@@ -101,7 +100,7 @@ bbSearch <- function(terms,source=NULL,filter=NULL, page=NULL,limit=1000,showURL
       i=i+1
     }
 
-    df<-data.frame(input=input,identifier=id,dataset=source)
+    df<-data.frame(input=input,identifier=id,dataset=source,mapping_count=mappingCount)
     if(showURL){
       df["url"]<-urls
     }

@@ -37,9 +37,10 @@ returns mapping results in data.frame by default if lite set it true returns jso
 Chain mapping identifiers or keywords with filtering and retrieving attributes if available.
 }
 \examples{
-
 bbStart()
+
 bbMapping("tpi1",'map(uniprot)')
+
 bbMapping("shh",'map(ensembl)')
 
 \dontrun{
@@ -58,6 +59,7 @@ bbMapping("202763_at,213596_at,209310_s_at",source ="affy_hg_u133_plus_2"
 ,'map(transcript).map(ensembl)',attrs = "name")
 
 }
+
 }
 \author{
 Tamer Gur

@@ -4,10 +4,7 @@
 \alias{bbStart}
 \title{Start biobtreeR}
 \usage{
-bbStart(outDir = NULL)
-}
-\arguments{
-\item{outDir}{If outDir specified during bbBuiltData specified same one here. If not specified tempdir is used.}
+bbStart()
 }
 \value{
 character
@@ -17,6 +14,8 @@ Once target datasets is built with \code{bbBuildData} this function used to star
 in the background for performing search/mapping queries.
 }
 \examples{
+
 bbStart()
 bbStop()
+
 }
