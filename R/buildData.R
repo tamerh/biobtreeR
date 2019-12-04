@@ -118,6 +118,10 @@ bbBuildCustomDB<- function(taxonomyIDs=NULL,rawArgs=NULL){
     stop("out directory is not set")
   }
 
+  if(file.exists(file.path(conf@bbDir,"out","db","db.meta.json"))){
+    stop("Previously built data found in current out directory. Either delete the out directory inside current out directory or use new directory")
+  }
+
   bbDir<-conf@bbDir
 
   tryCatch(
