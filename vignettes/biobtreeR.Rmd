@@ -28,7 +28,6 @@ library(biobtreeR)
 # temporary directory is used for demonstration purpose
 bbUseOutDir(tempdir())
 
-# bbUseOutDir("/Users/tgur/Desktop/projects/biobtreeR/tmpp")
 ```
 
 
@@ -51,7 +50,7 @@ bbBuiltInDB()
 For the genomes which are not included in the pre built database can be built in local computer. All the ensembl and ensembl genomes organisms are supported.
 List of these genomes and their taxonomy identifiers can be seen from ensembl websites [1](https://www.ensembl.org/info/about/species.html),[2](http://bacteria.ensembl.org/species.html),[3](http://fungi.ensembl.org/species.html),[4](http://plants.ensembl.org/species.html),[5](http://protists.ensembl.org/index.html),[6](http://metazoa.ensembl.org/species.html),
 ```{r eval=FALSE}
-
+  
 # multiple species genomes supported with comma seperated taxonomy identifiers
 bbBuildCustomDB(taxonomyIDs = "1408103,206403")
 
@@ -193,7 +192,7 @@ In the above example as a first parameter taxonomy identifier is used instead of
 
 **Built in function for genomic range queries**
 
-To simplfy previous use case query 3 builtin range query functions are provided. These functions are `overlaps`, `within` and `covers`. These functions can be used for `ensembl`, `transcript` and `exon`
+To simplfy previous use case query 3 builtin range query functions are provided. These functions are `overlaps`, `within` and `covers`. These functions can be used for `ensembl`, `transcript`, `exon` and `cds`
 entries which have start and end genome coordinates. For instance previous query can be written following way with `overlaps` function which list all the overlapping genes in human with given range.
 
 ```{r}

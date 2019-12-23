@@ -3,28 +3,33 @@
 #' @description Pre build biobtree database for commonly studied datasets and model organism genomes. Once this function called it retrieves
 #' the pre build database saves to users output directory.
 #'
-#' @param type built in database type accepted values are 1,2 and 3. Currently there are 3 different builtin database;
+#' @param type built in database type accepted values are 1,2,3 and 4. Currently there are 4 different builtin database;
 #' Type 1
 #' Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #' Included uniprot proteins and ensembl genomes belongs to following organisms
+#'
 #' homo_sapiens 9606 --> ensembl
 #' danio_rerio 7955 zebrafish --> ensembl
 #' gallus_gallus 9031 chicken --> ensembl
 #' mus_musculus 10090 --> ensembl
 #' Rattus norvegicus 10116 ---> ensembl
-#' saccharomyces_cerevisiae 4932--> ensembl
-#' arabidopsis_thaliana 3702--> ensembl
-#' drosophila_melanogaster 7227 --> ensembl
-#' caenorhabditis_elegans 6239 --> ensembl
+#' saccharomyces_cerevisiae 4932--> ensembl,ensembl_fungi
+#' arabidopsis_thaliana 3702--> ensembl_plants
+#' drosophila_melanogaster 7227 --> ensembl,ensembl_metazoa
+#' caenorhabditis_elegans 6239 --> ensembl,ensembl_metazoa
 #' Escherichia coli 562 --> ensembl_bacteria
 #' Escherichia coli str. K-12 substr. MG1655 511145 --> ensembl_bacteria
 #' Escherichia coli K-12 83333 --> ensembl_bacteria
 #'
 #' Type 2
-#' Instead of genomes in in the type 1 it contains human and all the mouse strains genomes in the ensembl
+#' Instead of genomes in in the type 1 it contains human and all the mouse strains genomes with their uniprot proteins.
+#' In addition hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro datasets are included
 #'
 #' Type 3
-#' Contains no genome but it contains all the uniprot data.
+#' Contains no genome but it contains all the uniprot data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
+#'
+#' Type 4
+#' Contains no genome but full uniprot and chembl data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #'
 #' @return returns empty
 #'
@@ -33,16 +38,10 @@
 #' @examples
 #'
 #' bbUseOutDir(tempdir()) # temp dir for demo purpose
-#' bbBuiltInDB("demo") # small demo database for real database use 1, 2 or 3
+#' bbBuiltInDB("demo") # small demo database for real database use 1, 2, 3 or 4
 #'
 #'
 bbBuiltInDB<- function(type="1"){
-  retrbbData(type,"d")
-}
-
-
-# Retrieve pre built data hosted in the https://github.com/tamerh/biobtree-conf/releases
-retrbbData<- function(index,type){
 
   if(isbbRunning()){
     stop("There is a running biobtree stop with bbStop()")
@@ -56,21 +55,17 @@ retrbbData<- function(index,type){
     stop("out directory is not set")
   }
 
-  tryCatch(
+    tryCatch(
     {
 
       setwd(conf@bbDir)
 
-      if(file.exists(file.path(conf@bbDir,"out"))){
-         unlink(file.path(conf@bbDir,"out"),recursive = TRUE)
-      }
 
-      bbConfVersion<-latestbbConfVersion()
-      targetFile<-paste0("biobtree-conf-",bbConfVersion,"-set",index,type,".tar.gz")
-      targetFileUrl<-paste0("https://github.com/tamerh/biobtree-conf/releases/download/",bbConfVersion,"/",targetFile)
-      download.file(targetFileUrl,targetFile,mode="wb")
-      system2("tar",args=paste0(" -xzvf ",targetFile))
-      file.remove(targetFile)
+      execFile <- bbExeFile()
+
+      args<-paste0(" --pre-built ",type," install")
+
+      system2(execFile,args=args)
 
     },finally = {
 
@@ -81,6 +76,7 @@ retrbbData<- function(index,type){
   )
 
 }
+
 
 #' @title Build custom DB
 #'
@@ -141,7 +137,8 @@ bbBuildCustomDB<- function(taxonomyIDs=NULL,rawArgs=NULL){
           stop("At least one taxonomy identifier is required to build custom data")
         }
 
-        retrbbData("3","r")
+        # to speed up the process get raw index data of builtin db 3
+        bbBuiltInDB("3r")
 
         args<-paste0(" -tax ",taxonomyIDs," --keep --ensembl-orthologs"," build")
 
