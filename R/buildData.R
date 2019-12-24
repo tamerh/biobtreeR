@@ -5,6 +5,7 @@
 #'
 #' @param type built in database type accepted values are 1,2,3 and 4. Currently there are 4 different builtin database;
 #' Type 1
+#' Requires ~ 6 GB free storage
 #' Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #' Included uniprot proteins and ensembl genomes belongs to following organisms
 #'
@@ -22,13 +23,16 @@
 #' Escherichia coli K-12 83333 --> ensembl_bacteria
 #'
 #' Type 2
+#' Requires ~ 5 GB free storage
 #' Instead of genomes in in the type 1 it contains human and all the mouse strains genomes with their uniprot proteins.
 #' In addition hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro datasets are included
 #'
 #' Type 3
+#' Requires ~ 4 GB storage
 #' Contains no genome but it contains all the uniprot data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #'
 #' Type 4
+#' Requires ~ 13 GB storage
 #' Contains no genome but full uniprot and chembl data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #'
 #' @return returns empty

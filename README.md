@@ -7,9 +7,11 @@ executing simple or complex queries between these datasets.
 
 ## Install
 ```r
-if (!requireNamespace("devtools", quietly = TRUE))
-    install.packages("devtools")
-devtools::install_github("tamerh/biobtreeR")
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install("tamerh/biobtreeR")
+
 ```
 
 ## Usage
@@ -26,7 +28,7 @@ devtools::install_github("tamerh/biobtreeR")
   # check document for included dataset or other builtin databases or build custom data
   bbBuiltInDB()
 
-  # starts server for executing queries inside R pipelines and provide web interface for expolaration with example queries
+  # starts server for executing queries inside R pipelines and provide web ui for expolaration with examples
   # web interface address http://localhost:8888/ui/
   bbStart()
 

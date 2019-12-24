@@ -43,6 +43,7 @@ For mapping queries, biobtreeR use a database which stored in local storage. Dat
 # homo_sapiens, danio_rerio(zebrafish), gallus_gallus(chicken), mus_musculus, Rattus norvegicus, saccharomyces_cerevisiae, 
 # arabidopsis_thaliana, drosophila_melanogaster, caenorhabditis_elegans, Escherichia coli, Escherichia coli str. K-12 substr. MG1655, Escherichia coli K-12
 
+# Requires ~ 6 GB free storage
 bbBuiltInDB()
 
 ```
@@ -134,6 +135,9 @@ bbListAttrs("transcript")
 bbListAttrs("exon")
 ```
 
+```{r}
+bbListAttrs("cds")
+```
 Note that there are several other gene related datasets without attributes and can be used in mapping queries such as probesets, genebank and entrez etc. Full dataset list can be discovered with `bbListDatasets`. Now lets build example mapping queries,
 
 **Map gene names to Ensembl transcript identifiers**
@@ -146,7 +150,7 @@ head(res)
 **Map gene names to exon identifiers and retrieve the region**
 
 ```{r}
-res<-bbMapping("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region_name")
+res<-bbMapping("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region")
 head(res)
 ```
 
@@ -175,12 +179,16 @@ bbMapping("ENSG00000073910,shh" ,'map(entrez)')
 bbMapping("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 ```
 
-Following examples require to build real human genome dataset 
-
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
 ```{r}
 res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
 head(res)
+```
+
+**Get CDS from genes**
+
+```{r}
+bbMapping("tpi1,shh",'map(transcript).map(cds)')
 ```
 
 **Get all Ensembl human identifiers and gene names within or overlapping range**
@@ -266,6 +274,7 @@ bbMapping("tp53",'map(uniprot).map(ufeature).filter(ufeature.original=="I" && uf
 
 
 # Stop web server
+When working with biobtreeR completed, the biobtreeR web server should stop.
 
 ```{r}
 bbStop()
