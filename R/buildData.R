@@ -5,7 +5,7 @@
 #'
 #' @param type built in database type accepted values are 1,2,3 and 4. Currently there are 4 different builtin database;
 #' Type 1
-#' Requires ~ 6 GB free storage
+#' Requires ~ 5 GB free storage
 #' Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 #' Included uniprot proteins and ensembl genomes belongs to following organisms
 #'

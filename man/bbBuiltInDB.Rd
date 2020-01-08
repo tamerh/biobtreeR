@@ -7,28 +7,37 @@
 bbBuiltInDB(type = "1")
 }
 \arguments{
-\item{type}{built in database type accepted values are 1,2 and 3. Currently there are 3 different builtin database;
+\item{type}{built in database type accepted values are 1,2,3 and 4. Currently there are 4 different builtin database;
 Type 1
+Requires ~ 5 GB free storage
 Included datasets hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
 Included uniprot proteins and ensembl genomes belongs to following organisms
+
 homo_sapiens 9606 --> ensembl
 danio_rerio 7955 zebrafish --> ensembl
 gallus_gallus 9031 chicken --> ensembl
 mus_musculus 10090 --> ensembl
 Rattus norvegicus 10116 ---> ensembl
-saccharomyces_cerevisiae 4932--> ensembl
-arabidopsis_thaliana 3702--> ensembl
-drosophila_melanogaster 7227 --> ensembl
-caenorhabditis_elegans 6239 --> ensembl
+saccharomyces_cerevisiae 4932--> ensembl,ensembl_fungi
+arabidopsis_thaliana 3702--> ensembl_plants
+drosophila_melanogaster 7227 --> ensembl,ensembl_metazoa
+caenorhabditis_elegans 6239 --> ensembl,ensembl_metazoa
 Escherichia coli 562 --> ensembl_bacteria
 Escherichia coli str. K-12 substr. MG1655 511145 --> ensembl_bacteria
 Escherichia coli K-12 83333 --> ensembl_bacteria
 
 Type 2
-Instead of genomes in in the type 1 it contains human and all the mouse strains genomes in the ensembl
+Requires ~ 5 GB free storage
+Instead of genomes in in the type 1 it contains human and all the mouse strains genomes with their uniprot proteins.
+In addition hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro datasets are included
 
 Type 3
-Contains no genome but it contains all the uniprot data.}
+Requires ~ 4 GB storage
+Contains no genome but it contains all the uniprot data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro
+
+Type 4
+Requires ~ 13 GB storage
+Contains no genome but full uniprot and chembl data with hgnc,hmdb,taxonomy,go,efo,eco,chebi,interpro}
 }
 \value{
 returns empty
@@ -40,7 +49,7 @@ the pre build database saves to users output directory.
 \examples{
 
 bbUseOutDir(tempdir()) # temp dir for demo purpose
-bbBuiltInDB("demo") # small demo database for real database use 1, 2 or 3
+bbBuiltInDB("demo") # small demo database for real database use 1, 2, 3 or 4
 
 
 }
