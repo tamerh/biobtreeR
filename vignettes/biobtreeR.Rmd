@@ -154,10 +154,10 @@ res<-bbMapping("ATP5MC3,TP53",'map(transcript).map(exon)',attrs = "seq_region")
 head(res)
 ```
 
-**Map gene to its ortholog identifiers**
+**Map human gene to its ortholog identifiers**
 
 ```{r}
-res<-bbMapping("shh",'map(ortholog)')
+res<-bbMapping("shh",'filter(ensembl.genome=="homo_sapiens").map(ortholog)')
 head(res)
 ```
 
