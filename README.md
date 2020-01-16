@@ -3,6 +3,8 @@
 Bioconductor R package for genomic research via [biobtree](https://github.com/tamerh/biobtree). It aims to provide an alternative to existing packages with abilty process large and diverse datasets effectievly and allows 
 executing simple or complex queries between these datasets.
 
+For more detail and documentation check the Bioconductor [page](https://bioconductor.org/packages/3.11/bioc/html/biobtreeR.html)
+
 
 ## Install
 ```r
