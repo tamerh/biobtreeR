@@ -15,7 +15,7 @@ vignette: >
 
 # Introduction
 
-The biobtreeR package provides an interface to [biobtree](https://github.com/tamerh/biobtree) tool which covers and process efficently large set of bioinformatics datasets in local computer and provide search and mappings functionalities for genomic research.
+The biobtreeR package provides an interface to [biobtree](https://github.com/tamerh/biobtree) tool which allows mapping the bioinformatics datasets via identifiers and special keywors with simple or advance chain query capability.
 
 # Getting started 
 
@@ -113,7 +113,7 @@ bbListAttrs("uniprot")
 
 # Example Use cases
 
-In this section mapping functionality will be discussed in detail with example use cases for gene and protein centric use cases.
+In this section biobtreeR functionalities will be discussed in detail via gene and protein centric example use cases. For live demo of web interface including these use cases with additional chemistry centric use cases can be accessed via https://www.ebi.ac.uk/~tgur/biobtree/
 
 ## Gene centric use cases
 

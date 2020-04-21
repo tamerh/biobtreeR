@@ -1,7 +1,6 @@
 ## biobtreeR 
 
-Bioconductor R package for genomic research via [biobtree](https://github.com/tamerh/biobtree). It aims to provide an alternative to existing packages with abilty process large and diverse datasets effectievly and allows 
-executing simple or complex queries between these datasets.
+Bioconductor R package for genomic research via [biobtree](https://github.com/tamerh/biobtree). It aims to provide an alternative to existing packages with abilty process large and diverse datasets effectievly and allows executing basic or advanced queries .
 
 For more detail and documentation check the Bioconductor [page](https://bioconductor.org/packages/3.11/bioc/html/biobtreeR.html)
 
@@ -34,3 +33,9 @@ BiocManager::install("tamerh/biobtreeR")
   bbStart()
 
 ```
+
+## Demo
+
+Demo of web interface which covers all the datasets with examples
+
+https://www.ebi.ac.uk/~tgur/biobtree/
