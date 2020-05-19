@@ -9,8 +9,9 @@ For more detail and documentation check the Bioconductor [page](https://biocondu
 ```r
 
 if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-BiocManager::install("tamerh/biobtreeR")
+    install.packages("BiocManager")
+
+BiocManager::install("biobtreeR")
 
 ```
 
