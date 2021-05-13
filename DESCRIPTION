@@ -12,7 +12,7 @@ NeedsCompilation: no
 URL: https://github.com/tamerh/biobtreeR
 BugReports: https://github.com/tamerh/biobtreeR/issues
 VignetteBuilder: knitr
-Suggests: BiocStyle, knitr,testthat
+Suggests: BiocStyle, knitr,testthat,rmarkdown,markdown
 Imports: httr, httpuv, stringi,jsonlite,methods,utils
 biocViews: Annotation
 RoxygenNote: 6.1.1

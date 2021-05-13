@@ -181,7 +181,7 @@ bbMapping("NM_005359,NM_000546",'map(hgnc)',attrs = "symbols")
 
 **Get all Ensembl human identifiers and gene names on chromosome Y with lncRNA type**
 ```{r}
-res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region=="Y" && ensembl.biotype=="lncRNA")',attrs = "name")
+res<-bbMapping("homo_sapiens",'map(ensembl).filter(ensembl.seq_region=="Y" && ensembl.biotype=="lncRNA")',attrs = 'name')
 head(res)
 ```
 

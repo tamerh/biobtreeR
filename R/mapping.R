@@ -163,7 +163,14 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
             attrsPath<-paste0("results[[i]]$targets[[j]]$Attributes$",attrName)
             for(at in attrsNames){
               atPath<-paste0(attrsPath,"$",at)
-              attrsVals[[at]][index]<-eval(parse(text=atPath))
+              
+              atVal<-eval(parse(text=atPath))
+              if (is.null(atVal)) {
+                attrsVals[[at]][index]<-""
+              }else{
+                attrsVals[[at]][index]<-eval(parse(text=atPath))  
+              }
+              
             }
           }else{
             for(at in attrsNames){
@@ -177,7 +184,14 @@ bbMapping <- function(terms, mapfilter, page=NULL, source=NULL,lite=TRUE,limit=1
           attrsPath<-paste0("results[[i]]$source$Attributes$",names(results[[i]]$source$Attributes)[1])
           for(at in inAttrsNames){
             atPath<-paste0(attrsPath,"$",at)
-            inAttrsVals[[at]][index]<-eval(parse(text=atPath))
+            atVal<-eval(parse(text=atPath))
+          
+            if (is.null(atVal)) {
+              inAttrsVals[[at]][index]<-""
+            }else{
+              inAttrsVals[[at]][index]<-eval(parse(text=atPath))  
+            }
+          
           }
         }
 
